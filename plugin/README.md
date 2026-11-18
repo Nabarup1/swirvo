@@ -13,12 +13,12 @@ Install the Swirvo app on Windows 10 (1809 or later) or 11 first, so the `swirvo
 
 ## What this plugin contains and runs
 
-- `.mcp.json` starts the local Swirvo MCP server with the command `swirvo mcp`. It talks to Claude over standard input and output only.
-- `skills/swirvo/SKILL.md` tells Claude which Swirvo tool to use for which task.
+- `skills/swirvo/SKILL.md` tells Claude how to use the `swirvo` command line (convert, tools, read text) and which tool fits which task. Claude runs those commands in your terminal, so you see and approve each one.
+- `.claude-plugin/icon.png` is the Swirvo icon.
 
-The server reads the files you name and writes results as new files next to them. It never changes or deletes your originals, makes no network connections and sends nothing anywhere. Text it returns (for example from `extract_text`) becomes part of your conversation with Claude. See the [privacy policy](https://github.com/Nabarup1/swirvo/blob/main/PRIVACY.md).
+The plugin itself runs nothing on its own and starts no server. The `swirvo` command reads the files you name and writes results as new files next to them; it never changes or deletes your originals, makes no network connections and sends nothing anywhere. Text it prints (for example from `copy-text`) becomes part of your conversation with Claude. See the [privacy policy](https://github.com/Nabarup1/swirvo/blob/main/PRIVACY.md).
 
-The plugin runs where local MCP servers run: Claude Code and Cowork on your computer.
+The skill works where Claude can run terminal commands: Claude Code, and Cowork on your computer. To give other AI apps Swirvo's tools directly, add its MCP server by hand: see [docs/19](https://github.com/Nabarup1/swirvo/blob/main/docs/19-ai-assistants-mcp.md).
 
 ## License
 

@@ -38,7 +38,7 @@ The examples below use `swirvo`. If you installed Swirvo while the AI app was op
 
 ### Claude Code and Cowork: the Swirvo plugin
 
-The [`plugin/`](../plugin) folder is a Claude plugin: the MCP server plus a skill that tells Claude which Swirvo tool fits which task. It needs Swirvo installed so `swirvo` is on your PATH.
+The [`plugin/`](../plugin) folder is a Claude plugin with a skill that teaches Claude to use the `swirvo` command line (convert, tools, read text). It needs Swirvo installed so `swirvo` is on your PATH. For the MCP tools as well, add the server with `claude mcp add` below.
 
 ```bash
 claude --plugin-dir ./plugin

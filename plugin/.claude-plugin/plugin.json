@@ -1,8 +1,8 @@
 {
   "name": "swirvo",
   "displayName": "Swirvo",
-  "version": "0.1.1",
-  "description": "Convert files, run PDF and document tools, and read text (OCR) locally on Windows with Swirvo. Nothing is uploaded.",
+  "version": "0.1.2",
+  "description": "Convert files, run PDF and document tools, and read text (OCR) locally on Windows with the Swirvo command line. Nothing is uploaded.",
   "author": {
     "name": "Nabarup Ghosh",
     "url": "https://github.com/Nabarup1"
@@ -10,5 +10,15 @@
   "homepage": "https://github.com/Nabarup1/swirvo",
   "repository": "https://github.com/Nabarup1/swirvo",
   "license": "PolyForm-Noncommercial-1.0.0",
-  "keywords": ["pdf", "convert", "converter", "ocr", "docx", "documents", "offline", "windows"]
+  "keywords": [
+    "pdf",
+    "convert",
+    "converter",
+    "ocr",
+    "docx",
+    "documents",
+    "offline",
+    "windows"
+  ],
+  "icon": ".claude-plugin/icon.png"
 }
