@@ -117,3 +117,12 @@ jobs:
           body_path: notes.md
           files: assets/*
           fail_on_unmatched_files: true
+
+  mcp-registry:
+    needs: publish
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/mcp-registry.yml
+    with:
+      tag: ${{ github.event.inputs.tag || github.ref_name }}

@@ -1,0 +1,58 @@
+name: mcp-registry
+
+# Publishes the release's Claude Desktop extension (Swirvo-<version>.mcpb) to the official
+# MCP Registry (registry.modelcontextprotocol.io) as io.github.Nabarup1/swirvo.
+# Runs after each release (called from release.yml), or by hand for an existing tag.
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Released tag to publish, for example v0.1.0"
+        required: true
+
+permissions:
+  id-token: write # GitHub OIDC proves to the registry that this repository owns the name
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    env:
+      TAG: ${{ inputs.tag }}
+      MCP_PUBLISHER_VERSION: v1.8.9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fill in server.json from the released extension
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ver="${TAG#v}"
+          gh release download "$TAG" -p "Swirvo-$ver.mcpb" -D ext
+          sha="$(sha256sum "ext/Swirvo-$ver.mcpb" | cut -d' ' -f1)"
+          sed -i "s/@VERSION@/$ver/g; s/@SHA256@/$sha/" server.json
+          cat server.json
+      - name: Install cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+      - name: Download and verify mcp-publisher
+        run: |
+          set -euo pipefail
+          archive="mcp-publisher_linux_amd64.tar.gz"
+          base_url="https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER_VERSION}"
+          curl --fail --location --silent --show-error --output "$archive" "$base_url/$archive"
+          curl --fail --location --silent --show-error --output "$archive.sigstore.json" "$base_url/$archive.sigstore.json"
+          cosign verify-blob \
+            --bundle "$archive.sigstore.json" \
+            --certificate-identity "https://github.com/modelcontextprotocol/registry/.github/workflows/release.yml@refs/tags/${MCP_PUBLISHER_VERSION}" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "$archive"
+          tar xzf "$archive" mcp-publisher
+      - name: Log in to the MCP Registry
+        run: ./mcp-publisher login github-oidc
+      - name: Publish
+        run: ./mcp-publisher publish

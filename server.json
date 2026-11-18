@@ -1,0 +1,20 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.Nabarup1/swirvo",
+  "title": "Swirvo",
+  "description": "Convert files, run 59 PDF/document tools and read text (OCR) locally on Windows. Nothing uploaded.",
+  "websiteUrl": "https://github.com/Nabarup1/swirvo",
+  "repository": {
+    "url": "https://github.com/Nabarup1/swirvo",
+    "source": "github"
+  },
+  "version": "@VERSION@",
+  "packages": [
+    {
+      "registryType": "mcpb",
+      "identifier": "https://github.com/Nabarup1/swirvo/releases/download/v@VERSION@/Swirvo-@VERSION@.mcpb",
+      "fileSha256": "@SHA256@",
+      "transport": { "type": "stdio" }
+    }
+  ]
+}
