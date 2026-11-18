@@ -4,6 +4,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 
 ## [Unreleased]
 
+## 0.1.1 (2026-11-18)
+
+- **`swirvo` in every terminal.** Installing Swirvo now puts the command line on your user PATH (`%LOCALAPPDATA%\Programs\Swirvo\bin\swirvo.exe`), so `swirvo convert …` and `swirvo mcp` work anywhere. Uninstall takes it off again; nothing else in your PATH is touched.
+- **Claude Desktop extension:** `Swirvo-<version>.mcpb` in every release; double-click it to add Swirvo to Claude Desktop.
+- **Claude plugin** in [`plugin/`](plugin): the MCP server plus a skill that tells Claude which Swirvo tool fits which task, for Claude Code and Cowork.
+- **Listed in the official MCP Registry** as `io.github.Nabarup1/swirvo`, published automatically with each release.
+- Release builds and tests made reliable on GitHub's machines.
+
 ## 0.1.0 (2026-11-17): first public release
 
 The first public build of Swirvo for Windows, and the `swirvo` command-line tool for Windows and Linux.

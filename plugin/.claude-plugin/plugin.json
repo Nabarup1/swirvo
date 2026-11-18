@@ -1,7 +1,7 @@
 {
   "name": "swirvo",
   "displayName": "Swirvo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Convert files, run PDF and document tools, and read text (OCR) locally on Windows with Swirvo. Nothing is uploaded.",
   "author": {
     "name": "Nabarup Ghosh",

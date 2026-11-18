@@ -2,8 +2,8 @@
 1 ICON "swirvo.ico"
 
 1 VERSIONINFO
-FILEVERSION 0,1,0,0
-PRODUCTVERSION 0,1,0,0
+FILEVERSION 0,1,1,0
+PRODUCTVERSION 0,1,1,0
 FILEFLAGSMASK 0x3fL
 FILEFLAGS 0x0L
 FILEOS 0x40004L
@@ -16,12 +16,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Nabarup Ghosh"
             VALUE "FileDescription", "Swirvo: drag, tap, convert"
-            VALUE "FileVersion", "0.1.0.0"
+            VALUE "FileVersion", "0.1.1.0"
             VALUE "InternalName", "Swirvo"
             VALUE "LegalCopyright", "\xA9 2026 Nabarup Ghosh"
             VALUE "OriginalFilename", "Swirvo.exe"
             VALUE "ProductName", "Swirvo"
-            VALUE "ProductVersion", "0.1.0.0"
+            VALUE "ProductVersion", "0.1.1.0"
         END
     END
     BLOCK "VarFileInfo"
