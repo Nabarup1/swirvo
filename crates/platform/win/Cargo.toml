@@ -1,0 +1,63 @@
+[package]
+name = "swirvo-platform-win"
+description = "Windows agent (spike S1): global trigger keys, OLE probe/drop target, layered wheel overlay."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "swirvo-agent"
+path = "src/bin/agent.rs"
+
+[features]
+default = ["zstd"]
+# zstd needs a C compiler for the target; pass --no-default-features to cross-check from WSL.
+zstd = ["swirvo-jobs/zstd"]
+
+[dependencies]
+swirvo-core.workspace = true
+swirvo-formats.workspace = true
+swirvo-wheel.workspace = true
+swirvo-jobs.workspace = true
+swirvo-render.workspace = true
+swirvo-ui.workspace = true
+swirvo-board.workspace = true
+anyhow.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows-core.workspace = true
+windows = { workspace = true, features = [
+    "ApplicationModel",
+    "Foundation",
+    "Win32_Foundation",
+    "Win32_Graphics_Dwm",
+    "Win32_Graphics_Gdi",
+    "Win32_Security",
+    "Win32_Storage_EnhancedStorage",
+    "Win32_Storage_Packaging_Appx",
+    "Win32_System_Com",
+    "Win32_System_Console",
+    "Win32_System_Com_StructuredStorage",
+    "Win32_System_DataExchange",
+    "Win32_System_Memory",
+    "Win32_System_Registry",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Ole",
+    "Win32_System_SystemServices",
+    "Win32_System_Threading",
+    "Win32_System_Variant",
+    "Win32_UI_Controls",
+    "Win32_UI_HiDpi",
+    "Win32_UI_Input",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_Shell",
+    "Win32_UI_Shell_Common",
+    "Win32_UI_Shell_PropertiesSystem",
+    "Win32_UI_WindowsAndMessaging",
+] }
+
+[lints]
+workspace = true

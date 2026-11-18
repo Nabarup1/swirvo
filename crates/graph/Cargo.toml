@@ -1,0 +1,20 @@
+[package]
+name = "swirvo-graph"
+description = "Conversion graph: Dijkstra planner, reachability bitsets, route explanations."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[dependencies]
+swirvo-core.workspace = true
+swirvo-formats.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true
+
+[lints]
+workspace = true

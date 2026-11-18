@@ -1,0 +1,31 @@
+# Swirvo
+
+> Swirvo is a free, fast, private file converter and PDF toolkit for Windows, written in Rust. Start dragging any file, tap Shift, and drop it on a format on a radial wheel; the converted copy appears next to the original. A full workspace (the Board) converts whole folders in parallel, and 59 tools cover PDF, Word, images, video and archives. Everything runs locally: no upload, no account, no telemetry. It also runs as an MCP server (`swirvo mcp`) so AI assistants can convert files and read documents locally.
+
+Key facts:
+
+- Platforms: Windows 10 (1809+) and 11 x64 (full app); Linux x64 (command-line tool `swirvo`).
+- About 96 formats (138 file extensions): images (PNG, JPG, WebP, TIFF, HEIC, AVIF, PSD, RAW), documents (PDF, DOCX, ODT, RTF, EPUB, Markdown, HTML), spreadsheets and data (XLSX, CSV, JSON, YAML, XML), fonts, audio, video, subtitles, archives.
+- PDF to Word rebuilds the layout; Word, Excel and PowerPoint to PDF work without Microsoft Office installed.
+- PDF tools: merge, split (custom page ranges), compress, watermark, page numbers, Bates, protect/unlock (AES-256), crop, N-up, booklet, OCR (searchable PDF), redaction, forms, compare, digital signatures, PDF/A, PDF/UA.
+- Originals are never modified; every conversion runs in a sandboxed worker process.
+- License: the app is free to use (EULA); source code under PolyForm Noncommercial 1.0.0.
+
+## Docs
+
+- [README](https://github.com/Nabarup1/swirvo/blob/main/README.md): what Swirvo does, download, build
+- [MCP server for AI assistants](https://github.com/Nabarup1/swirvo/blob/main/docs/19-ai-assistants-mcp.md): `swirvo mcp` tools and setup for Claude Desktop, Claude Code, Cursor and VS Code
+- [Formats and conversions](https://github.com/Nabarup1/swirvo/blob/main/docs/10-formats-and-conversions.md): every format and how each conversion is done
+- [Tools and features](https://github.com/Nabarup1/swirvo/blob/main/docs/11-tools-and-features.md): every tool and action
+- [PDF and document tools](https://github.com/Nabarup1/swirvo/blob/main/docs/17-pdf-and-document-tools.md): PDF options and behaviour
+
+## Download
+
+- [Latest release](https://github.com/Nabarup1/swirvo/releases/latest): Windows zip (Swirvo.exe and swirvo-cli.exe) and the Linux command-line tool
+
+## Optional
+
+- [System architecture](https://github.com/Nabarup1/swirvo/blob/main/docs/03-system-architecture.md)
+- [PDF to DOCX reconstruction](https://github.com/Nabarup1/swirvo/blob/main/docs/13-pdf-reconstruction.md)
+- [DOCX to PDF layout engine](https://github.com/Nabarup1/swirvo/blob/main/docs/16-docx-to-pdf.md)
+- [Privacy policy](https://github.com/Nabarup1/swirvo/blob/main/PRIVACY.md)

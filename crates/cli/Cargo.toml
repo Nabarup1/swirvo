@@ -1,0 +1,37 @@
+[package]
+name = "swirvo-cli"
+description = "The `swirvo` command line: convert, plan, detect, formats, wheel."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "swirvo"
+path = "src/main.rs"
+
+[dependencies]
+swirvo-core.workspace = true
+swirvo-formats.workspace = true
+swirvo-graph.workspace = true
+swirvo-wheel.workspace = true
+swirvo-jobs.workspace = true
+swirvo-render.workspace = true
+anyhow.workspace = true
+clap.workspace = true
+serde_json.workspace = true
+
+[features]
+default = ["zstd"]
+# zstd needs a C compiler for the target; --no-default-features drops tar.zst.
+zstd = ["swirvo-jobs/zstd"]
+
+[dev-dependencies]
+tempfile.workspace = true
+image.workspace = true
+zip.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,49 @@
+# `cargo deny check` gates every dependency change (PROJECT_GUIDE.md rule 5, docs/05 §9).
+
+[graph]
+all-features = true
+
+[advisories]
+version = 2
+yanked = "deny"
+ignore = [
+    # ttf-parser (via ab_glyph) is unmaintained. It only ever reads trusted system UI fonts
+    # (Segoe UI, Ubuntu, DejaVu), never user files. Move the renderer to `skrifa` before v1.
+    { id = "RUSTSEC-2026-0192", reason = "parses trusted system fonts only; skrifa migration planned" },
+    # rustybuzz (via krilla's simple-text) shapes the text we typeset into PDFs, using system
+    # fonts. Unmaintained, not vulnerable; newer krilla moves to harfrust.
+    { id = "RUSTSEC-2026-0206", reason = "shapes our own PDF output with system fonts; krilla upgrade planned" },
+]
+
+[licenses]
+version = 2
+confidence-threshold = 0.9
+# Permissive only. No GPL/LGPL/AGPL linked into our binaries; GPL tools are separate
+# downloads run as child processes.
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "Unicode-3.0",
+    "BSL-1.0",
+    "MPL-2.0",
+    # The original bzip2 licence (BSD-style, keep the notice): libbz2-rs-sys, a pure-Rust port.
+    "bzip2-1.0.6",
+]
+
+[licenses.private]
+# Our own crates are `publish = false`; their license is the product's, not a dependency's.
+ignore = true
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+allow-wildcard-paths = true
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

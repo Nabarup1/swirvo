@@ -1,0 +1,100 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/core",
+    "crates/formats",
+    "crates/graph",
+    "crates/wheel",
+    "crates/engines",
+    "crates/jobs",
+    "crates/render",
+    "crates/ui",
+    "crates/board",
+    "crates/cli",
+    "crates/platform/win",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.90"
+publish = false
+license = "PolyForm-Noncommercial-1.0.0"
+repository = "https://github.com/Nabarup1/swirvo"
+
+[workspace.dependencies]
+swirvo-core = { path = "crates/core" }
+swirvo-formats = { path = "crates/formats" }
+swirvo-graph = { path = "crates/graph" }
+swirvo-wheel = { path = "crates/wheel" }
+swirvo-engines = { path = "crates/engines", default-features = false }
+swirvo-jobs = { path = "crates/jobs", default-features = false }
+swirvo-render = { path = "crates/render" }
+swirvo-ui = { path = "crates/ui" }
+swirvo-board = { path = "crates/board", default-features = false }
+swirvo-platform-win = { path = "crates/platform/win" }
+
+anyhow = "1.0"
+thiserror = "2.0"
+clap = { version = "4.6", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0", features = ["preserve_order"] }
+serde-saphyr = "2.1"
+toml = "1.2"
+csv = "1.4"
+pulldown-cmark = { version = "0.13", default-features = false, features = ["html"] }
+encoding_rs = "0.8"
+flate2 = "1.1"
+zstd = "0.14"
+tar = "0.4"
+zip = { version = "9.4", default-features = false, features = ["deflate"] }
+calamine = "0.38"
+rust_xlsxwriter = "0.102"
+image = { version = "0.25", default-features = false, features = ["rayon", "png", "jpeg", "webp", "gif", "bmp", "tiff", "ico", "tga", "qoi", "pnm"] }
+tiny-skia = "0.12"
+ab_glyph = "0.2"
+# Already in the tree through krilla (shaping) and resvg (font discovery).
+rustybuzz = "0.20"
+fontdb = "0.24"
+tempfile = "3.27"
+proptest = "1.12"
+quick-xml = "0.42"
+scraper = "0.29"
+ego-tree = "0.11.0"
+lopdf = { version = "0.42", default-features = false }
+# OS random numbers for PDF encryption keys (already in the tree through lopdf).
+getrandom = "0.4"
+krilla = { version = "0.7", features = ["pdf"] }
+hayro = "0.9"
+resvg = "0.49"
+jxl-oxide = { version = "0.12", features = ["image"] }
+symphonia = { version = "0.5", features = ["all"] }
+hound = "3.5"
+flacenc = "0.5"
+sha2 = "0.11"
+bzip2 = "0.6"
+lzma-rust2 = "0.25"
+brotli = "8.0"
+windows = "0.62"
+windows-core = "0.62"
+
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+
+[workspace.lints.clippy]
+unwrap_used = "warn"
+
+[profile.dev]
+# Line tables are enough for backtraces. Full debug info for ~400 crates across dozens of test
+# binaries is what grew target/ to tens of gigabytes.
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+# Decoders are painfully slow unoptimized; keep our own crates fast to rebuild.
+opt-level = 2
+debug = false
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+strip = true

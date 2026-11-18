@@ -1,0 +1,105 @@
+name: release
+
+# Push a version tag (for example `git tag v0.1.0 && git push origin v0.1.0`) to build the
+# Windows and Linux downloads and publish them as a GitHub Release.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to (re)build, for example v0.1.0"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+  TAG: ${{ github.event.inputs.tag || github.ref_name }}
+
+jobs:
+  windows:
+    runs-on: windows-2025
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        env:
+          RUSTFLAGS: -C target-feature=+crt-static
+        run: cargo build --release --locked -p swirvo-platform-win -p swirvo-cli
+      - name: Package
+        run: |
+          out="Swirvo-${TAG#v}-windows-x64"
+          mkdir -p "$out"
+          cp target/release/swirvo-agent.exe "$out/Swirvo.exe"
+          cp target/release/swirvo.exe "$out/swirvo-cli.exe"
+          python -I scripts/third-party-notices.py "$out/THIRD-PARTY-NOTICES.txt" --target x86_64-pc-windows-msvc
+          cp "packaging/windows/How to use.txt" EULA.md PRIVACY.md "$out/"
+          7z a -tzip "$out.zip" "$out" > /dev/null
+          sha256sum "$out.zip" > "$out.zip.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: Swirvo-*-windows-x64.zip*
+
+  linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: cargo build --release --locked -p swirvo-cli
+      - name: Package
+        run: |
+          out="swirvo-cli-${TAG#v}-linux-x64"
+          mkdir -p "$out"
+          cp target/release/swirvo "$out/swirvo"
+          strip "$out/swirvo"
+          python3 -I scripts/third-party-notices.py "$out/THIRD-PARTY-NOTICES.txt" --target x86_64-unknown-linux-gnu
+          cp EULA.md PRIVACY.md "$out/"
+          tar -czf "$out.tar.gz" "$out"
+          sha256sum "$out.tar.gz" > "$out.tar.gz.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: swirvo-cli-*-linux-x64.tar.gz*
+
+  publish:
+    needs: [windows, linux]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: actions/download-artifact@v4
+        with:
+          path: assets
+          merge-multiple: true
+      - name: Release notes
+        run: |
+          python3 - <<'PY' > notes.md
+          import os, re
+          tag = os.environ["TAG"].lstrip("v")
+          log = open("CHANGELOG.md", encoding="utf-8").read()
+          m = re.search(r"^## \[?" + re.escape(tag) + r"\b.*?$(.*?)(?=^## |\Z)", log, re.S | re.M)
+          print(m.group(1).strip() if m else "")
+          print()
+          print(open(".github/release-footer.md", encoding="utf-8").read())
+          PY
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: Swirvo ${{ env.TAG }}
+          body_path: notes.md
+          files: assets/*
+          fail_on_unmatched_files: true

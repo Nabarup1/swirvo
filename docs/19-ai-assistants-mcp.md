@@ -1,0 +1,91 @@
+# 19 · Swirvo for AI assistants (MCP)
+
+`swirvo mcp` runs Swirvo as a [Model Context Protocol](https://modelcontextprotocol.io) server. Any MCP client (Claude Desktop, Claude Code, Cursor, VS Code, Windsurf and others) can then convert files, run Swirvo's tools and read text out of documents **on your computer**. No API key, no upload, no account.
+
+Ask your assistant things like:
+
+- "Convert every PDF in my Downloads folder to Word."
+- "Merge these three PDFs, add page numbers and a DRAFT watermark."
+- "Read the text of this scanned invoice and tell me the total." (OCR on Windows)
+- "Redact the email addresses and phone numbers in contract.pdf."
+- "Turn report.docx into a PDF/A file for archiving."
+
+## Tools
+
+| Tool | What it does | Writes files? |
+|---|---|---|
+| `list_formats` | All formats by category, or (with `from`) what one format can become, and whether it's lossless | no |
+| `detect_format` | The real format of each file from its content, flagging extensions that lie | no |
+| `convert_files` | Convert files to a format (`to`), with `preset`, `out_dir` and a PDF profile (tagged, PDF/A-2, PDF/A-3, PDF/UA) | new files only |
+| `list_tools` | The tools that apply to given files, with every option's key, type, choices and default | no |
+| `run_tool` | Run one tool (`pdf-merge`, `pdf-watermark`, `pdf-redact`, `pdf-searchable`, `docx-replace`, …) with `options`, or a PDF page tool with `pages` | new files only |
+| `extract_text` | The text of PDFs, Word/ODT/RTF, slides, sheets, Markdown, HTML and images (OCR on Windows) | no |
+
+Results are always **new files** next to the originals (or in `out_dir`). Originals are never changed, so an assistant can safely retry. Tool calls run one at a time; a crash in an engine fails only that call.
+
+## Setup
+
+The command is `swirvo-cli.exe mcp` on Windows (`swirvo mcp` with the Microsoft Store version, which adds `swirvo` to every terminal) and `swirvo mcp` on Linux. Where the file is:
+
+| How you got Swirvo | Command |
+|---|---|
+| Installed from the GitHub download | `%LOCALAPPDATA%\Programs\Swirvo\swirvo-cli.exe` |
+| Microsoft Store | `swirvo` |
+| Unzipped, not installed | the full path to `swirvo-cli.exe` in that folder |
+| Linux | the full path to `swirvo` (or just `swirvo` if it's on your `PATH`) |
+
+Use the full path in the examples below (on Windows, double the backslashes inside JSON).
+
+### Claude Desktop
+
+Settings → Developer → Edit Config, then add to `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "swirvo": {
+      "command": "C:\\Users\\YOU\\AppData\\Local\\Programs\\Swirvo\\swirvo-cli.exe",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+Restart Claude Desktop.
+
+### Claude Code
+
+```bash
+claude mcp add swirvo -- "C:\Users\YOU\AppData\Local\Programs\Swirvo\swirvo-cli.exe" mcp
+```
+
+### Cursor
+
+`.cursor/mcp.json` in a project, or `~/.cursor/mcp.json` for all projects: the same `mcpServers` block as Claude Desktop.
+
+### VS Code
+
+`.vscode/mcp.json`:
+
+```json
+{
+  "servers": {
+    "swirvo": {
+      "type": "stdio",
+      "command": "C:\\Users\\YOU\\AppData\\Local\\Programs\\Swirvo\\swirvo-cli.exe",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+### Any other client
+
+Start `swirvo-cli.exe mcp` (or `swirvo mcp`) as a stdio server. It speaks MCP protocol versions 2024-11-05 through 2025-11-25.
+
+## Notes
+
+- **Give absolute paths.** The server resolves relative paths against its own working folder, which depends on the client.
+- **Access:** the server can read any file your user account can, and writes new files next to them. It never deletes or overwrites anything, and makes no network connections.
+- **Windows-only engines** (OCR, Media Foundation video/audio, HEIC/AVIF/RAW through Windows codecs, Microsoft Office) aren't available on Linux; `list_formats` and `list_tools` show what this PC can do.
+- Implementation: `crates/cli/src/mcp.rs` (JSON-RPC 2.0 over stdio, no extra dependencies).

@@ -1,0 +1,17 @@
+[package]
+name = "swirvo-wheel"
+description = "Wheel model: geometry, hit-testing, slot ranking and the gesture state machine. Pure; no OS calls."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[dependencies]
+
+[dev-dependencies]
+proptest.workspace = true
+
+[lints]
+workspace = true

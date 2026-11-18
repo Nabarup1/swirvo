@@ -1,0 +1,17 @@
+[package]
+name = "swirvo-render"
+description = "Wheel renderer: draws the wheel scene into an RGBA pixmap with tiny-skia (shared by overlays and snapshot tests)."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[dependencies]
+swirvo-wheel.workspace = true
+tiny-skia.workspace = true
+ab_glyph.workspace = true
+
+[lints]
+workspace = true

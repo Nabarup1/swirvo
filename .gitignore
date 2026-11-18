@@ -1,0 +1,102 @@
+# ---------------------------------------------------------------------------
+# Build output: always reproducible, never committed.
+# ---------------------------------------------------------------------------
+/target/
+# Separate build directories (e.g. one per worktree)
+/target-*/
+/dist/
+**/*.rs.bk
+*.pdb
+*.profraw
+*.profdata
+/out/
+/build/
+
+# Planned Hub (Tauri 2 + React, docs/03): dependencies and bundler output.
+node_modules/
+.pnpm-store/
+/hub/dist/
+/hub/src-tauri/target/
+/hub/src-tauri/gen/
+
+# Packaging (MSIX, Flatpak, AppImage, .deb): built artefacts only; manifests
+# and templates under packaging/ stay tracked.
+*.msix
+*.msixbundle
+*.appx
+*.appxbundle
+*.appxupload
+*.msi
+*.AppImage
+*.flatpak
+*.deb
+*.rpm
+/packaging/**/out/
+/packaging/**/.flatpak-builder/
+
+# ---------------------------------------------------------------------------
+# Secrets: signing keys, certificates, tokens. Never commit these.
+# ---------------------------------------------------------------------------
+*.pfx
+*.p12
+*.pem
+*.key
+*.snk
+*.cer
+*.crt
+*.spc
+*.pvk
+.env
+.env.*
+!.env.example
+
+# ---------------------------------------------------------------------------
+# Test and tooling scratch: corpus outputs, snapshots under review,
+# profiles and logs. Golden files under tests/corpus/ are tracked.
+# ---------------------------------------------------------------------------
+/tests/corpus/**/out/
+/tests/corpus/**/*.actual.*
+/snapshots/
+*.snap.new
+*.pending-snap
+perf.data
+perf.data.old
+flamegraph.svg
+*.etl
+*.log
+*.tmp
+*.json.tmp
+/lcov.info
+/coverage/
+
+# ---------------------------------------------------------------------------
+# Editors and OS noise.
+# ---------------------------------------------------------------------------
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.iml
+.vs/
+*.code-workspace
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+*:Zone.Identifier
+
+# Agent settings and local files
+.gemini/
+.cursor/
+
+# Cargo download cache and vendor crates
+vendor/
+*.crate
+.cargo/
+
+# Internal business, legal and release notes (kept local, never published)
+/private/

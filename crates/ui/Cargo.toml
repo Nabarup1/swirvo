@@ -1,0 +1,16 @@
+[package]
+name = "swirvo-ui"
+description = "Immediate-mode UI toolkit on tiny-skia: layout, glass theme, text, widgets. Portable and pixel-testable."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[dependencies]
+tiny-skia.workspace = true
+ab_glyph.workspace = true
+
+[lints]
+workspace = true

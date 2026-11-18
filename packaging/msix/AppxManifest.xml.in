@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Template: scripts/build-msix.sh fills the @...@ values from packaging/msix/identity.env
+     and Cargo.toml, then packs it with makeappx. -->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap uap3 uap5 desktop rescap">
+
+  <Identity
+    Name="@IDENTITY_NAME@"
+    Publisher="@PUBLISHER@"
+    Version="@VERSION@"
+    ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>Swirvo</DisplayName>
+    <PublisherDisplayName>@PUBLISHER_DISPLAY_NAME@</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+    <Description>Drag a file, tap a key, drop it on the wheel: convert and edit files offline.</Description>
+  </Properties>
+
+  <Dependencies>
+    <!-- Windows 10 1809 and later; tested on Windows 11 24H2. -->
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+
+  <Applications>
+    <Application Id="Swirvo" Executable="Swirvo.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Swirvo"
+        Description="Drag, tap, convert: offline file conversion and PDF tools."
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile
+          Wide310x150Logo="Assets\Wide310x150Logo.png"
+          Square71x71Logo="Assets\SmallTile.png"
+          Square310x310Logo="Assets\LargeTile.png"
+          ShortName="Swirvo">
+          <uap:ShowNameOnTiles>
+            <uap:ShowOn Tile="square150x150Logo" />
+            <uap:ShowOn Tile="wide310x150Logo" />
+            <uap:ShowOn Tile="square310x310Logo" />
+          </uap:ShowNameOnTiles>
+        </uap:DefaultTile>
+        <uap:SplashScreen Image="Assets\SplashScreen.png" BackgroundColor="transparent" />
+      </uap:VisualElements>
+
+      <Extensions>
+        <!-- Start with Windows: off until the user turns it on in Settings (the app
+             calls the StartupTask API with this id when packaged). -->
+        <uap5:Extension Category="windows.startupTask" Executable="Swirvo.exe" EntryPoint="Windows.FullTrustApplication">
+          <uap5:StartupTask TaskId="SwirvoStartup" Enabled="false" DisplayName="Swirvo" />
+        </uap5:Extension>
+        <!-- The command-line tool, as `swirvo` in any terminal. -->
+        <uap3:Extension Category="windows.appExecutionAlias" Executable="swirvo-cli.exe" EntryPoint="Windows.FullTrustApplication">
+          <uap3:AppExecutionAlias>
+            <desktop:ExecutionAlias Alias="swirvo.exe" />
+          </uap3:AppExecutionAlias>
+        </uap3:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <!-- A full-trust desktop app (Win32): explain it in the Store submission notes. -->
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>
