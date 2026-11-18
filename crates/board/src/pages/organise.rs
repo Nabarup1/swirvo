@@ -1038,8 +1038,8 @@ impl PagePicker {
                 match (shift, org.anchor) {
                     (true, Some(a)) if a < org.tiles.len() => {
                         let v = org.tiles[a].sel;
-                        for j in a.min(i)..=a.max(i) {
-                            org.tiles[j].sel = v;
+                        for t in &mut org.tiles[a.min(i)..=a.max(i)] {
+                            t.sel = v;
                         }
                     }
                     _ => {

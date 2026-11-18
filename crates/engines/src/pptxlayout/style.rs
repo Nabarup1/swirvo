@@ -634,12 +634,12 @@ impl Levels {
     pub fn parse(c: &Colors, e: &El) -> Levels {
         let mut l = Levels::default();
         let def = e.child("defPPr").map(|d| PProps::parse(c, d));
-        for i in 0..9 {
+        for (i, lvl) in l.0.iter_mut().enumerate() {
             if let Some(d) = &def {
-                l.0[i].over(d);
+                lvl.over(d);
             }
             if let Some(p) = e.child(&format!("lvl{}pPr", i + 1)) {
-                l.0[i].over(&PProps::parse(c, p));
+                lvl.over(&PProps::parse(c, p));
             }
         }
         l

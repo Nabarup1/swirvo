@@ -96,13 +96,9 @@ fn conversions_and_tools_run_in_the_worker() {
     let many: Vec<(PathBuf, _)> = (0..60).map(|_| (files[0].clone(), jpg)).collect();
     let cancel = CancelToken::new();
     let started = std::time::Instant::now();
-    let s = std::thread::scope(|sc| {
-        sc.spawn(|| {
-            std::thread::sleep(std::time::Duration::from_millis(300));
-            cancel.cancel();
-        });
-        worker::convert_each(&tk, &many, &one_at_a_time, &cancel, &|_| {})
-    });
+    // Cancel as soon as the first file is done: on a fast machine a timer could fire
+    // after all 60 tiny conversions have already finished.
+    let s = worker::convert_each(&tk, &many, &one_at_a_time, &cancel, &|_| cancel.cancel());
     assert!(s.skipped + s.failed > 0, "{s:?}");
     assert_eq!(s.done + s.skipped + s.failed, 60);
     assert!(started.elapsed().as_secs() < 20);

@@ -32,7 +32,6 @@ swirvo-jobs = { path = "crates/jobs", default-features = false }
 swirvo-render = { path = "crates/render" }
 swirvo-ui = { path = "crates/ui" }
 swirvo-board = { path = "crates/board", default-features = false }
-swirvo-platform-win = { path = "crates/platform/win" }
 
 anyhow = "1.0"
 thiserror = "2.0"

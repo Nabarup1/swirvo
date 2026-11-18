@@ -299,7 +299,11 @@ fn documents_get_page_one_thumbnails() {
     }
     let decode = swirvo_board::decoder(tk);
     for name in ["notes.docx", "notes.odt"] {
-        let img = decode(&d.path().join(name), 160).unwrap_or_else(|| panic!("{name}"));
+        // The first call on a cold machine (CI) can hit the preview time limit while the
+        // system fonts are scanned once; the Board simply asks again later, and so do we.
+        let img = (0..3)
+            .find_map(|_| decode(&d.path().join(name), 160))
+            .unwrap_or_else(|| panic!("{name}"));
         let (w, h) = img.dimensions();
         assert!(h == 160 && w < h, "{name}: a portrait page, {w}×{h}");
         // At this size body text is ~2 px tall and anti-aliased to gray.

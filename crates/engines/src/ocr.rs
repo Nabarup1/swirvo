@@ -14,19 +14,19 @@ pub const INPUTS: &[&str] = &["png", "jpg", "webp", "bmp", "tiff", "gif"];
 /// Is an OCR engine available? Cheap: no engine is started.
 pub fn available() -> bool {
     static AVAIL: OnceLock<bool> = OnceLock::new();
-    *AVAIL.get_or_init(|| {
-        if std::env::var_os("SWIRVO_NO_OCR").is_some() {
-            return false;
-        }
-        #[cfg(windows)]
-        {
-            true
-        }
-        #[cfg(not(windows))]
-        {
-            crate::external::which(&["tesseract"], &[]).is_some()
-        }
-    })
+    *AVAIL.get_or_init(|| std::env::var_os("SWIRVO_NO_OCR").is_none() && engine_present())
+}
+
+/// Windows always has its OCR engine; elsewhere Tesseract must be installed.
+fn engine_present() -> bool {
+    #[cfg(windows)]
+    {
+        true
+    }
+    #[cfg(not(windows))]
+    {
+        crate::external::which(&["tesseract"], &[]).is_some()
+    }
 }
 
 /// Recognize text in `img`. Lines are separated by `\n`, blocks by a blank line.

@@ -23,11 +23,12 @@ swirvo-formats.workspace = true
 swirvo-wheel.workspace = true
 swirvo-jobs.workspace = true
 swirvo-render.workspace = true
+
+# The UI, the Board and anyhow are only used by the Windows app itself.
+[target.'cfg(windows)'.dependencies]
 swirvo-ui.workspace = true
 swirvo-board.workspace = true
 anyhow.workspace = true
-
-[target.'cfg(windows)'.dependencies]
 windows-core.workspace = true
 windows = { workspace = true, features = [
     "ApplicationModel",
