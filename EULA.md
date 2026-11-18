@@ -2,7 +2,7 @@
 
 This licence covers the **official builds** of Swirvo: the `Swirvo.exe` and `swirvo` / `swirvo-cli` downloads published on [GitHub Releases](https://github.com/Nabarup1/swirvo/releases) and the Microsoft Store version ("the app"). The **source code** is covered separately by [LICENSE.md](LICENSE.md) (PolyForm Noncommercial 1.0.0).
 
-Swirvo is made by Nabarup ("I", "me"). Contact: [GitHub Issues](https://github.com/Nabarup1/swirvo/issues).
+Swirvo is made by Nabarup Ghosh ("I", "me"). Contact: [GitHub Issues](https://github.com/Nabarup1/swirvo/issues).
 
 By installing or using the app, you agree to these terms.
 

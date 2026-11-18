@@ -3,7 +3,8 @@
 //! - **Install** (`Swirvo.exe --install`): asks the running agent to quit and waits for it,
 //!   copies Swirvo's files to `%LOCALAPPDATA%\Programs\Swirvo`, adds a Start-menu shortcut
 //!   (so Swirvo shows up in Start search), an entry in Settings → Apps with an uninstaller,
-//!   and the Run key when "Start with Windows" is on; then starts the installed copy.
+//!   and the Run key when "Start with Windows" is on; puts `bin\swirvo.exe` (the command
+//!   line and MCP server) on the user's PATH; then starts the installed copy.
 //! - **Uninstall** (`--uninstall`, from Settings → Apps or our Settings window): asks
 //!   first, closes Swirvo's windows, removes all of the above, optionally the settings, and
 //!   deletes the program folder once this process has exited.
@@ -20,14 +21,17 @@ use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
 use anyhow::{Context, Result, bail};
-use windows::Win32::Foundation::{CloseHandle, ERROR_SUCCESS, HWND, LPARAM, WPARAM};
+use windows::Win32::Foundation::{
+    CloseHandle, ERROR_FILE_NOT_FOUND, ERROR_SUCCESS, HWND, LPARAM, WPARAM,
+};
 use windows::Win32::Storage::Packaging::Appx::GetCurrentPackageFullName;
 use windows::Win32::System::Com::StructuredStorage::PROPVARIANT;
 use windows::Win32::System::Com::{
     CLSCTX_INPROC_SERVER, COINIT_APARTMENTTHREADED, CoCreateInstance, CoInitializeEx, IPersistFile,
 };
 use windows::Win32::System::Registry::{
-    HKEY, HKEY_CURRENT_USER, KEY_SET_VALUE, KEY_WRITE, REG_DWORD, REG_OPTION_NON_VOLATILE, REG_SZ,
+    HKEY, HKEY_CURRENT_USER, KEY_SET_VALUE, KEY_WRITE, REG_DWORD, REG_EXPAND_SZ,
+    REG_OPTION_NON_VOLATILE, REG_SZ, REG_VALUE_TYPE, RRF_NOEXPAND, RRF_RT_REG_EXPAND_SZ,
     RRF_RT_REG_SZ, RegCloseKey, RegCreateKeyExW, RegDeleteTreeW, RegDeleteValueW, RegGetValueW,
     RegOpenKeyExW, RegSetValueExW,
 };
@@ -37,8 +41,9 @@ use windows::Win32::UI::Shell::{
     FOLDERID_Programs, IShellLinkW, KNOWN_FOLDER_FLAG, SHGetKnownFolderPath, ShellLink,
 };
 use windows::Win32::UI::WindowsAndMessaging::{
-    FindWindowW, IDYES, MB_ICONINFORMATION, MB_ICONQUESTION, MB_OK, MB_YESNO, MessageBoxW,
-    PostMessageW, RegisterWindowMessageW, WM_CLOSE,
+    FindWindowW, HWND_BROADCAST, IDYES, MB_ICONINFORMATION, MB_ICONQUESTION, MB_OK, MB_YESNO,
+    MessageBoxW, PostMessageW, RegisterWindowMessageW, SMTO_ABORTIFHUNG, SendMessageTimeoutW,
+    WM_CLOSE, WM_SETTINGCHANGE,
 };
 use windows_core::{HSTRING, Interface, PCWSTR, w};
 
@@ -52,6 +57,8 @@ pub(crate) const STARTUP_TASK: &str = "SwirvoStartup";
 const RUN_KEY: PCWSTR = w!(r"Software\Microsoft\Windows\CurrentVersion\Run");
 const UNINSTALL_KEY: PCWSTR = w!(r"Software\Microsoft\Windows\CurrentVersion\Uninstall\Swirvo");
 const AGENT_MUTEX: PCWSTR = w!("Local\\Swirvo.Agent");
+/// The user's environment variables (`Path` lives here).
+const ENV_KEY: PCWSTR = w!("Environment");
 /// The files that make up Swirvo (what install copies and uninstall removes).
 const FILES: [&str; 4] = [
     "Swirvo.exe",
@@ -369,6 +376,119 @@ fn dir_size_kb(dir: &Path) -> u32 {
 
 /// Copy Swirvo's files from `from` into `to`. A file in use (a Board still open from an
 /// older copy) is renamed aside first; leftovers are removed by the next install.
+/// Copy `src` over `dst`, moving an in-use `dst` aside first (Windows can rename a
+/// running exe but not replace it).
+fn replace_file(src: &Path, dst: &Path) -> Result<()> {
+    let name = dst
+        .file_name()
+        .map(|n| n.to_string_lossy().into_owned())
+        .unwrap_or_default();
+    if dst.exists() && std::fs::remove_file(dst).is_err() {
+        let aside = dst.with_file_name(format!("{name}.{}.old", std::process::id()));
+        std::fs::rename(dst, &aside).with_context(|| format!("{} is in use", dst.display()))?;
+    }
+    std::fs::copy(src, dst).with_context(|| format!("copying {name}"))?;
+    Ok(())
+}
+
+/// `<install>\bin`: only `swirvo.exe` (the command line), so putting it on PATH can't make
+/// `swirvo` start the app (`Swirvo.exe`) instead.
+fn bin_dir(install: &Path) -> PathBuf {
+    install.join("bin")
+}
+
+/// The user's own `Path` value and its registry type, unexpanded. `Ok(None)` when it
+/// doesn't exist. Any other failure is an error, so a value we couldn't read in full is
+/// never rewritten.
+fn user_path() -> Result<Option<(String, REG_VALUE_TYPE)>> {
+    let flags = RRF_RT_REG_SZ | RRF_RT_REG_EXPAND_SZ | RRF_NOEXPAND;
+    let mut size = 0u32;
+    // SAFETY: asks only for the size of a value under HKCU.
+    let r = unsafe {
+        RegGetValueW(
+            HKEY_CURRENT_USER,
+            ENV_KEY,
+            w!("Path"),
+            flags,
+            None,
+            None,
+            Some(&mut size),
+        )
+    };
+    if r == ERROR_FILE_NOT_FOUND {
+        return Ok(None);
+    }
+    if r != ERROR_SUCCESS {
+        bail!("couldn't read the user PATH: {r:?}");
+    }
+    let mut buf = vec![0u16; size as usize / 2 + 1];
+    let mut size = (buf.len() * 2) as u32;
+    let mut ty = REG_VALUE_TYPE::default();
+    // SAFETY: reads the value into a local buffer of the stated size.
+    let r = unsafe {
+        RegGetValueW(
+            HKEY_CURRENT_USER,
+            ENV_KEY,
+            w!("Path"),
+            flags,
+            Some(&mut ty),
+            Some(buf.as_mut_ptr().cast()),
+            Some(&mut size),
+        )
+    };
+    if r != ERROR_SUCCESS {
+        bail!("couldn't read the user PATH: {r:?}");
+    }
+    let n = (size as usize / 2).saturating_sub(1).min(buf.len());
+    Ok(Some((String::from_utf16_lossy(&buf[..n]), ty)))
+}
+
+fn set_user_path(value: &str, ty: REG_VALUE_TYPE) -> Result<()> {
+    let k = create_key(ENV_KEY)?;
+    let data = sz(OsStr::new(value));
+    // SAFETY: writes a string value from a local buffer.
+    let r = unsafe { RegSetValueExW(k.0, w!("Path"), None, ty, Some(&data)) };
+    if r != ERROR_SUCCESS {
+        bail!("couldn't write the user PATH: {r:?}");
+    }
+    // Tell Explorer (and so newly started terminals) that the environment changed.
+    // SAFETY: a broadcast with a static string; a hung window is skipped after 2 s.
+    unsafe {
+        let _ = SendMessageTimeoutW(
+            HWND_BROADCAST,
+            WM_SETTINGCHANGE,
+            WPARAM(0),
+            LPARAM(w!("Environment").as_ptr() as isize),
+            SMTO_ABORTIFHUNG,
+            2000,
+            None,
+        );
+    }
+    Ok(())
+}
+
+/// Put `dir` on the user's PATH (once).
+fn add_to_path(dir: &Path) -> Result<()> {
+    let dir = dir.to_string_lossy();
+    match user_path()? {
+        Some((list, ty)) => match crate::pathlist::with(&list, &dir) {
+            Some(new) => set_user_path(&new, ty),
+            None => Ok(()),
+        },
+        None => set_user_path(&dir, REG_EXPAND_SZ),
+    }
+}
+
+/// Take `dir` off the user's PATH, leaving every other entry as it was.
+fn remove_from_path(dir: &Path) -> Result<()> {
+    if let Some((list, ty)) = user_path()?
+        && let Some(new) = crate::pathlist::without(&list, &dir.to_string_lossy())
+    {
+        set_user_path(&new, ty)?;
+    }
+    Ok(())
+}
+
 fn copy_files(from: &Path, exe: &Path, to: &Path) -> Result<()> {
     std::fs::create_dir_all(to).with_context(|| format!("creating {}", to.display()))?;
     if let Ok(rd) = std::fs::read_dir(to) {
@@ -387,13 +507,21 @@ fn copy_files(from: &Path, exe: &Path, to: &Path) -> Result<()> {
         if !src.is_file() {
             continue;
         }
-        let dst = to.join(name);
-        if dst.exists() && std::fs::remove_file(&dst).is_err() {
-            let aside = to.join(format!("{name}.{}.old", std::process::id()));
-            std::fs::rename(&dst, &aside)
-                .with_context(|| format!("{} is in use", dst.display()))?;
+        replace_file(&src, &to.join(name))?;
+    }
+    // The command line again as `bin\swirvo.exe`, for the PATH.
+    let cli = from.join("swirvo-cli.exe");
+    if cli.is_file() {
+        let bin = bin_dir(to);
+        std::fs::create_dir_all(&bin).with_context(|| format!("creating {}", bin.display()))?;
+        if let Ok(rd) = std::fs::read_dir(&bin) {
+            for e in rd.flatten() {
+                if e.file_name().to_string_lossy().ends_with(".old") {
+                    let _ = std::fs::remove_file(e.path());
+                }
+            }
         }
-        std::fs::copy(&src, &dst).with_context(|| format!("copying {name}"))?;
+        replace_file(&cli, &bin.join("swirvo.exe"))?;
     }
     Ok(())
 }
@@ -445,6 +573,11 @@ pub(crate) fn install() -> Result<()> {
     if swirvo_jobs::settings::current().start_with_windows {
         set_startup(true)?;
     }
+    // `swirvo` in any new terminal, and for AI assistants (`swirvo mcp`). Not worth failing
+    // the install over: everything else works without it.
+    if bin_dir(&to).join("swirvo.exe").is_file() {
+        let _ = add_to_path(&bin_dir(&to));
+    }
     std::process::Command::new(&installed)
         .spawn()
         .context("starting the installed Swirvo")?;
@@ -495,6 +628,9 @@ pub(crate) fn uninstall() -> Result<()> {
     stop_agent();
     close_windows();
     let _ = set_startup(false);
+    if let Some(d) = install_dir() {
+        let _ = remove_from_path(&bin_dir(&d));
+    }
     if let Some(link) = shortcut_path() {
         let _ = std::fs::remove_file(link);
     }

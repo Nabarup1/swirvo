@@ -2,6 +2,7 @@
 //! overlay for spike S1 (docs/08): trigger keys → invisible OLE probe → wheel → job.
 
 pub mod model;
+pub mod pathlist;
 
 #[cfg(windows)]
 mod agent;

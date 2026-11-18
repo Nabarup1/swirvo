@@ -90,14 +90,14 @@ Other assistants: `swirvo mcp` turns Swirvo into a local [MCP](https://modelcont
 {
   "mcpServers": {
     "swirvo": {
-      "command": "C:\\Users\\YOU\\AppData\\Local\\Programs\\Swirvo\\swirvo-cli.exe",
+      "command": "swirvo",
       "args": ["mcp"]
     }
   }
 }
 ```
 
-Tools: `convert_files`, `run_tool`, `extract_text`, `list_tools`, `list_formats`, `detect_format`. Setup for each client: [docs/19](docs/19-ai-assistants-mcp.md).
+Tools: `convert_files`, `run_tool`, `extract_text`, `list_tools`, `list_formats`, `detect_format`. Listed in the official [MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.Nabarup1/swirvo`; a Claude plugin with a usage skill is in [`plugin/`](plugin). Setup for each client: [docs/19](docs/19-ai-assistants-mcp.md).
 
 ## Build from source
 
@@ -166,4 +166,4 @@ Design docs:
 
 Product and format names (Microsoft Word, Excel, PowerPoint, Windows, PDF and others) belong to their owners and are used only to describe compatibility. Swirvo isn't affiliated with or endorsed by any of them.
 
-Made by [Nabarup](https://github.com/Nabarup1).
+Made by [Nabarup Ghosh](https://github.com/Nabarup1).

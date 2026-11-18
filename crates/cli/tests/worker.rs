@@ -92,8 +92,18 @@ fn conversions_and_tools_run_in_the_worker() {
     .unwrap();
     assert!(r.clipboard.is_some_and(|c| c.len() >= 64), "{}", r.message);
 
-    // Cancel: a long batch stops early, and quickly.
-    let many: Vec<(PathBuf, _)> = (0..60).map(|_| (files[0].clone(), jpg)).collect();
+    // Cancel: a long batch stops early, and quickly. Each job is a 2000 × 2000 picture, so
+    // even a fast machine is still busy when the first file reports back.
+    let big = d.path().join("big.png");
+    image::RgbaImage::from_fn(2000, 2000, |x, y| {
+        let n = x
+            .wrapping_mul(2_654_435_761)
+            .wrapping_add(y.wrapping_mul(40_503));
+        image::Rgba([n as u8, (n >> 8) as u8, (n >> 16) as u8, 255])
+    })
+    .save_with_format(&big, image::ImageFormat::Png)
+    .expect("write big png");
+    let many: Vec<(PathBuf, _)> = (0..60).map(|_| (big.clone(), jpg)).collect();
     let cancel = CancelToken::new();
     let started = std::time::Instant::now();
     // Cancel as soon as the first file is done: on a fast machine a timer could fire

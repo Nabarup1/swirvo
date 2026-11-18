@@ -1,6 +1,6 @@
 # Name and logo
 
-**Swirvo™**, the swirl logo, the app icon and the app's artwork belong to Nabarup. They are **not** covered by [LICENSE.md](LICENSE.md) or [EULA.md](EULA.md). Neither licence gives you any right to use them.
+**Swirvo™**, the swirl logo, the app icon and the app's artwork belong to Nabarup Ghosh. They are **not** covered by [LICENSE.md](LICENSE.md) or [EULA.md](EULA.md). Neither licence gives you any right to use them.
 
 ## What's fine
 

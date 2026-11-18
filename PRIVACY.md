@@ -2,7 +2,7 @@
 
 *Version 1.0, 17 November 2026.*
 
-This policy covers **Swirvo** ("the app"): the Windows app, its Board and page tools, and the `swirvo` command-line tool. It's made by **Nabarup**, India ("I", "me"). Contact: [GitHub Issues](https://github.com/Nabarup1/swirvo/issues).
+This policy covers **Swirvo** ("the app"): the Windows app, its Board and page tools, and the `swirvo` command-line tool. It's made by **Nabarup Ghosh**, India ("I", "me"). Contact: [GitHub Issues](https://github.com/Nabarup1/swirvo/issues).
 
 ## The short version
 
@@ -78,4 +78,4 @@ If this policy changes, the new version will be posted here with its date. If a 
 
 - **Questions:** [GitHub Issues](https://github.com/Nabarup1/swirvo/issues)
 - **Private reports:** see [SECURITY.md](SECURITY.md)
-- **Made by:** Nabarup, India
+- **Made by:** Nabarup Ghosh, India

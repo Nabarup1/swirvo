@@ -25,16 +25,24 @@ Results are always **new files** next to the originals (or in `out_dir`). Origin
 
 ## Setup
 
-The command is `swirvo-cli.exe mcp` on Windows (`swirvo mcp` with the Microsoft Store version, which adds `swirvo` to every terminal) and `swirvo mcp` on Linux. Where the file is:
+The command is `swirvo mcp`. Installing Swirvo (from the Microsoft Store, or by running the downloaded `Swirvo.exe` and accepting the install) puts `swirvo` on your PATH. Otherwise use the full path:
 
 | How you got Swirvo | Command |
 |---|---|
-| Installed from the GitHub download | `%LOCALAPPDATA%\Programs\Swirvo\swirvo-cli.exe` |
+| Installed from the GitHub download | `swirvo` (or `%LOCALAPPDATA%\Programs\Swirvo\bin\swirvo.exe`) |
 | Microsoft Store | `swirvo` |
 | Unzipped, not installed | the full path to `swirvo-cli.exe` in that folder |
 | Linux | the full path to `swirvo` (or just `swirvo` if it's on your `PATH`) |
 
-Use the full path in the examples below (on Windows, double the backslashes inside JSON).
+The examples below use `swirvo`. If you installed Swirvo while the AI app was open, restart the app so it sees the new PATH; or put the full path instead (double the backslashes inside JSON).
+
+### Claude Code and Cowork: the Swirvo plugin
+
+The [`plugin/`](../plugin) folder is a Claude plugin: the MCP server plus a skill that tells Claude which Swirvo tool fits which task. It needs Swirvo installed so `swirvo` is on your PATH.
+
+```bash
+claude --plugin-dir ./plugin
+```
 
 ### Claude Desktop: one click
 
@@ -48,7 +56,7 @@ Settings → Developer → Edit Config, then add to `claude_desktop_config.json`
 {
   "mcpServers": {
     "swirvo": {
-      "command": "C:\\Users\\YOU\\AppData\\Local\\Programs\\Swirvo\\swirvo-cli.exe",
+      "command": "swirvo",
       "args": ["mcp"]
     }
   }
@@ -60,7 +68,7 @@ Restart Claude Desktop.
 ### Claude Code
 
 ```bash
-claude mcp add swirvo -- "C:\Users\YOU\AppData\Local\Programs\Swirvo\swirvo-cli.exe" mcp
+claude mcp add swirvo -- swirvo mcp
 ```
 
 ### Cursor
@@ -76,7 +84,7 @@ claude mcp add swirvo -- "C:\Users\YOU\AppData\Local\Programs\Swirvo\swirvo-cli.
   "servers": {
     "swirvo": {
       "type": "stdio",
-      "command": "C:\\Users\\YOU\\AppData\\Local\\Programs\\Swirvo\\swirvo-cli.exe",
+      "command": "swirvo",
       "args": ["mcp"]
     }
   }
@@ -85,7 +93,7 @@ claude mcp add swirvo -- "C:\Users\YOU\AppData\Local\Programs\Swirvo\swirvo-cli.
 
 ### Any other client
 
-Start `swirvo-cli.exe mcp` (or `swirvo mcp`) as a stdio server. It speaks MCP protocol versions 2024-11-05 through 2025-11-25.
+Start `swirvo mcp` (or the full path to `swirvo-cli.exe` with `mcp`) as a stdio server. Swirvo is also listed in the official [MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.Nabarup1/swirvo`. It speaks MCP protocol versions 2024-11-05 through 2025-11-25.
 
 ## Notes
 

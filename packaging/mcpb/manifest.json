@@ -5,7 +5,7 @@
   "version": "@VERSION@",
   "description": "Convert files, run PDF tools and read documents (with OCR) locally on your PC. Nothing is uploaded.",
   "long_description": "Swirvo is a fast, private file converter and PDF toolkit for Windows. With this extension Claude can convert files between about 96 formats (PDF to Word with the layout rebuilt, Word/Excel/PowerPoint to PDF, HEIC to JPG, CSV to Excel and more), run 59 tools (merge, split, compress, watermark, page numbers, protect, redact, OCR, compare, PDF/A) and read the text of PDFs, Office files and images. Everything runs on your computer. Results are new files next to the originals; originals are never changed.",
-  "author": { "name": "Nabarup", "url": "https://github.com/Nabarup1" },
+  "author": { "name": "Nabarup Ghosh", "url": "https://github.com/Nabarup1" },
   "homepage": "https://github.com/Nabarup1/swirvo",
   "repository": { "type": "git", "url": "https://github.com/Nabarup1/swirvo" },
   "documentation": "https://github.com/Nabarup1/swirvo/blob/main/docs/19-ai-assistants-mcp.md",

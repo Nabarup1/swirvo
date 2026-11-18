@@ -1,4 +1,4 @@
-Required Notice: Copyright (c) 2026 Nabarup (https://github.com/Nabarup1/swirvo)
+Required Notice: Copyright (c) 2026 Nabarup Ghosh (https://github.com/Nabarup1/swirvo)
 
 # PolyForm Noncommercial License 1.0.0
 

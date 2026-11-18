@@ -81,7 +81,7 @@ offline converter
 - **Privacy policy URL:** https://github.com/Nabarup1/swirvo/blob/main/PRIVACY.md
 - **Website:** https://github.com/Nabarup1/swirvo
 - **Support contact:** https://github.com/Nabarup1/swirvo/issues
-- **Copyright and trademark info:** © 2026 Nabarup. Swirvo is a trademark of Nabarup.
+- **Copyright and trademark info:** © 2026 Nabarup Ghosh. Swirvo is a trademark of Nabarup Ghosh.
 - **Pricing:** Free · **Markets:** all · **Visibility:** Public
 
 ## Restricted capability: runFullTrust (Submission options)

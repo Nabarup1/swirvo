@@ -7,7 +7,7 @@ Thanks for helping. Bug reports, format requests and pull requests are all welco
 **By submitting a contribution (code, docs, images or anything else) you agree that:**
 
 1. It is your own work, or you have the right to submit it.
-2. You grant **Nabarup** a perpetual, worldwide, non-exclusive, royalty-free, irrevocable licence to use, copy, modify, distribute, sublicense and relicense your contribution, under [LICENSE.md](LICENSE.md) or **any other terms, including commercial ones**.
+2. You grant **Nabarup Ghosh** a perpetual, worldwide, non-exclusive, royalty-free, irrevocable licence to use, copy, modify, distribute, sublicense and relicense your contribution, under [LICENSE.md](LICENSE.md) or **any other terms, including commercial ones**.
 3. You keep the copyright in your contribution and may use it elsewhere yourself.
 
 This keeps the whole project under one owner, so it can be relicensed or offered under other terms later without tracking down every contributor. The pull-request template asks you to confirm it.
