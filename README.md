@@ -82,7 +82,9 @@ swirvo formats --supported
 
 ## Use it from AI assistants (MCP)
 
-`swirvo mcp` turns Swirvo into a local [MCP](https://modelcontextprotocol.io) server, so Claude Desktop, Claude Code, Cursor, VS Code and other AI assistants can convert files, run the PDF tools and read documents (with OCR) on your PC. No API key, nothing uploaded, originals never touched.
+**Claude Desktop:** download `Swirvo-<version>.mcpb` from the [latest release](https://github.com/Nabarup1/swirvo/releases/latest) and double-click it. That's it.
+
+Other assistants: `swirvo mcp` turns Swirvo into a local [MCP](https://modelcontextprotocol.io) server, so Claude Desktop, Claude Code, Cursor, VS Code and other AI assistants can convert files, run the PDF tools and read documents (with OCR) on your PC. No API key, nothing uploaded, originals never touched.
 
 ```json
 {

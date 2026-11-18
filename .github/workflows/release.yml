@@ -46,10 +46,20 @@ jobs:
           cp "packaging/windows/How to use.txt" EULA.md PRIVACY.md "$out/"
           7z a -tzip "$out.zip" "$out" > /dev/null
           sha256sum "$out.zip" > "$out.zip.sha256"
+          # The Claude Desktop extension: the CLI as an MCP server, one-click install.
+          ext="Swirvo-${TAG#v}.mcpb"
+          mkdir -p mcpb/server
+          cp "$out/swirvo-cli.exe" mcpb/server/
+          cp "$out/THIRD-PARTY-NOTICES.txt" EULA.md PRIVACY.md mcpb/
+          cp packaging/icon/png/swirvo-256.png mcpb/icon.png
+          sed "s/@VERSION@/${TAG#v}/" packaging/mcpb/manifest.json > mcpb/manifest.json
+          (cd mcpb && 7z a -tzip "../$ext" . > /dev/null)
       - uses: actions/upload-artifact@v4
         with:
           name: windows
-          path: Swirvo-*-windows-x64.zip*
+          path: |
+            Swirvo-*-windows-x64.zip*
+            Swirvo-*.mcpb
 
   linux:
     runs-on: ubuntu-24.04

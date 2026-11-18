@@ -36,7 +36,11 @@ The command is `swirvo-cli.exe mcp` on Windows (`swirvo mcp` with the Microsoft 
 
 Use the full path in the examples below (on Windows, double the backslashes inside JSON).
 
-### Claude Desktop
+### Claude Desktop: one click
+
+Download `Swirvo-<version>.mcpb` from the [latest release](https://github.com/Nabarup1/swirvo/releases/latest) and double-click it (or drag it onto Claude Desktop's Settings → Extensions). Claude Desktop installs Swirvo as an extension; nothing else to set up. Windows only.
+
+### Claude Desktop: by hand
 
 Settings → Developer → Edit Config, then add to `claude_desktop_config.json`:
 
