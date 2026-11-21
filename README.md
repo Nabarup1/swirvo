@@ -10,7 +10,11 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Nabarup1/swirvo/releases/latest"><b>Download for Windows</b></a> ·
+  <a href="https://apps.microsoft.com/detail/9NPGWFBVTDJQ"><img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200" alt="Get it from Microsoft"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Nabarup1/swirvo/releases/latest">Other downloads</a> ·
   <a href="media/swirvo-demo.mp4">Watch the 50-second demo</a> ·
   <a href="#what-it-can-do">Features</a> ·
   <a href="#use-it-from-ai-assistants-mcp">For AI assistants</a> ·
@@ -64,12 +68,14 @@ No dialog, no app to open, no website to upload to.
 
 ## Download
 
-Get the latest **[release](https://github.com/Nabarup1/swirvo/releases/latest)**:
+- **Windows 10 and 11 (recommended): [Swirvo on the Microsoft Store](https://apps.microsoft.com/detail/9NPGWFBVTDJQ).** Free, signed by Microsoft, updates itself, and puts the `swirvo` command on your PATH.
+
+Or get the latest **[release](https://github.com/Nabarup1/swirvo/releases/latest)** from GitHub:
 
 - **Windows 10 (1809 or later) and 11, x64:** `Swirvo-<version>-windows-x64.zip`. Unzip, double-click `Swirvo.exe`, and it offers to install itself for your user (Start menu, Settings → Apps, start with Windows; no admin). The Swirvo icon appears in the notification area.
 - **Linux x64:** `swirvo-cli-<version>-linux-x64.tar.gz`, the `swirvo` command-line tool. The Linux desktop app (wheel and Board) isn't ready yet.
 
-**"Windows protected your PC"?** The downloads aren't code-signed yet, so SmartScreen warns about them. Click **More info → Run anyway**. A Microsoft Store version, signed by Microsoft, is on the way.
+**"Windows protected your PC"?** The GitHub downloads aren't code-signed yet, so SmartScreen warns about them. Click **More info → Run anyway**, or install from the [Microsoft Store](https://apps.microsoft.com/detail/9NPGWFBVTDJQ) instead, which has no warning.
 
 ### Command line
 

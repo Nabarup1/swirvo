@@ -7,7 +7,7 @@ description: Convert, merge, split, compress, watermark, redact, OCR or read doc
 
 Swirvo is a free file converter and PDF toolkit that runs on the user's computer. Run its command line, `swirvo`, in the terminal. Nothing is uploaded; results are new files next to the originals, and originals are never changed, so retrying is safe.
 
-First check it's installed: `swirvo --version`. If the command isn't found, tell the user to install Swirvo from the Microsoft Store or from https://github.com/Nabarup1/swirvo/releases (run `Swirvo.exe` once and accept the install), then open a new terminal.
+First check it's installed: `swirvo --version`. If the command isn't found, tell the user to install Swirvo from the Microsoft Store (https://apps.microsoft.com/detail/9NPGWFBVTDJQ) or from https://github.com/Nabarup1/swirvo/releases (run `Swirvo.exe` once and accept the install), then open a new terminal.
 
 Always quote paths, and prefer absolute paths. Add `--json` to get machine-readable output (JSON Lines).
 

@@ -8,7 +8,7 @@ Ask for things like "convert these PDFs to Word", "merge these three PDFs and ad
 
 Install the Swirvo app on Windows 10 (1809 or later) or 11 first, so the `swirvo` command is available:
 
-- from the Microsoft Store, or
+- from the [Microsoft Store](https://apps.microsoft.com/detail/9NPGWFBVTDJQ), or
 - from the [GitHub releases](https://github.com/Nabarup1/swirvo/releases): unzip, run `Swirvo.exe` and accept the install. This adds `swirvo` to your user PATH.
 
 ## What this plugin contains and runs
