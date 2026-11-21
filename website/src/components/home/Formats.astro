@@ -1,0 +1,135 @@
+---
+import Icon from '../Icon.astro';
+import { FORMATS, CATEGORIES, workingCount, pairCount } from '../../data/formats';
+const working = FORMATS.filter((f) => f.read !== 'planned');
+const rowA = working.filter((_, i) => i % 2 === 0);
+const rowB = working.filter((_, i) => i % 2 === 1);
+const chip = (f: (typeof FORMATS)[number]) => ({ key: f.key, hue: CATEGORIES[f.cat].hue, cat: CATEGORIES[f.cat].title });
+const checker = FORMATS.filter((f) => f.read !== 'planned').map((f) => ({ k: f.key, n: f.name, t: f.to.map(([k, v]) => [k, v]) }));
+---
+<section class="section fmts" aria-labelledby="fmts-title">
+  <div class="wrap fmts-head">
+    <p class="eyebrow" data-reveal>Formats</p>
+    <h2 id="fmts-title" data-split>From <span class="serif ember-text">HEIC</span> to PDF/A, and nearly everything between.</h2>
+    <div class="stats" data-stagger="90">
+      <div><b data-count={workingCount}>0</b><span>formats it converts</span></div>
+      <div><b data-count={pairCount}>0</b><span>from → to pairs</span></div>
+      <div><b data-count="12">0</b><span>categories</span></div>
+    </div>
+  </div>
+
+  <div class="ribbons" aria-hidden="true">
+    <div class="ribbon">
+      <div class="track" data-marquee="left" data-speed="38">
+        {rowA.map(chip).map((c) => <span class="fchip" style={`--h:${c.hue}`}><i></i>{c.key.toUpperCase()}<em>{c.cat}</em></span>)}
+      </div>
+    </div>
+    <div class="ribbon">
+      <div class="track" data-marquee="right" data-speed="30">
+        {rowB.map(chip).map((c) => <span class="fchip" style={`--h:${c.hue}`}><i></i>{c.key.toUpperCase()}<em>{c.cat}</em></span>)}
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <form class="ask card" data-ask action="/formats" method="get" data-reveal>
+      <label for="ask-from">Can Swirvo turn</label>
+      <input id="ask-from" name="from" list="fmt-list" placeholder="heic" autocomplete="off" spellcheck="false" />
+      <span>into</span>
+      <input id="ask-to" name="to" list="fmt-list" placeholder="jpg" autocomplete="off" spellcheck="false" />
+      <span>?</span>
+      <output class="ask-out" data-ask-out aria-live="polite">Type two formats.</output>
+      <datalist id="fmt-list">{checker.map((f) => <option value={f.k}>{f.n}</option>)}</datalist>
+      <a class="ask-more ulink" href="/formats">Browse all formats <Icon name="arrowRight" size={14} /></a>
+    </form>
+  </div>
+</section>
+
+<script define:vars={{ checker }}>
+  const VIA = { 'built-in': 'Yes, built in.', windows: 'Yes, with what Windows already has.', ocr: 'Yes, by reading the text with Windows OCR.', office: 'Yes, when Microsoft Office or LibreOffice is installed.', ffmpeg: 'Yes, when FFmpeg is installed.' };
+  const form = document.querySelector('[data-ask]');
+  if (form) {
+    const out = form.querySelector('[data-ask-out]');
+    const [a, b] = form.querySelectorAll('input');
+    const norm = (s) => s.trim().toLowerCase().replace(/^\./, '').replace('jpeg', 'jpg').replace('word', 'docx').replace('excel', 'xlsx').replace('powerpoint', 'pptx').replace('heif', 'heic').replace('tif', 'tiff').replace('tifff', 'tiff');
+    const check = () => {
+      const f = norm(a.value);
+      const t = norm(b.value);
+      out.classList.remove('yes', 'no', 'maybe');
+      if (!f || !t) { out.textContent = 'Type two formats.'; return; }
+      const src = checker.find((x) => x.k === f);
+      if (!src) { out.textContent = `Swirvo doesn’t convert .${f} yet.`; out.classList.add('no'); return; }
+      const hit = src.t.find(([k]) => k === t);
+      if (hit) { out.textContent = VIA[hit[1]]; out.classList.add(hit[1] === 'built-in' ? 'yes' : 'maybe'); }
+      else if (f === t) { out.textContent = 'That’s the same format.'; }
+      else { out.textContent = `Not directly. ${src.n} can become ${src.t.slice(0, 6).map(([k]) => k.toUpperCase()).join(', ')}${src.t.length > 6 ? '…' : ''}`; out.classList.add('no'); }
+    };
+    a.addEventListener('input', check);
+    b.addEventListener('input', check);
+  }
+</script>
+
+<style>
+  .fmts { overflow: hidden; }
+  .fmts-head { text-align: center; max-width: 980px; }
+  .fmts-head h2 { margin: 12px auto 0; max-width: 18ch; }
+  .stats { display: flex; justify-content: center; gap: clamp(24px, 6vw, 80px); margin: 40px 0 56px; flex-wrap: wrap; }
+  .stats div { display: grid; gap: 4px; }
+  .stats b { font: 700 var(--step-4) / 1 var(--font-display); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+  .stats span { color: var(--text-3); font-size: 0.9rem; }
+  .ribbons { display: grid; gap: 14px; transform: rotate(-3deg); margin-block: 12px 56px; }
+  .ribbon { overflow: hidden; mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+  .track { display: flex; gap: 12px; width: max-content; will-change: transform; padding-block: 6px; }
+  .fchip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 54px;
+    padding: 0 20px 0 14px;
+    border-radius: 16px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    font: 700 1.25rem var(--font-display);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    box-shadow: var(--shadow-1);
+    transition: transform 500ms var(--spring-bouncy), border-color 200ms;
+  }
+  .fchip:hover { transform: translateY(-4px) rotate(-2deg); border-color: hsl(var(--h) 80% 60% / 0.6); }
+  .fchip i { width: 10px; height: 10px; border-radius: 3px; background: hsl(var(--h) 80% 62%); box-shadow: 0 0 12px hsl(var(--h) 80% 62% / 0.6); }
+  .fchip em { font: 500 0.74rem var(--font-sans); font-style: normal; color: var(--text-3); letter-spacing: 0; }
+  .ask {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px 14px;
+    padding: 22px 26px;
+    max-width: 880px;
+    margin: 0 auto;
+    font-size: var(--step-1);
+    font-weight: 550;
+  }
+  .ask input {
+    width: 9ch;
+    height: 50px;
+    padding: 0 14px;
+    border-radius: 12px;
+    border: 1px solid var(--line-2);
+    background: var(--bg);
+    font: 700 1.2rem var(--font-mono);
+    text-transform: uppercase;
+    text-align: center;
+    outline: none;
+    transition: border-color 200ms, box-shadow 200ms;
+  }
+  .ask input:focus { border-color: var(--ember); box-shadow: 0 0 0 4px rgba(238, 106, 52, 0.2); }
+  .ask input::placeholder { color: var(--text-3); }
+  .ask-out { flex-basis: 100%; text-align: center; font-size: 1rem; color: var(--text-2); min-height: 1.6em; }
+  .ask-out:global(.yes) { color: var(--mint); }
+  .ask-out:global(.maybe) { color: var(--gold); }
+  .ask-out:global(.no) { color: var(--text-3); }
+  :global(:root[data-theme='light']) .ask-out:global(.yes) { color: #1d7a45; }
+  :global(:root[data-theme='light']) .ask-out:global(.maybe) { color: #93630a; }
+  .ask-more { font-size: 0.9rem; color: var(--text-2); display: inline-flex; align-items: center; gap: 4px; }
+</style>

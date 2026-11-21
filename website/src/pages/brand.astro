@@ -1,0 +1,99 @@
+---
+import Page from '../layouts/Page.astro';
+import Icon from '../components/Icon.astro';
+import Logo from '../components/Logo.astro';
+import { bladePath, GRADIENT } from '../lib/logo';
+const COLORS = [
+  ['Ember top', GRADIENT.top, 'The tile’s top-left'],
+  ['Ember bottom', GRADIENT.bottom, 'The tile’s bottom-right'],
+  ['Ink', '#0c0a0e', 'Dark backgrounds'],
+  ['Paper', '#f7f1e9', 'Light backgrounds'],
+  ['Cream', '#f6efe7', 'Text on ink'],
+  ['Mint', '#6fd69a', 'Success, done'],
+];
+---
+<Page title="Brand" eyebrow="The swirl" lead="The Swirvo mark is three blades curling out of a centre dot: a swirl, and the wheel turning one file into another." wide>
+  <section class="hero-mark card" data-reveal>
+    <div class="big-mark" aria-hidden="true">
+      <Logo size={180} wordmark={false} href={null} />
+    </div>
+    <div class="construct" aria-hidden="true">
+      <svg viewBox="0 0 256 256">
+        <circle cx="128" cy="128" r="92" class="guide" />
+        <circle cx="128" cy="128" r="26" class="guide" />
+        <circle cx="128" cy="128" r="15" class="guide solid" />
+        {[0, 1, 2].map((k) => <path d={bladePath(k)} class="outline" style={`--k:${k}`} />)}
+        {[0, 120, 240].map((a) => <line x1="128" y1="128" x2={128 + 110 * Math.sin((a * Math.PI) / 180)} y2={128 - 110 * Math.cos((a * Math.PI) / 180)} class="guide" />)}
+      </svg>
+      <p class="faint">Blades start 26 units from the centre, end on a 92-unit circle, turn 128° and widen to 66°. The same numbers draw the app icon, the Store tile and this page.</p>
+    </div>
+  </section>
+
+  <section class="b-sec">
+    <h2 data-split>Colour</h2>
+    <div class="sw-grid" data-stagger="60">
+      {COLORS.map(([n, hex, use]) => (
+        <button class="sw card" type="button" data-copy={hex} data-copy-label={`Copied ${hex}`} style={`--c:${hex}`}>
+          <span class="sw-c"></span>
+          <span class="sw-n">{n}</span>
+          <code>{hex}</code>
+          <span class="faint">{use}</span>
+        </button>
+      ))}
+    </div>
+  </section>
+
+  <section class="b-sec">
+    <h2 data-split>Type</h2>
+    <div class="type-grid">
+      <div class="card ty"><p class="ty-a" style="font-family: var(--font-display)">Aa</p><p><b>Bricolage Grotesque</b></p><p class="faint">Headlines. Its width and weight move with the cursor in the footer.</p></div>
+      <div class="card ty"><p class="ty-a">Aa</p><p><b>Instrument Sans</b></p><p class="faint">Everything you read.</p></div>
+      <div class="card ty"><p class="ty-a serif">Aa</p><p><b>Instrument Serif</b></p><p class="faint">A word or two of emphasis.</p></div>
+      <div class="card ty"><p class="ty-a" style="font-family: var(--font-mono)">Aa</p><p><b>JetBrains Mono</b></p><p class="faint">Commands and code.</p></div>
+    </div>
+    <p class="faint small">All four are open-source (SIL Open Font License) and served from this site.</p>
+  </section>
+
+  <section class="b-sec rules card" data-reveal>
+    <h2>Using the name and logo</h2>
+    <p class="muted">Writing about Swirvo, reviewing it or linking to it is always fine. Using the logo or the icon needs written permission, and so does using the name for another app, fork, package or website. Writing a review or an article and need the artwork? <a class="ulink" href="https://github.com/Nabarup1/swirvo/issues/new" target="_blank" rel="noopener">Ask on GitHub</a>. The full rules are on the <a class="ulink" href="/trademarks">trademarks page</a>.</p>
+  </section>
+</Page>
+
+<style>
+  .hero-mark { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; padding: 40px; align-items: center; }
+  .big-mark { display: grid; place-items: center; min-height: 280px; background: radial-gradient(closest-side, rgba(238, 106, 52, 0.18), transparent); }
+  .construct svg { width: min(280px, 100%); margin: 0 auto 16px; overflow: visible; }
+  .guide { fill: none; stroke: var(--line-3); stroke-dasharray: 3 4; }
+  .guide.solid { stroke-dasharray: none; }
+  .outline { fill: rgba(238, 106, 52, 0.08); stroke: var(--ember-hot); stroke-width: 1.2; stroke-dasharray: 900; stroke-dashoffset: 900; }
+  :global(.is-in) .outline { animation: draw 2.4s var(--ease-out) both; animation-delay: calc(var(--k) * 300ms + 200ms); }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .b-sec { margin-top: var(--s-8); }
+  .b-sec h2 { font-size: var(--step-3); margin-bottom: 18px; }
+  .dl-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .dl { padding: 22px; display: grid; justify-items: center; gap: 14px; text-align: center; font-weight: 600; transition: transform 500ms var(--spring-bouncy), border-color 200ms; }
+  .dl:hover { transform: translateY(-4px); border-color: var(--line-3); }
+  .dl-prev :global(svg) { width: 96px; height: 96px; }
+  .dl.dark { background: #0c0a0e; color: #f6efe7; }
+  .sw-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+  .sw { padding: 12px; display: grid; gap: 4px; text-align: left; font-size: 0.86rem; transition: transform 500ms var(--spring-bouncy); }
+  .sw:hover { transform: translateY(-4px) rotate(-1deg); }
+  .sw-c { height: 80px; border-radius: 12px; background: var(--c); border: 1px solid var(--line); margin-bottom: 8px; }
+  .sw-n { font-weight: 650; }
+  .sw code { font-size: 0.8rem; justify-self: start; }
+  .type-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .ty { padding: 20px; }
+  .ty-a { font-size: 4rem; line-height: 1; margin-bottom: 14px; font-weight: 600; }
+  .small { font-size: 0.9rem; margin-top: 12px; }
+  .rules { padding: 28px; }
+  .rules h2 { font-size: 1.5rem; }
+  @media (max-width: 900px) {
+    .hero-mark, .dl-grid, .type-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .sw-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 560px) {
+    .hero-mark, .dl-grid, .type-grid { grid-template-columns: 1fr; }
+    .sw-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  }
+</style>

@@ -1,0 +1,234 @@
+---
+import Icon from '../Icon.astro';
+import { TOOLS } from '../../data/tools';
+const pdfCount = TOOLS.filter((t) => t.group.startsWith('pdf')).length;
+---
+<section class="section kit" aria-labelledby="kit-title">
+  <div class="wrap">
+    <div class="kit-head">
+      <p class="eyebrow" data-reveal>The toolkit</p>
+      <h2 id="kit-title" data-split>{TOOLS.length} tools, <span class="serif muted">{pdfCount} for PDF alone.</span></h2>
+      <p class="lead" data-reveal style="--delay:120ms">
+        The ones you’d normally upload to a website for. Here they run on your PC, show a preview first, and write a new file.
+      </p>
+    </div>
+
+    <div class="bento" data-stagger="70">
+      <article class="tile t-merge card spot" data-tilt="4">
+        <div class="viz" aria-hidden="true">
+          <span class="pg p1"></span><span class="pg p2"></span><span class="pg p3"></span>
+        </div>
+        <h3>Merge</h3>
+        <p class="muted">Several PDFs become one: in name order from the wheel, or in your own order from the command line.</p>
+      </article>
+
+      <article class="tile t-redact card spot" data-tilt="4">
+        <div class="viz" aria-hidden="true">
+          <div class="doc-lines">
+            <p>Contact <b>jane@example.com</b> or</p>
+            <p>call <b>555-0100</b> before</p>
+            <p>the <b>Friday</b> review.</p>
+          </div>
+          <span class="xray">Removed, not covered</span>
+        </div>
+        <h3>Redaction that removes</h3>
+        <p class="muted">Words, emails and phone numbers are taken out of the file for good, then the result is re-read to check.</p>
+      </article>
+
+      <article class="tile t-split card spot" data-tilt="4">
+        <div class="viz" aria-hidden="true">
+          <span class="grp g1">1–3</span><span class="grp g2">4–9</span><span class="grp g3">10–</span>
+        </div>
+        <h3>Split your way</h3>
+        <p class="muted">Type <code>1-3, 5; 6-9</code>, or click pages. Each group becomes its own PDF.</p>
+      </article>
+
+      <article class="tile t-compress card spot" data-tilt="4">
+        <div class="viz" aria-hidden="true">
+          <span class="sq"></span>
+          <span class="meter"><span class="mfrom">2.4 MB</span><span class="mto">0.9 MB</span></span>
+        </div>
+        <h3>Compress</h3>
+        <p class="muted">For screen, print or email, or “under N MB”. Diagrams stay sharp.</p>
+      </article>
+
+      <article class="tile t-ocr card spot" data-tilt="4">
+        <div class="viz" aria-hidden="true">
+          <div class="scan"><i></i><i></i><i></i><i></i></div>
+          <span class="beam"></span>
+        </div>
+        <h3>Make scans searchable</h3>
+        <p class="muted">An invisible text layer: find, select and copy work, and the page looks the same.</p>
+      </article>
+
+      <article class="tile t-sign card spot" data-tilt="4">
+        <div class="viz" aria-hidden="true">
+          <svg viewBox="0 0 220 80"><path d="M10 55c20-30 30-40 38-30s-8 34 4 30 18-36 30-30-4 30 8 28 16-22 28-20 6 18 18 14 20-14 36-12 22 4 38 0" /></svg>
+          <span class="seal"><Icon name="shield" size={14} /> Signed · valid</span>
+        </div>
+        <h3>Digital signatures</h3>
+        <p class="muted">With your own certificate from Windows. Checking signatures says who signed, and whether anything changed after.</p>
+      </article>
+
+      <article class="tile t-water card spot" data-tilt="4">
+        <div class="viz" aria-hidden="true"><span class="page"></span><span class="stamp">DRAFT</span></div>
+        <h3>Watermark</h3>
+        <p class="muted">Text or a logo. Drag it into place on the live preview.</p>
+      </article>
+
+      <article class="tile t-compare card spot" data-tilt="4">
+        <div class="viz" aria-hidden="true">
+          <span class="cpage"><i></i><i class="del"></i><i></i></span>
+          <span class="cpage"><i></i><i class="add"></i><i></i></span>
+        </div>
+        <h3>Compare</h3>
+        <p class="muted">Two versions side by side: removed in red, added in green.</p>
+      </article>
+
+      <article class="tile t-video card spot" data-tilt="4">
+        <div class="viz" aria-hidden="true">
+          <span class="vid"><Icon name="play" size={16} /></span>
+          <span class="vbar"><span></span></span>
+          <span class="vlab">148 MB → 24.6 MB</span>
+        </div>
+        <h3>Video under a size</h3>
+        <p class="muted">Email 25 MB, chat 10 or 8 MB, or any size. The limit is never crossed.</p>
+      </article>
+    </div>
+
+    <div class="kit-more" data-reveal>
+      <a class="btn btn-glass btn-lg" href="/tools" data-magnetic>See all {TOOLS.length} tools <Icon name="arrowRight" /></a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .kit-head { text-align: center; max-width: 820px; margin: 0 auto clamp(36px, 6vw, 64px); }
+  .kit-head h2 { margin: 12px 0 16px; }
+  .kit-head .lead { margin-inline: auto; }
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: minmax(270px, auto);
+    gap: 14px;
+  }
+  .tile { padding: 22px; display: flex; flex-direction: column; overflow: hidden; transform-style: preserve-3d; will-change: transform; }
+  .tile h3 { font-size: 1.25rem; margin-top: auto; }
+  .tile p { font-size: 0.94rem; margin-top: 6px; }
+  .viz { position: relative; flex: 1; min-height: 140px; margin-bottom: 18px; display: grid; place-items: center; }
+  .t-merge, .t-redact { grid-column: span 2; }
+  .t-ocr { grid-row: span 2; }
+
+  /* Merge: three pages fly together into one stack, on a loop */
+  .pg { position: absolute; width: 78px; height: 100px; border-radius: 6px; background: repeating-linear-gradient(#fff 0 10px, #e4e6ec 10px 11px) 10px 14px / 58px 70px no-repeat, #fff; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35); }
+  .p1 { --x: -110px; --r: -10deg; }
+  .p2 { --x: 0px; --r: 3deg; }
+  .p3 { --x: 110px; --r: 10deg; }
+  .pg::after { content: ''; position: absolute; left: 10px; top: 8px; width: 24px; height: 4px; border-radius: 2px; background: var(--c, #ee6a34); }
+  .p2::after { --c: #78c7ff; }
+  .p3::after { --c: #6fd69a; }
+  :global(.is-in) .pg { animation: merge 3.6s var(--ease-in-out) infinite; }
+  @keyframes merge {
+    0%, 15% { transform: translateX(var(--x)) rotate(var(--r)); }
+    45%, 70% { transform: translateX(calc(var(--x) * 0.06)) translateY(calc(var(--x) * -0.04)) rotate(calc(var(--r) * 0.2)); }
+    100% { transform: translateX(var(--x)) rotate(var(--r)); }
+  }
+
+  /* Redact */
+  .doc-lines { width: min(360px, 100%); padding: 18px 20px; border-radius: 8px; background: #fff; color: #222; font: 500 15px/1.9 var(--font-sans); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35); text-align: left; }
+  .doc-lines p { margin: 0; }
+  .doc-lines b { position: relative; font-weight: 600; }
+  .doc-lines b::after { content: ''; position: absolute; inset: 2px -3px; background: #111; border-radius: 2px; transform: scaleX(0); transform-origin: left; }
+  :global(.is-in) .doc-lines b { animation: gone 4.5s steps(1) infinite; }
+  :global(.is-in) .doc-lines b::after { animation: bar 4.5s var(--ease-out) infinite; }
+  .doc-lines p:nth-child(2) b, .doc-lines p:nth-child(2) b::after { animation-delay: 0.25s !important; }
+  .doc-lines p:nth-child(3) b, .doc-lines p:nth-child(3) b::after { animation-delay: 0.5s !important; }
+  @keyframes bar { 0%, 15% { transform: scaleX(0); } 30%, 85% { transform: scaleX(1); } 100% { transform: scaleX(0); } }
+  @keyframes gone { 0%, 32% { color: #222; } 33%, 84% { color: transparent; } 85% { color: #222; } }
+  .xray { position: absolute; bottom: 0; right: 6%; padding: 4px 10px; border-radius: 999px; background: rgba(111, 214, 154, 0.12); border: 1px solid rgba(111, 214, 154, 0.4); color: var(--mint); font-size: 0.78rem; font-weight: 600; }
+  :global(:root[data-theme='light']) .xray { color: #1d7a45; }
+
+  /* Split */
+  .t-split .viz { grid-auto-flow: column; gap: 10px; }
+  .grp { width: 64px; height: 84px; border-radius: 8px; display: grid; place-items: end center; padding-bottom: 8px; font: 600 0.8rem var(--font-mono); color: #222; background: repeating-linear-gradient(#fff 0 8px, #e4e6ec 8px 9px) 8px 10px / 48px 44px no-repeat, #fff; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35); border-top: 4px solid var(--c); }
+  .g1 { --c: #ee6a34; }
+  .g2 { --c: #78c7ff; }
+  .g3 { --c: #6fd69a; }
+  :global(.is-in) .grp { animation: fan 3s var(--spring-bouncy) infinite; }
+  .g2 { animation-delay: 0.12s !important; }
+  .g3 { animation-delay: 0.24s !important; }
+  @keyframes fan { 0%, 10% { transform: translateY(14px) scale(0.9); opacity: 0.5; } 30%, 80% { transform: none; opacity: 1; } 100% { transform: translateY(14px) scale(0.9); opacity: 0.5; } }
+
+  /* Compress */
+  .sq { width: 86px; height: 110px; border-radius: 8px; background: linear-gradient(160deg, #f79a45, #d9482b); box-shadow: 0 10px 24px rgba(217, 72, 43, 0.4); }
+  :global(.is-in) .sq { animation: squash 3s var(--spring-bouncy) infinite; }
+  @keyframes squash { 0%, 15% { transform: none; } 35%, 75% { transform: scale(0.62, 0.55); } 100% { transform: none; } }
+  .meter { position: absolute; bottom: 0; font: 600 0.82rem var(--font-mono); display: grid; }
+  .meter span { grid-area: 1 / 1; transition: opacity 0.3s; }
+  :global(.is-in) .mfrom { animation: swapA 3s infinite; }
+  :global(.is-in) .mto { animation: swapB 3s infinite; color: var(--mint); }
+  @keyframes swapA { 0%, 30% { opacity: 1; } 35%, 75% { opacity: 0; } 80% { opacity: 1; } }
+  @keyframes swapB { 0%, 30% { opacity: 0; } 35%, 75% { opacity: 1; } 80% { opacity: 0; } }
+
+  /* OCR */
+  .scan { position: relative; width: 70%; max-width: 200px; aspect-ratio: 0.72; border-radius: 6px; padding: 20% 12%; display: grid; gap: 10%; align-content: start; background: #efeae2; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35); filter: sepia(0.2); transform: rotate(-2deg); }
+  .scan i { height: 8px; border-radius: 3px; background: rgba(40, 40, 40, 0.55); }
+  .scan i:nth-child(2) { width: 80%; }
+  .scan i:nth-child(4) { width: 60%; }
+  .beam { position: absolute; left: 10%; right: 10%; height: 3px; border-radius: 3px; background: var(--ember-hot); box-shadow: 0 0 16px 4px rgba(255, 138, 76, 0.6); top: 15%; }
+  :global(.is-in) .beam { animation: beam 3.2s var(--ease-in-out) infinite; }
+  @keyframes beam { 0% { top: 12%; opacity: 0; } 10% { opacity: 1; } 80% { top: 86%; opacity: 1; } 100% { top: 86%; opacity: 0; } }
+  :global(.is-in) .scan i { animation: sel 3.2s infinite; }
+  .scan i:nth-child(2) { animation-delay: 0.4s !important; }
+  .scan i:nth-child(3) { animation-delay: 0.8s !important; }
+  .scan i:nth-child(4) { animation-delay: 1.2s !important; }
+  @keyframes sel { 0%, 30% { background: rgba(40, 40, 40, 0.55); } 40%, 90% { background: rgba(120, 199, 255, 0.85); } 100% { background: rgba(40, 40, 40, 0.55); } }
+
+  /* Sign */
+  .t-sign svg { width: 90%; max-width: 260px; overflow: visible; }
+  .t-sign path { fill: none; stroke: var(--text); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 600; stroke-dashoffset: 600; }
+  :global(.is-in) .t-sign path { animation: draw 4s var(--ease-in-out) infinite; }
+  @keyframes draw { 0% { stroke-dashoffset: 600; } 50%, 85% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+  .seal { position: absolute; bottom: 0; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: rgba(111, 214, 154, 0.12); border: 1px solid rgba(111, 214, 154, 0.4); color: var(--mint); font-size: 0.78rem; font-weight: 600; opacity: 0; }
+  :global(:root[data-theme='light']) .seal { color: #1d7a45; }
+  :global(.is-in) .seal { animation: seal 4s var(--spring-bouncy) infinite; }
+  @keyframes seal { 0%, 45% { opacity: 0; transform: scale(0.6); } 55%, 90% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+
+  /* Watermark */
+  .page { width: 96px; height: 124px; border-radius: 6px; background: repeating-linear-gradient(#fff 0 10px, #e4e6ec 10px 11px) 12px 16px / 72px 92px no-repeat, #fff; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35); }
+  .stamp { position: absolute; font: 800 1.6rem var(--font-display); letter-spacing: 0.08em; color: rgba(238, 106, 52, 0.75); border: 3px solid currentColor; padding: 0 8px; border-radius: 6px; rotate: -28deg; }
+  :global(.is-in) .stamp { animation: stamp 3s var(--spring-wobble) infinite; }
+  @keyframes stamp { 0%, 10% { transform: scale(2.4); opacity: 0; } 30%, 85% { transform: none; opacity: 1; } 100% { opacity: 0; } }
+
+  /* Compare */
+  .t-compare .viz { grid-auto-flow: column; gap: 10px; }
+  .cpage { width: 70px; height: 92px; border-radius: 6px; background: #fff; padding: 14px 10px; display: grid; gap: 9px; align-content: start; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35); }
+  .cpage i { height: 7px; border-radius: 3px; background: #d9dce3; }
+  :global(.is-in) .cpage .del { animation: del 2.4s infinite; }
+  :global(.is-in) .cpage .add { animation: add 2.4s infinite; }
+  @keyframes del { 0%, 20% { background: #d9dce3; } 35%, 85% { background: #ff7a8a; } }
+  @keyframes add { 0%, 35% { background: #d9dce3; } 50%, 85% { background: #6fd69a; } }
+
+  /* Video */
+  .t-video .viz { gap: 12px; align-content: center; }
+  .vid { width: 120px; height: 70px; border-radius: 10px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, #6c5ce7, #b4a6ff); box-shadow: 0 10px 24px rgba(108, 92, 231, 0.4); }
+  .vbar { width: 160px; height: 6px; border-radius: 6px; background: var(--surface-3); overflow: hidden; }
+  .vbar span { display: block; height: 100%; width: 0; background: var(--ember-grad); }
+  :global(.is-in) .vbar span { animation: vbar 3s var(--ease-in-out) infinite; }
+  @keyframes vbar { 0% { width: 0; } 70%, 100% { width: 100%; } }
+  .vlab { font: 600 0.8rem var(--font-mono); color: var(--text-2); }
+
+  .kit-more { text-align: center; margin-top: 40px; }
+
+  @media (max-width: 1024px) {
+    .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .t-ocr { grid-row: span 1; }
+  }
+  @media (max-width: 640px) {
+    .bento { grid-template-columns: 1fr; }
+    .t-merge, .t-redact { grid-column: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .viz * { animation: none !important; }
+  }
+</style>

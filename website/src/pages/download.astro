@@ -1,0 +1,190 @@
+---
+import Page from '../layouts/Page.astro';
+import Icon from '../components/Icon.astro';
+import StoreBadge from '../components/StoreBadge.astro';
+import { LINKS, INSTALL_LINUX } from '../data/site';
+import { release, find, mb } from '../data/github';
+const r = await release();
+const a = {
+  zip: find(r, (n) => n.endsWith('windows-x64.zip')),
+  mcpb: find(r, (n) => n.endsWith('.mcpb')),
+  debA: find(r, (n) => n.endsWith('_amd64.deb')),
+  debR: find(r, (n) => n.endsWith('_arm64.deb')),
+  tarA: find(r, (n) => n.endsWith('linux-x64.tar.gz')),
+  tarR: find(r, (n) => n.endsWith('linux-arm64.tar.gz')),
+};
+const date = r.date ? new Date(r.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+---
+<Page
+  title="Download Swirvo"
+  eyebrow={`Version ${r.version}${date ? ' · ' + date : ''}`}
+  lead="Free for home and work. Pick the way that suits you; every route installs the same app."
+  wide
+>
+  <div class="plats">
+    <article class="plat card plat-win" data-plat="windows" data-reveal>
+      <div class="plat-top">
+        <span class="plat-ic"><Icon name="window" size={26} /></span>
+        <div>
+          <h2>Windows</h2>
+          <p class="faint">Windows 10 (1809 or later) and 11 · x64</p>
+        </div>
+        <span class="you badge badge-ember">Your system</span>
+      </div>
+      <div class="route best">
+        <div class="route-h"><span class="badge badge-mint">Recommended</span><h3>Microsoft Store</h3></div>
+        <p class="muted">Signed by Microsoft, installs in one click, updates itself, and puts <code>swirvo</code> on your PATH.</p>
+        <StoreBadge size={180} />
+      </div>
+      <div class="route">
+        <div class="route-h"><h3>Direct download</h3>{a.zip?.size && <span class="faint num">{mb(a.zip.size)}</span>}</div>
+        <ol class="steps-mini">
+          <li>Unzip <code>{a.zip?.name}</code> anywhere.</li>
+          <li>Double-click <code>Swirvo.exe</code>. It offers to install itself for your user: Start menu, Settings → Apps, no admin rights.</li>
+          <li>The swirl appears in the notification area. Drag a file, tap <kbd>Shift</kbd>.</li>
+        </ol>
+        <a class="btn btn-primary" href={a.zip?.url ?? LINKS.latest} data-magnetic><span class="shine"></span><Icon name="download" />Download ZIP</a>
+        <p class="note"><Icon name="info" size={14} /> “Windows protected your PC”? The ZIP isn’t code-signed yet. Click <b>More info → Run anyway</b>, or use the Store.</p>
+      </div>
+    </article>
+
+    <article class="plat card plat-linux" data-plat="linux" data-reveal style="--delay:100ms">
+      <div class="plat-top">
+        <span class="plat-ic"><Icon name="terminal" size={26} /></span>
+        <div>
+          <h2>Linux</h2>
+          <p class="faint">Command line · x64 and ARM64 · glibc 2.28+</p>
+        </div>
+        <span class="you badge badge-ember">Your system</span>
+      </div>
+      <div class="route best" data-copy-scope>
+        <div class="route-h"><span class="badge badge-mint">Recommended</span><h3>One line</h3></div>
+        <p class="muted">No root needed. Installs to <code>~/.local/bin</code> and checks the download’s checksum.</p>
+        <div class="cmd-line">
+          <code data-copy-text>{INSTALL_LINUX}</code>
+          <button class="btn btn-primary btn-sm" type="button" data-copy data-copy-label="Install command copied"><Icon name="copy" size={15} />Copy</button>
+        </div>
+      </div>
+      <div class="route">
+        <div class="route-h"><h3>Packages</h3></div>
+        <ul class="files-list" role="list">
+          {[a.debA, a.debR, a.tarA, a.tarR].filter(Boolean).map((f) => (
+            <li><a href={f!.url}><Icon name="download" size={15} /><span>{f!.name}</span><span class="faint num">{mb(f!.size)}</span></a></li>
+          ))}
+        </ul>
+        <p class="note"><Icon name="info" size={14} /> Debian, Ubuntu, Mint: <code>sudo apt install ./swirvo_*.deb</code>. The Linux desktop app (wheel and Board) isn’t ready yet.</p>
+      </div>
+    </article>
+
+    <article class="plat card" data-reveal style="--delay:200ms">
+      <div class="plat-top">
+        <span class="plat-ic"><Icon name="sparkle" size={26} /></span>
+        <div>
+          <h2>AI assistants</h2>
+          <p class="faint">Claude Desktop, Claude Code, Cursor, VS Code</p>
+        </div>
+      </div>
+      <div class="route best">
+        <div class="route-h"><h3>Claude Desktop extension</h3>{a.mcpb?.size && <span class="faint num">{mb(a.mcpb.size)}</span>}</div>
+        <p class="muted">Double-click the <code>.mcpb</code> file and Claude Desktop installs Swirvo as a local extension. Windows.</p>
+        <a class="btn btn-glass" href={a.mcpb?.url ?? LINKS.latest}><Icon name="download" />{a.mcpb?.name ?? 'Download the extension'}</a>
+      </div>
+      <div class="route">
+        <div class="route-h"><h3>Any MCP client</h3></div>
+        <p class="muted">Run <code>swirvo mcp</code> as a stdio server. Listed in the official MCP Registry as <code>io.github.Nabarup1/swirvo</code>.</p>
+        <a class="btn btn-ghost" href="/ai">Setup for each client <Icon name="arrowRight" /></a>
+      </div>
+    </article>
+  </div>
+
+  <section class="dl-sec" aria-labelledby="files-title">
+    <h2 id="files-title" data-split>Every file in {r.version}</h2>
+    <div class="table card" data-reveal>
+      <div class="tr th"><span>File</span><span>Size</span><span>SHA-256</span></div>
+      {r.assets.map((f) => (
+        <div class="tr">
+          <a href={f.url} class="tf"><Icon name="file" size={15} />{f.name}</a>
+          <span class="faint num">{mb(f.size) || '—'}</span>
+          {f.sha256 ? (
+            <button class="hash" type="button" data-copy={f.sha256} data-copy-label="Checksum copied" title="Copy the SHA-256">
+              <code>{f.sha256.slice(0, 16)}…</code><Icon name="copy" size={13} />
+            </button>
+          ) : (
+            <a class="faint ulink" href={`${f.url}.sha256`}>{f.name}.sha256</a>
+          )}
+        </div>
+      ))}
+    </div>
+    <div class="verify" data-stagger="80">
+      <div class="card"><h3>Check a download on Windows</h3><pre class="code"><code>Get-FileHash .\{a.zip?.name ?? 'Swirvo-x-windows-x64.zip'} -Algorithm SHA256</code></pre></div>
+      <div class="card"><h3>Check a download on Linux</h3><pre class="code"><code>sha256sum -c {a.tarA?.name ?? 'swirvo-cli.tar.gz'}.sha256</code></pre></div>
+    </div>
+  </section>
+
+  <section class="dl-sec req" aria-labelledby="req-title">
+    <h2 id="req-title" data-split>What it needs</h2>
+    <div class="req-grid" data-stagger="70">
+      <div class="card"><Icon name="window" /><h3>Windows 10 or 11</h3><p class="muted">Version 1809 or later, 64-bit. No admin rights, no runtime, no drivers.</p></div>
+      <div class="card"><Icon name="image" /><h3>HEIC, AVIF and RAW photos</h3><p class="muted">Decoded by Windows’ own HEIF, AV1 and Raw Image Extensions, common on Windows 11.</p></div>
+      <div class="card"><Icon name="settings" /><h3>Optional helpers</h3><p class="muted">Microsoft Office, LibreOffice or FFmpeg light up extra routes when installed. Never required.</p></div>
+      <div class="card"><Icon name="rotate" /><h3>Updates and removal</h3><p class="muted">The Store keeps it current. To remove it: Settings → Apps → Swirvo → Uninstall. <a class="ulink" href="/docs/install">Details</a></p></div>
+    </div>
+    <p class="more faint">Older versions, release notes and source code: <a class="ulink" href={LINKS.releases} target="_blank" rel="noopener">all releases on GitHub</a>.</p>
+  </section>
+</Page>
+
+<style>
+  .plats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
+  .plat { padding: 24px; display: grid; gap: 14px; transition: border-color 300ms, transform 600ms var(--spring-soft); }
+  :global(html[data-os='windows']) .plat-win, :global(html[data-os='linux']) .plat-linux { border-color: rgba(238, 106, 52, 0.45); box-shadow: var(--shadow-3), var(--glow); }
+  .plat-top { display: flex; align-items: center; gap: 14px; }
+  .plat-top h2 { font-size: 1.6rem; letter-spacing: -0.03em; }
+  .plat-top p { font-size: 0.86rem; }
+  .plat-ic { width: 52px; height: 52px; flex: none; display: grid; place-items: center; border-radius: 16px; background: var(--ember-grad); color: var(--text-on-ember); box-shadow: 0 10px 24px -8px rgba(238, 106, 52, 0.6); }
+  .you { margin-left: auto; display: none; }
+  :global(html[data-os='windows']) .plat-win .you, :global(html[data-os='linux']) .plat-linux .you { display: inline-flex; }
+  .route { padding: 16px; border-radius: var(--r-lg); background: var(--bg); border: 1px solid var(--line); display: grid; gap: 10px; justify-items: start; }
+  .route.best { border-color: var(--line-2); background: color-mix(in oklab, var(--surface-2) 70%, transparent); }
+  .route-h { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; width: 100%; }
+  .route-h h3 { font-size: 1.08rem; }
+  .route-h .num { margin-left: auto; font-size: 0.86rem; }
+  .route p { font-size: 0.92rem; }
+  .steps-mini { padding-left: 1.2em; display: grid; gap: 6px; font-size: 0.92rem; color: var(--text-2); }
+  .note { display: flex; gap: 8px; align-items: flex-start; font-size: 0.84rem !important; color: var(--text-3); }
+  .note :global(svg) { flex: none; margin-top: 3px; }
+  .cmd-line { display: flex; gap: 8px; align-items: center; width: 100%; padding: 6px 6px 6px 12px; border-radius: 12px; background: var(--code-bg); border: 1px solid rgba(255, 236, 220, 0.12); }
+  .cmd-line code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font-size: 0.76rem; color: #efe6dc; background: none; border: 0; padding: 0; scrollbar-width: none; }
+  .files-list { display: grid; gap: 4px; width: 100%; }
+  .files-list a { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: center; padding: 8px 10px; border-radius: 10px; font-size: 0.86rem; transition: background 200ms; }
+  .files-list a:hover { background: var(--surface-2); }
+  .files-list span:nth-child(2) { font-family: var(--font-mono); font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .dl-sec { margin-top: var(--s-9); }
+  .dl-sec h2 { font-size: var(--step-3); margin-bottom: 20px; }
+  .table { padding: 6px; overflow-x: auto; }
+  .tr { display: grid; grid-template-columns: 1fr 110px 220px; gap: 12px; align-items: center; padding: 10px 14px; border-radius: 10px; min-width: 620px; }
+  .tr:not(.th):hover { background: var(--surface-2); }
+  .th { font: 500 0.72rem var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); }
+  .tf { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.84rem; }
+  .tf:hover { color: var(--ember-ink); }
+  .hash { display: inline-flex; align-items: center; gap: 8px; color: var(--text-2); }
+  .hash code { font-size: 0.78rem; }
+  .hash:hover { color: var(--text); }
+  .verify { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; }
+  .verify .card { padding: 18px; }
+  .verify h3 { font-size: 1rem; margin-bottom: 10px; }
+  .verify pre { margin: 0; font-size: 0.8rem; }
+  .req-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .req-grid .card { padding: 20px; display: grid; gap: 8px; align-content: start; }
+  .req-grid .card > :global(svg) { width: 24px; height: 24px; color: var(--ember-hot); }
+  .req-grid h3 { font-size: 1.05rem; }
+  .req-grid p { font-size: 0.92rem; }
+  .more { margin-top: 20px; font-size: 0.92rem; }
+  @media (max-width: 1100px) {
+    .plats { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .req-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  }
+  @media (max-width: 720px) {
+    .plats, .verify, .req-grid { grid-template-columns: 1fr; }
+  }
+</style>

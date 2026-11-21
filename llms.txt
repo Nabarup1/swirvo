@@ -13,6 +13,7 @@ Key facts:
 
 ## Docs
 
+- [Website and user docs](https://swirvo.vercel.app/docs/getting-started): install, the wheel, the Board, every tool, the command line, MCP setup, troubleshooting
 - [README](https://github.com/Nabarup1/swirvo/blob/main/README.md): what Swirvo does, download, build
 - [MCP server for AI assistants](https://github.com/Nabarup1/swirvo/blob/main/docs/19-ai-assistants-mcp.md): `swirvo mcp` tools and setup for Claude Desktop, Claude Code, Cursor and VS Code
 - [Formats and conversions](https://github.com/Nabarup1/swirvo/blob/main/docs/10-formats-and-conversions.md): every format and how each conversion is done

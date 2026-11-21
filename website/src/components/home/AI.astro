@@ -1,0 +1,156 @@
+---
+import Icon from '../Icon.astro';
+import { LINKS } from '../../data/site';
+const CONFIGS = [
+  {
+    id: 'desktop',
+    label: 'Claude Desktop',
+    note: 'One click: download the .mcpb extension from the latest release and double-click it. Or add this to claude_desktop_config.json:',
+    code: `{
+  "mcpServers": {
+    "swirvo": { "command": "swirvo", "args": ["mcp"] }
+  }
+}`,
+  },
+  { id: 'code', label: 'Claude Code', note: 'In a terminal:', code: 'claude mcp add swirvo -- swirvo mcp' },
+  {
+    id: 'cursor',
+    label: 'Cursor',
+    note: '.cursor/mcp.json (one project) or ~/.cursor/mcp.json (all):',
+    code: `{
+  "mcpServers": {
+    "swirvo": { "command": "swirvo", "args": ["mcp"] }
+  }
+}`,
+  },
+  {
+    id: 'vscode',
+    label: 'VS Code',
+    note: '.vscode/mcp.json:',
+    code: `{
+  "servers": {
+    "swirvo": { "type": "stdio", "command": "swirvo", "args": ["mcp"] }
+  }
+}`,
+  },
+];
+---
+<section class="section ai" id="ai" aria-labelledby="ai-title">
+  <div class="wrap ai-grid">
+    <div class="ai-copy">
+      <p class="eyebrow" data-reveal>For AI assistants</p>
+      <h2 id="ai-title" data-split>Let your assistant <span class="serif ember-text">handle the files.</span></h2>
+      <p class="lead" data-reveal style="--delay:120ms">
+        <code>swirvo mcp</code> turns Swirvo into a local MCP server. Claude, Cursor, VS Code and other assistants can convert files,
+        run the PDF tools and read documents (with OCR) on your PC. No API key, nothing uploaded, originals never touched.
+      </p>
+      <div class="tools-list" data-stagger="50">
+        {['convert_files', 'run_tool', 'extract_text', 'list_tools', 'list_formats', 'detect_format'].map((t) => <code>{t}</code>)}
+      </div>
+
+      <div class="cfg" data-tabs>
+        <div class="cfg-tabs" role="tablist" aria-label="Set up in">
+          {CONFIGS.map((c, i) => (
+            <button role="tab" type="button" id={`tab-${c.id}`} aria-controls={`panel-${c.id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{c.label}</button>
+          ))}
+          <span class="cfg-pill" aria-hidden="true"></span>
+        </div>
+        {CONFIGS.map((c, i) => (
+          <div class="cfg-panel" role="tabpanel" id={`panel-${c.id}`} aria-labelledby={`tab-${c.id}`} hidden={i !== 0} data-copy-scope>
+            <p class="faint">{c.note}</p>
+            <div class="code-wrap">
+              <pre class="code"><code data-copy-text>{c.code}</code></pre>
+              <button class="code-copy" type="button" data-copy aria-label="Copy"><Icon name="copy" size={14} />Copy</button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p class="ai-links">
+        <a class="btn btn-primary" href="/ai" data-magnetic><span class="shine"></span>Set it up <Icon name="arrowRight" /></a>
+        <a class="btn btn-ghost" href={LINKS.latest} target="_blank" rel="noopener"><Icon name="download" />Claude Desktop extension</a>
+      </p>
+    </div>
+
+    <div class="chat card" data-chat data-reveal="right" aria-label="Example conversation with an AI assistant using Swirvo" role="img">
+      <div class="chat-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="faint">Assistant · Swirvo connected</span></div>
+      <div class="msgs">
+        <div class="msg user" style="--t:0">Merge the three contracts in Downloads, add page numbers and a DRAFT watermark.</div>
+        <div class="call" style="--t:1"><Icon name="plug" size={14} /><code>run_tool</code> pdf-merge <span class="ok">✓</span></div>
+        <div class="call" style="--t:2"><Icon name="plug" size={14} /><code>run_tool</code> pdf-numbers <span class="ok">✓</span></div>
+        <div class="call" style="--t:3"><Icon name="plug" size={14} /><code>run_tool</code> pdf-watermark · text=DRAFT <span class="ok">✓</span></div>
+        <div class="msg bot" style="--t:4">Done. The merged PDF is in Downloads: 34 pages, numbered, with a DRAFT watermark. Each step wrote a new file; the three originals are unchanged.</div>
+        <div class="msg user" style="--t:5">What’s the total on the scanned invoice?</div>
+        <div class="call" style="--t:6"><Icon name="plug" size={14} /><code>extract_text</code> invoice-scan.jpg · OCR <span class="ok">✓</span></div>
+        <div class="msg bot" style="--t:7">The total is <b>€1,284.50</b>, due 12 December.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Tabs with a sliding pill and arrow-key navigation.
+  document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((box) => {
+    const tabs = [...box.querySelectorAll<HTMLButtonElement>('[role=tab]')];
+    const pill = box.querySelector<HTMLElement>('.cfg-pill')!;
+    const place = (t: HTMLElement) => {
+      pill.style.transform = `translateX(${t.offsetLeft}px)`;
+      pill.style.width = `${t.offsetWidth}px`;
+    };
+    const select = (t: HTMLButtonElement) => {
+      tabs.forEach((x) => {
+        const on = x === t;
+        x.setAttribute('aria-selected', String(on));
+        x.tabIndex = on ? 0 : -1;
+        box.querySelector<HTMLElement>(`#${x.getAttribute('aria-controls')}`)!.hidden = !on;
+      });
+      place(t);
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => select(t));
+      t.addEventListener('keydown', (e) => {
+        const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!d) return;
+        const n = tabs[(i + d + tabs.length) % tabs.length];
+        n.focus();
+        select(n);
+      });
+    });
+    requestAnimationFrame(() => place(tabs[0]));
+    addEventListener('resize', () => place(tabs.find((t) => t.getAttribute('aria-selected') === 'true')!));
+  });
+</script>
+
+<style>
+  .ai-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 80px); align-items: center; }
+  .ai-copy h2 { margin: 12px 0 18px; }
+  .tools-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 28px; }
+  .tools-list code { font-size: 0.82rem; padding: 6px 10px; border-radius: 8px; white-space: nowrap; }
+  .cfg-tabs { position: relative; display: inline-flex; gap: 2px; padding: 4px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); margin-bottom: 12px; flex-wrap: wrap; }
+  .cfg-tabs button { position: relative; z-index: 1; padding: 8px 14px; border-radius: 10px; font-size: 0.88rem; font-weight: 600; color: var(--text-2); transition: color 200ms; }
+  .cfg-tabs button[aria-selected='true'] { color: var(--text); }
+  .cfg-pill { position: absolute; left: 0; top: 4px; bottom: 4px; border-radius: 10px; background: var(--surface-3); border: 1px solid var(--line-2); transition: transform 520ms var(--spring-bouncy), width 520ms var(--spring-bouncy); }
+  .cfg-panel p { font-size: 0.88rem; margin-bottom: 8px; }
+  .cfg-panel { animation: panel 420ms var(--spring-soft); }
+  @keyframes panel { from { opacity: 0; transform: translateY(6px); } }
+  .code { margin: 0; font-size: 0.84rem; }
+  .ai-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+
+  .chat { padding: 0; overflow: hidden; }
+  .chat-bar { display: flex; align-items: center; gap: 6px; padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: 0.82rem; }
+  .chat-bar .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--surface-3); }
+  .chat-bar .faint { margin-left: 8px; }
+  .msgs { display: grid; gap: 10px; padding: 18px; }
+  .msg, .call { opacity: 0; transform: translateY(12px) scale(0.98); }
+  .chat:global(.is-in) .msg, .chat:global(.is-in) .call { animation: in 600ms var(--spring-bouncy) both; animation-delay: calc(var(--t) * 700ms + 400ms); }
+  @keyframes in { to { opacity: 1; transform: none; } }
+  .msg { padding: 11px 14px; border-radius: 16px; font-size: 0.92rem; line-height: 1.5; max-width: 88%; }
+  .msg.user { justify-self: end; background: var(--ember-grad); color: var(--text-on-ember); border-bottom-right-radius: 6px; font-weight: 500; }
+  .msg.bot { background: var(--surface-2); border: 1px solid var(--line); border-bottom-left-radius: 6px; }
+  .call { justify-self: start; display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 10px; font-size: 0.8rem; color: var(--text-2); background: var(--bg); border: 1px dashed var(--line-3); }
+  .call :global(svg) { color: var(--lilac); }
+  .call code { font-size: 0.78rem; padding: 2px 6px; }
+  .call .ok { color: var(--mint); font-weight: 700; }
+  @media (max-width: 980px) {
+    .ai-grid { grid-template-columns: 1fr; }
+  }
+</style>

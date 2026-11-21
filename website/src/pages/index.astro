@@ -1,0 +1,48 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/home/Hero.astro';
+import Demo from '../components/home/Demo.astro';
+import Wheels from '../components/home/Wheels.astro';
+import Board from '../components/home/Board.astro';
+import Formats from '../components/home/Formats.astro';
+import Toolkit from '../components/home/Toolkit.astro';
+import Private from '../components/home/Private.astro';
+import Engine from '../components/home/Engine.astro';
+import AI from '../components/home/AI.astro';
+import Cli from '../components/home/Cli.astro';
+import Video from '../components/home/Video.astro';
+import Faq from '../components/home/Faq.astro';
+import { LINKS } from '../data/site';
+import { release } from '../data/github';
+const r = await release();
+const jsonld = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Swirvo',
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'Windows 10, Windows 11, Linux (command line)',
+  softwareVersion: r.version,
+  description:
+    'A fast, private file converter and PDF toolkit for Windows. Start dragging any file, tap Shift and drop it on a format. Nearly 100 formats and 59 tools, 100% offline.',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  downloadUrl: LINKS.store,
+  installUrl: LINKS.store,
+  author: { '@type': 'Person', name: 'Nabarup Ghosh', url: LINKS.author },
+  sameAs: [LINKS.github, LINKS.store],
+  fileSize: '29MB',
+};
+---
+<Base jsonld={jsonld}>
+  <Hero />
+  <Demo />
+  <Wheels />
+  <Board />
+  <Formats />
+  <Toolkit />
+  <Private />
+  <Engine />
+  <AI />
+  <Cli />
+  <Video />
+  <Faq />
+</Base>

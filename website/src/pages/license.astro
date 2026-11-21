@@ -1,0 +1,9 @@
+---
+import Page from '../layouts/Page.astro';
+import LegalDoc from '../components/LegalDoc.astro';
+import { compiledContent } from '../generated/LICENSE.md';
+const html = await compiledContent();
+---
+<Page title="Source licence" eyebrow="Legal" lead="The source code is available under the PolyForm Noncommercial License 1.0.0.">
+  <LegalDoc html={html} source="LICENSE.md" />
+</Page>

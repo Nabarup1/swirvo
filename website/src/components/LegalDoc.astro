@@ -1,0 +1,38 @@
+---
+// Renders one of the repository's legal Markdown files with a contents list.
+import { fixLinks, headings } from '../lib/md';
+import Icon from './Icon.astro';
+interface Props {
+  html: string;
+  source: string;
+}
+const { html, source } = Astro.props;
+// Drop the document's own H1 (the page header shows the title).
+const body = fixLinks(html.replace(/^\s*<h1[^>]*>.*?<\/h1>/s, ''));
+const toc = headings(body).filter((h) => h.depth === 2);
+---
+<div class="legal">
+  {toc.length > 2 && (
+    <nav class="legal-toc" aria-label="On this page">
+      <p class="eyebrow">On this page</p>
+      <ol role="list">
+        {toc.map((h) => <li><a href={`#${h.slug}`} set:html={h.text} /></li>)}
+      </ol>
+    </nav>
+  )}
+  <article class="prose" set:html={body} />
+  <p class="legal-src faint">
+    <Icon name="github" size={14} /> This page shows <a class="ulink" href={`https://github.com/Nabarup1/swirvo/blob/main/${source}`} target="_blank" rel="noopener">{source}</a> from the repository, which is the authoritative version.
+  </p>
+</div>
+
+<style>
+  .legal { display: grid; gap: 28px; }
+  .legal-toc { padding: 18px 20px; border-radius: var(--r-lg); border: 1px solid var(--line); background: var(--surface); }
+  .legal-toc ol { display: grid; gap: 6px; margin-top: 10px; columns: 2; column-gap: 28px; }
+  .legal-toc li { break-inside: avoid; }
+  .legal-toc a { color: var(--text-2); font-size: 0.94rem; transition: color 200ms; }
+  .legal-toc a:hover { color: var(--ember-ink); }
+  .legal-src { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; padding-top: 20px; border-top: 1px solid var(--line); }
+  @media (max-width: 640px) { .legal-toc ol { columns: 1; } }
+</style>

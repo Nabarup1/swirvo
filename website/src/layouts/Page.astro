@@ -1,0 +1,55 @@
+---
+// Inner pages: a page header with a slow orbit behind it, then the content.
+import Base from './Base.astro';
+interface Props {
+  title: string;
+  eyebrow?: string;
+  lead?: string;
+  description?: string;
+  wide?: boolean;
+  noindex?: boolean;
+}
+const { title, eyebrow, lead, description, wide = false, noindex } = Astro.props;
+---
+<Base title={title} description={description ?? lead} noindex={noindex}>
+  <header class="phead">
+    <div class="phead-orb" aria-hidden="true"><span></span><span></span></div>
+    <div class:list={[wide ? 'wrap' : 'wrap-narrow', 'phead-in']}>
+      {eyebrow && <p class="eyebrow" data-reveal>{eyebrow}</p>}
+      <h1 data-split><slot name="title">{title}</slot></h1>
+      {lead && <p class="lead" data-reveal style="--delay:160ms">{lead}</p>}
+      <slot name="head" />
+    </div>
+  </header>
+  <div class:list={[wide ? 'wrap' : 'wrap-narrow', 'pbody']}>
+    <slot />
+  </div>
+</Base>
+
+<style>
+  .phead { position: relative; padding: clamp(56px, 9vw, 120px) 0 clamp(32px, 5vw, 56px); overflow: clip; isolation: isolate; }
+  .phead-in h1 { margin: 14px 0 18px; font-size: var(--step-5); max-width: 16ch; }
+  .phead-orb { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+  .phead-orb span {
+    position: absolute;
+    right: -10%;
+    top: -30%;
+    width: 60vmax;
+    height: 60vmax;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(238, 106, 52, 0.18), transparent 70%);
+    animation: drift 18s var(--ease-in-out) infinite alternate;
+  }
+  .phead-orb span + span {
+    left: -20%;
+    right: auto;
+    top: 10%;
+    width: 40vmax;
+    height: 40vmax;
+    background: radial-gradient(closest-side, rgba(180, 166, 255, 0.1), transparent 70%);
+    animation-duration: 24s;
+  }
+  @keyframes drift { to { transform: translate(-8%, 10%) scale(1.1); } }
+  .pbody { padding-bottom: var(--s-9); }
+  @media (prefers-reduced-motion: reduce) { .phead-orb span { animation: none; } }
+</style>

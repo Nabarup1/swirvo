@@ -1,0 +1,339 @@
+---
+import Page from '../layouts/Page.astro';
+import Icon from '../components/Icon.astro';
+import { FORMATS, CATEGORIES, VIA, workingCount, pairCount, type Category } from '../data/formats';
+const cats = Object.entries(CATEGORIES) as [Category, { title: string; hue: number }][];
+const data = FORMATS.map((f) => ({ k: f.key, n: f.name, c: f.cat, r: f.read, t: f.to, note: f.note ?? '' }));
+---
+<Page
+  title="Every format"
+  eyebrow="Formats"
+  lead={`${workingCount} formats Swirvo converts today, ${pairCount} from → to pairs, and what does the work for each. The wheel only ever shows what works on your PC.`}
+  wide
+>
+  <div class="fx" data-fx>
+    <div class="fx-bar">
+      <label class="fx-search">
+        <Icon name="search" size={18} />
+        <input type="search" placeholder="Find a format: heic, pdf, mov…" data-fx-q aria-label="Find a format" autocomplete="off" spellcheck="false" />
+      </label>
+      <div class="fx-cats" role="toolbar" aria-label="Categories" data-fx-cats>
+        <button type="button" class="fc on" data-cat="all">All</button>
+        {cats.map(([k, c]) => <button type="button" class="fc" data-cat={k} style={`--h:${c.hue}`}>{c.title}</button>)}
+      </div>
+    </div>
+
+    <div class="legend" data-reveal>
+      {Object.entries(VIA).map(([k, v]) => (
+        <span class:list={['lg', `via-${k}`]} title={v.text}><i></i>{v.label}<span class="faint"> · {v.text}</span></span>
+      ))}
+    </div>
+
+    <ul class="fx-grid" role="list" data-fx-grid>
+      {FORMATS.map((f) => (
+        <li class:list={['ft', { planned: f.read === 'planned' }]} data-k={f.key} data-c={f.cat} data-n={f.name.toLowerCase()} style={`--h:${CATEGORIES[f.cat].hue}`}>
+          <button type="button" data-open={f.key} aria-label={`${f.key.toUpperCase()}: ${f.name}. ${f.read === 'planned' ? 'Planned.' : `Can become ${f.to.length} formats.`}`}>
+            <span class="ft-k">{f.key.toUpperCase()}</span>
+            <span class="ft-n">{f.name}</span>
+            <span class="ft-c">{f.read === 'planned' ? 'Planned' : `→ ${f.to.length}`}</span>
+          </button>
+        </li>
+      ))}
+    </ul>
+    <p class="fx-empty" data-fx-empty hidden>No format matches. Swirvo can still <a class="ulink" href="/docs/troubleshooting">detect</a> most files by their content.</p>
+  </div>
+
+  <div class="sheet" data-sheet aria-hidden="true">
+    <div class="sheet-scrim" data-close></div>
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title" data-panel>
+      <div class="sheet-grab" aria-hidden="true"></div>
+      <button class="sheet-x" type="button" data-close aria-label="Close"><Icon name="x" /></button>
+      <p class="eyebrow" data-s-cat></p>
+      <h2 id="sheet-title"><span data-s-key></span> <span class="faint" data-s-name></span></h2>
+      <p class="s-read" data-s-read></p>
+      <p class="s-note" data-s-note></p>
+      <div data-s-groups></div>
+      <div class="s-try">
+        <p class="faint">From the command line:</p>
+        <div class="code-wrap" data-copy-scope>
+          <pre class="code"><code data-copy-text data-s-cmd></code></pre>
+          <button class="code-copy" type="button" data-copy><Icon name="copy" size={14} />Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="application/json" id="fx-data" set:html={JSON.stringify({ data, via: VIA, cats: CATEGORIES })} />
+</Page>
+
+<script>
+  import { flip } from '../scripts/flip';
+  import { Spring, onTick, reduced } from '../scripts/motion';
+  type Via = 'built-in' | 'windows' | 'ocr' | 'office' | 'ffmpeg';
+  interface F { k: string; n: string; c: string; r: string; t: [string, Via][]; note: string }
+  const { data, via, cats } = JSON.parse(document.getElementById('fx-data')!.textContent!) as {
+    data: F[];
+    via: Record<Via, { label: string; text: string }>;
+    cats: Record<string, { title: string; hue: number }>;
+  };
+  const byKey = new Map(data.map((f) => [f.k, f]));
+  const grid = document.querySelector<HTMLElement>('[data-fx-grid]')!;
+  const items = [...grid.querySelectorAll<HTMLElement>('.ft')];
+  const q = document.querySelector<HTMLInputElement>('[data-fx-q]')!;
+  const empty = document.querySelector<HTMLElement>('[data-fx-empty]')!;
+  const catBtns = [...document.querySelectorAll<HTMLButtonElement>('[data-cat]')];
+  let cat = 'all';
+
+  const apply = () => {
+    const words = q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    flip(items, () => {
+      let n = 0;
+      for (const el of items) {
+        const hay = `${el.dataset.k} ${el.dataset.n} ${cats[el.dataset.c!].title.toLowerCase()}`;
+        const ok = (cat === 'all' || el.dataset.c === cat) && words.every((w) => hay.includes(w.replace(/^\./, '')));
+        el.hidden = !ok;
+        if (ok) n++;
+      }
+      empty.hidden = n > 0;
+    });
+  };
+  q.addEventListener('input', apply);
+  catBtns.forEach((b) =>
+    b.addEventListener('click', () => {
+      cat = b.dataset.cat!;
+      catBtns.forEach((x) => x.classList.toggle('on', x === b));
+      apply();
+    })
+  );
+
+  /* ── The detail sheet ─────────────────────────────────── */
+  const sheet = document.querySelector<HTMLElement>('[data-sheet]')!;
+  const panel = sheet.querySelector<HTMLElement>('[data-panel]')!;
+  const $ = (s: string) => sheet.querySelector<HTMLElement>(s)!;
+  let opener: HTMLElement | null = null;
+  const READ: Record<string, string> = {
+    'built-in': 'Read by Swirvo’s own engines.',
+    windows: 'Read with an engine Windows already has.',
+    office: 'Read through Microsoft Office or LibreOffice, when installed.',
+    ffmpeg: 'Read through FFmpeg, when installed.',
+    planned: 'Recognised by its content today; converting it is planned.',
+  };
+  function open(key: string, highlight?: string) {
+    const f = byKey.get(key);
+    if (!f) return;
+    $('[data-s-cat]').textContent = cats[f.c].title;
+    $('[data-s-key]').textContent = f.k.toUpperCase();
+    $('[data-s-name]').textContent = f.n;
+    $('[data-s-read]').textContent = READ[f.r] ?? '';
+    $('[data-s-note]').textContent = f.note;
+    $('[data-s-note]').hidden = !f.note;
+    const groups = $('[data-s-groups]');
+    groups.replaceChildren();
+    const order: Via[] = ['built-in', 'windows', 'ocr', 'office', 'ffmpeg'];
+    for (const v of order) {
+      const list = f.t.filter(([, w]) => w === v);
+      if (!list.length) continue;
+      const g = document.createElement('div');
+      g.className = `sg via-${v}`;
+      g.innerHTML = `<p class="sg-h"><i></i><b></b><span class="faint"></span></p><div class="sg-chips"></div>`;
+      g.querySelector('b')!.textContent = via[v].label;
+      g.querySelector('.faint')!.textContent = ` · ${via[v].text}`;
+      const chips = g.querySelector('.sg-chips')!;
+      list.forEach(([k], i) => {
+        const c = document.createElement('button');
+        c.type = 'button';
+        c.className = 'sc' + (k === highlight ? ' hit' : '');
+        c.style.setProperty('--i', String(i));
+        c.textContent = k.toUpperCase();
+        c.title = byKey.get(k)?.n ?? k;
+        c.addEventListener('click', () => (byKey.has(k) ? open(k) : null));
+        chips.append(c);
+      });
+      groups.append(g);
+    }
+    if (!f.t.length) groups.innerHTML = '<p class="faint">No conversions yet.</p>';
+    const target = highlight ?? f.t[0]?.[0] ?? 'pdf';
+    $('[data-s-cmd]').textContent = `swirvo convert "file.${f.k}" --to ${target}`;
+    if (!sheet.classList.contains('open')) {
+      opener = document.activeElement as HTMLElement;
+      sheet.classList.add('open');
+      sheet.setAttribute('aria-hidden', 'false');
+      document.documentElement.style.overflow = 'hidden';
+      panel.style.transform = '';
+      setTimeout(() => $('.sheet-x').focus(), 50);
+    } else {
+      panel.animate([{ opacity: 0.4, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: 'ease-out' });
+    }
+    history.replaceState(null, '', `?from=${f.k}${highlight ? `&to=${highlight}` : ''}`);
+  }
+  function close() {
+    sheet.classList.remove('open');
+    sheet.setAttribute('aria-hidden', 'true');
+    document.documentElement.style.overflow = '';
+    panel.style.transform = '';
+    history.replaceState(null, '', location.pathname);
+    opener?.focus();
+  }
+  grid.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-open]');
+    if (b) open(b.dataset.open!);
+  });
+  sheet.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('[data-close]')) close();
+  });
+  addEventListener('keydown', (e) => e.key === 'Escape' && sheet.classList.contains('open') && close());
+
+  // Swipe the sheet down to dismiss it (phones), with a spring back if you let go early.
+  {
+    let y0 = 0;
+    let dy = 0;
+    let dragging = false;
+    let t0 = 0;
+    const grab = panel.querySelector<HTMLElement>('.sheet-grab')!;
+    const start = (e: PointerEvent) => {
+      if (!matchMedia('(max-width: 760px)').matches) return;
+      if (e.target !== grab && panel.scrollTop > 0) return;
+      dragging = true;
+      y0 = e.clientY;
+      dy = 0;
+      t0 = performance.now();
+      panel.setPointerCapture(e.pointerId);
+      panel.style.transition = 'none';
+    };
+    panel.addEventListener('pointerdown', start);
+    panel.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      dy = Math.max(0, e.clientY - y0);
+      panel.style.transform = `translateY(${dy}px)`;
+    });
+    const end = () => {
+      if (!dragging) return;
+      dragging = false;
+      panel.style.transition = '';
+      const v = dy / Math.max(1, performance.now() - t0);
+      if (dy > 140 || v > 0.8) close();
+      else if (!reduced) {
+        const s = new Spring(dy, 300, 22);
+        s.target = 0;
+        onTick((dt) => {
+          s.step(dt);
+          panel.style.transform = `translateY(${s.value}px)`;
+          if (s.settled) {
+            panel.style.transform = '';
+            return false;
+          }
+        });
+      } else panel.style.transform = '';
+    };
+    panel.addEventListener('pointerup', end);
+    panel.addEventListener('pointercancel', end);
+  }
+
+  // Arriving from the homepage checker: /formats?from=heic&to=jpg
+  const params = new URLSearchParams(location.search);
+  const from = params.get('from')?.toLowerCase().replace(/^\./, '');
+  if (from && byKey.has(from)) setTimeout(() => open(from, params.get('to')?.toLowerCase() || undefined), 400);
+</script>
+
+<style>
+  .fx-bar { position: sticky; top: 76px; z-index: 5; display: grid; gap: 12px; padding: 12px; margin: 0 -12px 16px; border-radius: var(--r-xl); background: color-mix(in oklab, var(--bg) 80%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .fx-search { display: flex; align-items: center; gap: 10px; height: 54px; padding: 0 18px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line-2); color: var(--text-3); transition: border-color 200ms, box-shadow 200ms; }
+  .fx-search:focus-within { border-color: var(--ember); box-shadow: 0 0 0 4px rgba(238, 106, 52, 0.18); }
+  .fx-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font-size: 1.05rem; color: var(--text); }
+  .fx-cats { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .fx-cats::-webkit-scrollbar { display: none; }
+  .fc { flex: none; height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--text-2); font-size: 0.88rem; font-weight: 600; transition: background 200ms, color 200ms, border-color 200ms, transform 400ms var(--spring-bouncy); }
+  .fc:hover { color: var(--text); border-color: var(--line-3); }
+  .fc:active { transform: scale(0.94); }
+  .fc.on { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 8px 0 24px; font-size: 0.84rem; }
+  .lg { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+  .lg .faint { font-weight: 400; }
+  .lg i, :global(.sg-h i) { width: 10px; height: 10px; border-radius: 3px; background: var(--vc); }
+  .via-built-in, :global(.via-built-in) { --vc: #6fd69a; }
+  .via-windows, :global(.via-windows) { --vc: #78c7ff; }
+  .via-ocr, :global(.via-ocr) { --vc: #b4a6ff; }
+  .via-office, :global(.via-office) { --vc: #ffd27a; }
+  .via-ffmpeg, :global(.via-ffmpeg) { --vc: #ff9ad5; }
+  @media (max-width: 760px) { .lg .faint { display: none; } }
+
+  .fx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .ft button {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    gap: 4px;
+    padding: 14px;
+    border-radius: 16px;
+    text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    transition: transform 500ms var(--spring-bouncy), border-color 200ms, background 200ms, box-shadow 300ms;
+  }
+  .ft button:hover { transform: translateY(-4px) rotate(-1deg); border-color: hsl(var(--h) 80% 60% / 0.55); box-shadow: 0 16px 30px -18px hsl(var(--h) 80% 50% / 0.6); }
+  .ft button:active { transform: scale(0.96); }
+  .ft-k { font: 750 1.3rem var(--font-display); letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+  .ft-k::before { content: ''; width: 9px; height: 9px; border-radius: 3px; background: hsl(var(--h) 80% 62%); }
+  .ft-n { font-size: 0.84rem; color: var(--text-2); line-height: 1.3; }
+  .ft-c { font: 600 0.74rem var(--font-mono); color: var(--text-3); }
+  .ft.planned button { opacity: 0.55; border-style: dashed; }
+  .fx-empty { padding: 40px; text-align: center; color: var(--text-3); }
+
+  /* Sheet: a side panel on desktop, a bottom sheet on phones */
+  .sheet { position: fixed; inset: 0; z-index: var(--z-palette); pointer-events: none; }
+  .sheet.open { pointer-events: auto; }
+  .sheet-scrim { position: absolute; inset: 0; background: color-mix(in oklab, var(--bg) 55%, transparent); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); opacity: 0; transition: opacity 300ms; }
+  .sheet.open .sheet-scrim { opacity: 1; }
+  .sheet-panel {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: min(520px, calc(100% - 24px));
+    overflow-y: auto;
+    padding: 28px;
+    border-radius: var(--r-xl);
+    background: var(--glass-strong);
+    border: 1px solid var(--line-2);
+    box-shadow: var(--shadow-3);
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    transform: translateX(110%);
+    transition: transform 620ms var(--spring-soft);
+    overscroll-behavior: contain;
+  }
+  .sheet.open .sheet-panel { transform: none; }
+  .sheet-grab { display: none; }
+  .sheet-x { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: var(--text-2); transition: background 200ms, rotate 400ms var(--spring-bouncy); }
+  .sheet-x:hover { background: var(--surface-2); rotate: 90deg; color: var(--text); }
+  .sheet-panel h2 { font-size: 2.6rem; letter-spacing: -0.04em; margin: 8px 0 10px; }
+  .sheet-panel h2 .faint { font: 500 1rem var(--font-sans); letter-spacing: 0; display: block; margin-top: 6px; }
+  .s-read { color: var(--text-2); }
+  .s-note { margin-top: 10px; padding: 10px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 0.9rem; color: var(--text-2); }
+  :global(.sg) { margin-top: 22px; }
+  :global(.sg-h) { display: flex; align-items: center; gap: 8px; font-size: 0.86rem; margin-bottom: 10px; }
+  :global(.sg-chips) { display: flex; flex-wrap: wrap; gap: 8px; }
+  :global(.sc) {
+    height: 38px;
+    padding: 0 14px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    font: 700 0.92rem var(--font-display);
+    animation: sc-in 520ms var(--spring-bouncy) both;
+    animation-delay: calc(var(--i) * 25ms);
+    transition: border-color 200ms, transform 300ms var(--spring-bouncy);
+  }
+  :global(.sc:hover) { border-color: var(--vc); transform: translateY(-2px); }
+  :global(.sc.hit) { background: var(--vc); color: #12100f; border-color: var(--vc); box-shadow: 0 0 0 4px color-mix(in oklab, var(--vc) 30%, transparent); }
+  @keyframes sc-in { from { opacity: 0; transform: scale(0.7) translateY(8px); } }
+  .s-try { margin-top: 28px; }
+  .s-try p { font-size: 0.86rem; margin-bottom: 8px; }
+  .s-try pre { margin: 0; font-size: 0.8rem; }
+
+  @media (max-width: 760px) {
+    .fx-bar { top: 68px; }
+    .fx-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+    .sheet-panel { top: auto; left: 0; right: 0; bottom: 0; width: 100%; max-height: 86vh; border-radius: 28px 28px 0 0; transform: translateY(105%); padding-top: 34px; touch-action: pan-y; }
+    .sheet-grab { display: block; position: absolute; top: 10px; left: 50%; width: 44px; height: 5px; margin-left: -22px; border-radius: 99px; background: var(--line-3); }
+  }
+</style>

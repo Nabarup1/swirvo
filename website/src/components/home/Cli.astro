@@ -1,0 +1,79 @@
+---
+import Icon from '../Icon.astro';
+import { INSTALL_LINUX } from '../../data/site';
+const LINES = [
+  { cmd: INSTALL_LINUX, out: ['Downloading Swirvo for Linux x64...', 'Installed swirvo to ~/.local/bin/swirvo'] },
+  {
+    cmd: 'swirvo convert beach.jpg city.jpg --to webp',
+    out: ['✓ beach.jpg → beach.webp  412 KB (-58 %) · 64 ms', '✓ city.jpg → city.webp  388 KB (-61 %) · 71 ms', '2 converted, 0 failed, 0 skipped in 0.1 s · 1.9 MB → 800 KB'],
+  },
+  { cmd: 'swirvo tool pdf-merge a.pdf b.pdf c.pdf', out: ['3 PDFs, 34 pages → a (merged).pdf', '  → ./a (merged).pdf'] },
+  { cmd: 'swirvo formats --from pdf', out: ['PDF can become 9 formats:', '  docx     Word document          lossy', '  xlsx     Excel workbook         lossy'] },
+];
+---
+<section class="section cli" aria-labelledby="cli-title">
+  <div class="wrap cli-grid">
+    <div class="term" data-term data-reveal="left" aria-label="Terminal session using the swirvo command" role="img">
+      <div class="term-bar"><span></span><span></span><span></span><b>~/Downloads</b></div>
+      <div class="term-body">
+        {LINES.map((l, i) => (
+          <div class="tl" style={`--n:${l.cmd.length}; --i:${i}`}>
+            <p class="tc"><span class="pr">$</span> <span class="typed">{l.cmd}</span></p>
+            {l.out.map((o) => <p class:list={['to', { okl: o.startsWith('✓') }]}>{o}</p>)}
+          </div>
+        ))}
+        <p class="tc"><span class="pr">$</span> <span class="caret"></span></p>
+      </div>
+    </div>
+    <div class="cli-copy">
+      <p class="eyebrow" data-reveal>Command line · Windows and Linux</p>
+      <h2 id="cli-title" data-split>Scripts get the <span class="serif ember-text">same engines.</span></h2>
+      <p class="lead" data-reveal style="--delay:120ms">
+        <code>swirvo</code> converts, runs every tool and explains its plan, with <code>--json</code> output for scripts. It comes with the
+        Windows app, and on Linux (x64 and ARM64) it installs with one line, no root needed.
+      </p>
+      <div class="cmd-box" data-copy-scope data-reveal style="--delay:200ms">
+        <code data-copy-text>{INSTALL_LINUX}</code>
+        <button class="btn btn-primary btn-sm" type="button" data-copy data-copy-label="Install command copied" data-magnetic><Icon name="copy" size={15} />Copy</button>
+      </div>
+      <p class="faint small" data-reveal style="--delay:260ms">
+        Or a <code>.deb</code> for Debian, Ubuntu and Mint. Runs on glibc 2.28 and newer: Ubuntu 18.10+, Debian 10+, RHEL 8+, Fedora.
+        <a class="ulink" href="/docs/linux">Linux guide →</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cli-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 80px); align-items: center; }
+  .cli-copy h2 { margin: 12px 0 18px; }
+  .term { border-radius: var(--r-xl); background: #0f0c12; border: 1px solid rgba(255, 236, 220, 0.12); box-shadow: var(--shadow-3), 0 0 80px -30px rgba(238, 106, 52, 0.4); overflow: hidden; color: #efe6dc; }
+  .term-bar { display: flex; align-items: center; gap: 7px; padding: 12px 16px; border-bottom: 1px solid rgba(255, 236, 220, 0.08); }
+  .term-bar span { width: 11px; height: 11px; border-radius: 50%; background: #3a3240; }
+  .term-bar b { margin-left: 10px; font: 500 0.78rem var(--font-mono); color: #8f857e; }
+  .term-body { padding: 18px 20px 22px; font: 0.82rem/1.75 var(--font-mono); min-height: 340px; }
+  .term-body p { margin: 0; white-space: pre-wrap; word-break: break-all; }
+  .pr { color: #ff9a62; }
+  .to { color: #a89d93; opacity: 0; }
+  .to.okl { color: #9fe0b3; }
+  .typed { display: inline-block; overflow: hidden; white-space: nowrap; vertical-align: bottom; max-width: 0; }
+  .tl { opacity: 0; }
+  :global(.is-in) .tl { animation: show 0.01s both; animation-delay: calc(var(--i) * 2.2s); }
+  :global(.is-in) .typed { animation: type calc(var(--n) * 28ms) steps(var(--n)) both; animation-delay: calc(var(--i) * 2.2s + 0.2s); }
+  :global(.is-in) .to { animation: show 0.3s var(--ease-out) both; animation-delay: calc(var(--i) * 2.2s + var(--n) * 28ms + 0.45s); }
+  @keyframes type { to { max-width: 100%; } }
+  @keyframes show { to { opacity: 1; } }
+  .caret { display: inline-block; width: 8px; height: 1.1em; background: #ff9a62; vertical-align: text-bottom; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .cmd-box { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 16px; border-radius: 16px; background: var(--code-bg); border: 1px solid rgba(255, 236, 220, 0.12); margin: 24px 0 12px; }
+  .cmd-box code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font-size: 0.82rem; color: #efe6dc; background: none; border: 0; padding: 0; scrollbar-width: none; }
+  .small { font-size: 0.88rem; }
+  @media (max-width: 980px) {
+    .cli-grid { grid-template-columns: 1fr; }
+    .term { order: 2; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tl, .to { opacity: 1; animation: none !important; }
+    .typed { max-width: none; animation: none !important; }
+  }
+</style>

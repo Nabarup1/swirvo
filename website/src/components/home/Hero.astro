@@ -1,0 +1,313 @@
+---
+import Icon from '../Icon.astro';
+import StoreBadge from '../StoreBadge.astro';
+import { bladePath, tilePath, GRADIENT } from '../../lib/logo';
+import { INSTALL_LINUX } from '../../data/site';
+import { release, find, mb } from '../../data/github';
+const r = await release();
+const zip = find(r, (n) => n.endsWith('windows-x64.zip'));
+const ticks = Array.from({ length: 72 }, (_, i) => i);
+---
+<section class="hero" data-hero aria-labelledby="hero-title">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="glow"></div>
+    <svg class="dial" viewBox="-500 -500 1000 1000">
+      <circle r="470" class="dial-ring" />
+      <circle r="330" class="dial-ring faint" />
+      {ticks.map((i) => (
+        <line
+          x1="0"
+          y1={i % 6 === 0 ? -470 : -470}
+          x2="0"
+          y2={i % 6 === 0 ? -440 : -458}
+          transform={`rotate(${i * 5})`}
+          class:list={['tick', { major: i % 6 === 0 }]}
+        />
+      ))}
+    </svg>
+  </div>
+
+  <div class="wrap hero-in">
+    <a class="pill" href="/changelog" data-reveal>
+      <span class="pill-new">New</span>
+      <span>{r.version} · Linux builds, ARM64 and a one-line installer</span>
+      <Icon name="arrowRight" size={14} />
+    </a>
+
+    <div class="stage" data-stage data-cursor="Spin">
+      <svg class="token-svg" viewBox="0 0 256 256" aria-hidden="true">
+        <defs>
+          <linearGradient id="hg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color={GRADIENT.top} />
+            <stop offset="1" stop-color={GRADIENT.bottom} />
+          </linearGradient>
+        </defs>
+        <path d={tilePath()} fill="url(#hg)" />
+        <g class="token-blades">
+          {[0, 1, 2].map((k) => <path d={bladePath(k)} fill="#fff" />)}
+          <circle cx="128" cy="128" r="15" fill="#fff" />
+        </g>
+      </svg>
+      <canvas class="token-gl" aria-label="The Swirvo logo in 3D. Drag to spin it." role="img"></canvas>
+    </div>
+
+    <h1 id="hero-title" class="hero-title">
+      <span class="hw hw-1">Drag.</span>
+      <span class="hw hw-2"><span class="tapkey">Tap.</span></span>
+      <span class="hw hw-3 ember-text">Convert.</span>
+    </h1>
+    <p class="hero-sub" data-reveal style="--delay:500ms">
+      Start dragging any file, tap <kbd class="kbd-live">Shift</kbd>, and drop it on a format. The converted copy lands next
+      to the original before you’ve let go. Free, 100% offline, for Windows.
+    </p>
+
+    <div class="hero-cta" data-reveal style="--delay:650ms">
+      <div class="for-win">
+        <StoreBadge size={196} />
+        <a class="btn btn-glass btn-lg" href={zip?.url ?? '/download'} data-magnetic data-cursor="ZIP">
+          <Icon name="download" />Download {zip?.size ? <span class="faint num">· {mb(zip.size)}</span> : null}
+        </a>
+      </div>
+      <div class="for-linux" data-copy-scope>
+        <button class="cmd" type="button" data-copy data-copy-label="Install command copied" data-cursor="Copy">
+          <span class="cmd-p">$</span><code data-copy-text>{INSTALL_LINUX}</code><Icon name="copy" size={16} />
+        </button>
+        <a class="btn btn-glass" href="/download"><Icon name="window" />Windows app</a>
+      </div>
+      <p class="for-other faint">
+        Swirvo is a Windows app. <a class="ulink" href="/download">Linux command line, checksums and other downloads →</a>
+      </p>
+    </div>
+
+    <ul class="trust" role="list" data-stagger="70">
+      <li><Icon name="cloudOff" size={16} />No upload</li>
+      <li><Icon name="shield" size={16} />Originals never touched</li>
+      <li><Icon name="lock" size={16} />No account, no ads</li>
+      <li><Icon name="bolt" size={16} />About 29 MB</li>
+    </ul>
+  </div>
+
+  <a class="scroll-cue" href="#try" aria-label="Scroll to the demo">
+    <span></span>
+  </a>
+</section>
+
+<script>
+  const host = document.querySelector<HTMLElement>('[data-stage]');
+  const canvas = host?.querySelector<HTMLCanvasElement>('canvas');
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  // The 3D tile loads after first paint; until then (or without WebGL) the SVG tile shows.
+  if (host && canvas) {
+    const go = () =>
+      import('../../scripts/hero3d')
+        .then((m) => m.startHero(host, canvas))
+        .catch(() => {});
+    if ('requestIdleCallback' in window) requestIdleCallback(() => go(), { timeout: 1200 });
+    else setTimeout(go, 300);
+  }
+  // Ember light that drifts toward the pointer.
+  if (hero && matchMedia('(pointer: fine)').matches) {
+    let raf = 0;
+    hero.addEventListener('pointermove', (e) => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const r = hero.getBoundingClientRect();
+        hero.style.setProperty('--gx', `${((e.clientX - r.left) / r.width) * 100}%`);
+        hero.style.setProperty('--gy', `${((e.clientY - r.top) / r.height) * 100}%`);
+      });
+    });
+  }
+  // The Shift key in the subtitle taps itself now and then.
+  const k = document.querySelector<HTMLElement>('.kbd-live');
+  if (k && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    setInterval(() => {
+      k.classList.add('is-down');
+      setTimeout(() => k.classList.remove('is-down'), 180);
+    }, 2600);
+  }
+</script>
+
+<style>
+  .hero {
+    --gx: 50%;
+    --gy: 30%;
+    position: relative;
+    min-height: min(100svh, 980px);
+    padding: 18px 0 64px;
+    display: flex;
+    align-items: center;
+    overflow: clip;
+    isolation: isolate;
+  }
+  .hero-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+  .glow {
+    position: absolute;
+    inset: -20%;
+    background:
+      radial-gradient(38% 34% at var(--gx) var(--gy), rgba(238, 106, 52, 0.2), transparent 70%),
+      radial-gradient(40% 40% at 50% 28%, rgba(247, 154, 69, 0.14), transparent 70%),
+      radial-gradient(30% 30% at 82% 80%, rgba(180, 166, 255, 0.09), transparent 70%);
+    transition: background-position 600ms;
+  }
+  .dial {
+    position: absolute;
+    left: 50%;
+    top: 34%;
+    width: min(1300px, 170vw);
+    translate: -50% -50%;
+    animation: dial 120s linear infinite;
+    opacity: 0.9;
+    mask: radial-gradient(closest-side, #000 60%, transparent);
+  }
+  @keyframes dial { to { rotate: 360deg; } }
+  .dial-ring { fill: none; stroke: var(--line-2); stroke-width: 1; }
+  .dial-ring.faint { stroke: var(--line); stroke-dasharray: 2 10; }
+  .tick { stroke: var(--line-2); stroke-width: 1.2; }
+  .tick.major { stroke: var(--line-3); stroke-width: 2; }
+
+  .hero-in { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 12px 5px 5px;
+    border-radius: 999px;
+    border: 1px solid var(--line-2);
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-size: 0.86rem;
+    color: var(--text-2);
+    transition: border-color 200ms, gap 400ms var(--spring-bouncy), color 200ms;
+  }
+  .pill:hover { border-color: var(--line-3); gap: 14px; color: var(--text); }
+  .pill-new {
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--ember-grad);
+    color: var(--text-on-ember);
+    font-weight: 650;
+    font-size: 0.74rem;
+  }
+
+  .stage {
+    position: relative;
+    width: min(500px, 88vw);
+    aspect-ratio: 1.6;
+    margin: 4px 0 -4px;
+    cursor: grab;
+    touch-action: pan-y;
+  }
+  .stage:global(.grabbing) { cursor: grabbing; }
+  .token-svg {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 36%;
+    translate: -50% -50%;
+    filter: drop-shadow(0 30px 40px rgba(217, 72, 43, 0.35));
+    animation: float 4.8s var(--ease-in-out) infinite alternate, token-in 1100ms var(--spring-bouncy) both;
+    transition: opacity 600ms var(--ease-out);
+  }
+  .token-blades { transform-origin: 128px 128px; transform-box: view-box; animation: blades 14s linear infinite; }
+  @keyframes float { to { translate: -50% -54%; } }
+  @keyframes token-in { from { scale: 0.4; rotate: -40deg; opacity: 0; } }
+  @keyframes blades { to { rotate: 360deg; } }
+  .token-gl { position: absolute; inset: -8% -16%; width: 132%; height: 116%; opacity: 0; transition: opacity 700ms var(--ease-out); }
+  .stage:global(.gl-ready) .token-gl { opacity: 1; }
+  .stage:global(.gl-ready) .token-svg { opacity: 0; }
+
+  .hero-title {
+    font-size: clamp(3.2rem, 1.4rem + 6.6vw, 8.4rem);
+    letter-spacing: -0.032em;
+    line-height: 0.92;
+    font-weight: 720;
+    font-variation-settings: 'wdth' 92, 'opsz' 96;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0 0.22em;
+    position: relative;
+    z-index: 1;
+  }
+  .hw { display: inline-block; }
+  .hw-1 { animation: w-drag 1100ms var(--spring-soft) 200ms both; }
+  .hw-2 { animation: w-tap 900ms var(--spring-wobble) 380ms both; }
+  .hw-3 { animation: w-convert 1300ms var(--spring-soft) 520ms both; padding-right: 0.04em; }
+  @keyframes w-drag {
+    from { transform: translateX(-0.6em) skewX(18deg); opacity: 0; filter: blur(12px); }
+  }
+  @keyframes w-tap {
+    0% { transform: translateY(-0.5em) scaleY(1.2); opacity: 0; }
+    40% { opacity: 1; }
+  }
+  @keyframes w-convert {
+    from { transform: rotate(-8deg) translateY(0.3em) scale(0.85); opacity: 0; filter: blur(10px); }
+  }
+  .tapkey { display: inline-block; animation: tap 2.6s var(--ease-out) 2s infinite; transform-origin: 50% 100%; }
+  @keyframes tap {
+    0%, 86%, 100% { transform: none; }
+    90% { transform: translateY(0.06em) scale(1.04, 0.9); }
+    95% { transform: translateY(-0.02em) scale(0.98, 1.03); }
+  }
+  .hero-sub { max-width: 640px; margin-top: 18px; font-size: var(--step-1); color: var(--text-2); line-height: 1.55; }
+  .hero-sub kbd { font-size: 0.78em; }
+
+  .hero-cta { margin-top: 26px; display: grid; justify-items: center; gap: 14px; }
+  .for-win, .for-linux { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .for-linux, .for-other { display: none; }
+  :global(html[data-os='linux']) .for-linux { display: flex; }
+  :global(html[data-os='linux']) .for-win { display: none; }
+  :global(html[data-os='mac']) .for-other, :global(html[data-os='linux']) .for-other, :global(html[data-os='mobile']) .for-other { display: block; }
+  :global(html[data-os='mobile']) .for-win .btn { display: none; }
+  .for-other { font-size: 0.9rem; }
+  .cmd {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    height: 54px;
+    padding: 0 18px;
+    border-radius: 16px;
+    background: var(--code-bg);
+    border: 1px solid rgba(255, 236, 220, 0.14);
+    color: #efe6dc;
+    max-width: min(640px, 92vw);
+    box-shadow: var(--shadow-2);
+    transition: transform 400ms var(--spring-bouncy), border-color 200ms;
+  }
+  .cmd:hover { border-color: rgba(255, 160, 106, 0.5); }
+  .cmd:active { transform: scale(0.98); }
+  .cmd code { font-size: 0.84rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: none; border: 0; padding: 0; }
+  .cmd-p { color: var(--ember-hot); font-family: var(--font-mono); }
+  .cmd:global(.copied) { border-color: var(--mint); }
+
+  .trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; margin-top: 34px; color: var(--text-3); font-size: 0.88rem; }
+  .trust li { display: inline-flex; align-items: center; gap: 8px; }
+  .trust :global(svg) { color: var(--ember-hot); }
+
+  .scroll-cue {
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    translate: -50% 0;
+    width: 26px;
+    height: 42px;
+    border-radius: 14px;
+    border: 1.5px solid var(--line-3);
+    display: grid;
+    justify-items: center;
+    padding-top: 8px;
+  }
+  .scroll-cue span { width: 4px; height: 8px; border-radius: 2px; background: var(--ember-hot); animation: cue 1.8s var(--ease-in-out) infinite; }
+  @keyframes cue { 0% { transform: translateY(0); opacity: 1; } 70% { transform: translateY(12px); opacity: 0; } 100% { opacity: 0; } }
+
+  @media (max-width: 640px) {
+    .stage { width: 96vw; margin-bottom: -6px; }
+    .hero-title { font-size: clamp(3rem, 15vw, 5rem); }
+    .scroll-cue { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hw-1, .hw-2, .hw-3, .tapkey, .token-svg, .token-blades, .dial { animation: none !important; }
+  }
+</style>

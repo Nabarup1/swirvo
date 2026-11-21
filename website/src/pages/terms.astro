@@ -1,0 +1,9 @@
+---
+import Page from '../layouts/Page.astro';
+import LegalDoc from '../components/LegalDoc.astro';
+import { compiledContent } from '../generated/EULA.md';
+const html = await compiledContent();
+---
+<Page title="App licence (EULA)" eyebrow="Legal" lead="The licence for the official Swirvo app: free to use at home and at work.">
+  <LegalDoc html={html} source="EULA.md" />
+</Page>

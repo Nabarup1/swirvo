@@ -1,0 +1,74 @@
+---
+import Icon from '../Icon.astro';
+---
+<section class="section eng" aria-labelledby="eng-title">
+  <div class="wrap">
+    <div class="eng-head">
+      <p class="eyebrow" data-reveal>Under the hood</p>
+      <h2 id="eng-title" data-split>Small, because it’s <span class="serif ember-text">built, not bundled.</span></h2>
+      <p class="lead" data-reveal style="--delay:120ms">
+        Instead of shipping an office suite or a video toolkit inside, Swirvo has its own engines, written in Rust, and borrows
+        what Windows already has. No web view, no runtime to install.
+      </p>
+    </div>
+
+    <div class="eng-grid" data-stagger="80">
+      <div class="big card spot" data-tilt="3">
+        <div class="mb"><b data-count="29">0</b><span>MB</span></div>
+        <p class="muted">The whole download. The app, the Board, the page picker and the command line.</p>
+        <div class="bar-cmp" aria-hidden="true">
+          <span style="--w:6%"><b>Swirvo</b></span>
+          <span class="ghost-bar" style="--w:100%"><b>A typical office suite you’d install to print Word to PDF</b></span>
+        </div>
+      </div>
+      <div class="cell card spot" data-tilt="4">
+        <Icon name="doc" />
+        <h3>Its own document engines</h3>
+        <p class="muted">PDF to Word that rebuilds the layout. Word, Excel and PowerPoint laid out to PDF without Office installed.</p>
+      </div>
+      <div class="cell card spot" data-tilt="4">
+        <Icon name="window" />
+        <h3>What Windows already has</h3>
+        <p class="muted">Text recognition, image codecs (HEIC, AVIF, RAW), the media engine and archive support add 0 bytes.</p>
+      </div>
+      <div class="cell card spot" data-tilt="4">
+        <Icon name="cpu" />
+        <h3>Every core at work</h3>
+        <p class="muted">Batches run in parallel, one job per core, each in its own sandboxed process.</p>
+      </div>
+      <div class="cell card spot" data-tilt="4">
+        <Icon name="settings" />
+        <h3>Uses what you have</h3>
+        <p class="muted">Microsoft Office, LibreOffice or FFmpeg, when installed, light up extra routes automatically. Never required.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .eng-head { max-width: 860px; margin-bottom: 48px; }
+  .eng-head h2 { margin: 12px 0 18px; }
+  .eng-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr; grid-template-rows: auto auto; gap: 14px; }
+  .big { grid-row: span 2; padding: 32px; display: flex; flex-direction: column; gap: 14px; }
+  .mb { display: flex; align-items: baseline; gap: 10px; }
+  .mb b { font: 760 clamp(5rem, 12vw, 9rem) / 0.9 var(--font-display); letter-spacing: -0.06em; font-variant-numeric: tabular-nums; background: var(--ember-grad-wide); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .mb span { font: 700 var(--step-3) var(--font-display); color: var(--text-2); }
+  .bar-cmp { display: grid; gap: 10px; margin-top: auto; }
+  .bar-cmp span { position: relative; height: 34px; border-radius: 10px; display: flex; align-items: center; }
+  .bar-cmp span::before { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--w); border-radius: 10px; background: var(--ember-grad); transform-origin: left; transform: scaleX(0); transition: transform 1.4s var(--ease-out) 0.3s; }
+  .bar-cmp .ghost-bar::before { background: repeating-linear-gradient(-45deg, var(--surface-3) 0 8px, var(--surface-2) 8px 16px); }
+  :global(.is-in) .bar-cmp span::before { transform: scaleX(1); }
+  .bar-cmp b { position: relative; padding-left: calc(var(--w) + 12px); font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+  .bar-cmp .ghost-bar b { padding-left: 12px; color: var(--text-2); font-weight: 500; }
+  .cell { padding: 24px; display: grid; gap: 10px; align-content: start; }
+  .cell > :global(svg) { width: 26px; height: 26px; color: var(--ember-hot); }
+  .cell h3 { font-size: 1.15rem; }
+  .cell p { font-size: 0.94rem; }
+  @media (max-width: 980px) {
+    .eng-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .big { grid-column: 1 / -1; grid-row: auto; }
+  }
+  @media (max-width: 600px) {
+    .eng-grid { grid-template-columns: 1fr; }
+  }
+</style>

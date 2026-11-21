@@ -1,0 +1,95 @@
+/* The wheel, drawn by scripts/wheel-draw.ts. Looks like the app's: a dark glass disc,
+   wedges that lift 4 px toward you on hover, the preset ring outside, the tab pill above. */
+.wh { opacity: 0; transition: opacity 140ms var(--ease-app-open); }
+.wh.open { opacity: 1; }
+.wh.leaving { opacity: 0; transition: opacity 160ms var(--ease-in); }
+.wh-shadow { fill: rgba(0, 0, 0, 0.45); filter: blur(18px); }
+.wh-disc {
+  fill: rgba(30, 26, 34, 0.94);
+  stroke: rgba(255, 236, 220, 0.12);
+  stroke-width: 1;
+}
+:root[data-theme='light'] .wh-disc { fill: rgba(40, 32, 38, 0.95); }
+.wh-w {
+  transform: translate(calc(var(--dx) * -7), calc(var(--dy) * -7));
+  opacity: 0;
+  transition: transform 520ms var(--spring-bouncy), opacity 200ms var(--ease-out);
+  transition-delay: calc(var(--i) * 16ms);
+  cursor: pointer;
+}
+.wh.open .wh-w { transform: none; opacity: 1; }
+.wh.open .wh-w.hov { transform: translate(var(--dx), var(--dy)); transition-delay: 0ms; transition-duration: 260ms; }
+.wh-fill {
+  fill: rgba(255, 255, 255, 0.055);
+  stroke: rgba(255, 255, 255, 0.05);
+  transition: fill 90ms var(--ease-out);
+}
+.wh-w.hov .wh-fill { fill: rgba(238, 106, 52, 0.34); stroke: rgba(255, 160, 106, 0.6); }
+.wh-w.more .wh-fill { fill: rgba(255, 255, 255, 0.025); }
+.wh-w.hit .wh-fill { fill: #ee6a34; animation: wh-hit 260ms var(--ease-out); }
+@keyframes wh-hit { 50% { fill: #ffb27a; } }
+.wh-label {
+  fill: #f6efe7;
+  font: 650 15px/1 var(--font-sans);
+  text-anchor: middle;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+}
+.wh-cap {
+  fill: rgba(246, 239, 231, 0.55);
+  font: 500 10.5px/1 var(--font-sans);
+  text-anchor: middle;
+  pointer-events: none;
+}
+.wh-w.hov .wh-cap { fill: rgba(255, 236, 220, 0.85); }
+.wh-hub circle:first-child { fill: rgba(18, 15, 21, 0.96); stroke: rgba(255, 236, 220, 0.1); }
+.wh-hub-ring { fill: none; stroke: rgba(255, 236, 220, 0.07); stroke-width: 6; }
+.wh-hub-name { fill: #f6efe7; font: 600 11px/1 var(--font-sans); text-anchor: middle; }
+.wh-hub-meta { fill: rgba(246, 239, 231, 0.5); font: 500 9.5px/1 var(--font-mono); text-anchor: middle; }
+
+.wh-tabs { transition: opacity 160ms var(--ease-out); }
+.wh.sub-open .wh-tabs { opacity: 0; }
+.wh-tabs-bg { fill: rgba(22, 18, 26, 0.94); stroke: rgba(255, 236, 220, 0.12); }
+.wh-tab rect { fill: transparent; transition: fill 160ms; }
+.wh-tab text { fill: rgba(246, 239, 231, 0.6); font: 600 10.5px/1 var(--font-sans); text-anchor: middle; }
+.wh-tab.on rect { fill: #f7853e; }
+.wh-tab.on text { fill: #1a0d07; }
+
+.wh-sub .wh-p {
+  opacity: 0;
+  transition: opacity 160ms var(--ease-app-open), transform 320ms var(--spring-bouncy);
+  transition-delay: calc(var(--k) * 20ms);
+}
+.wh-sub.open .wh-p { opacity: 1; }
+.wh-p path { fill: rgba(30, 26, 34, 0.95); stroke: rgba(255, 236, 220, 0.14); transition: fill 90ms; }
+.wh-p text { fill: #f6efe7; font: 600 11px/1 var(--font-sans); text-anchor: middle; pointer-events: none; }
+.wh-p.hov path { fill: #ee6a34; stroke: #ffb27a; }
+.wh-p.hov text { fill: #1a0d07; }
+
+/* Commit: the wheel folds into a progress ring at the drop point */
+.wh.collapsing .wh-w,
+.wh.collapsing .wh-tabs,
+.wh.collapsing .wh-sub,
+.wh.collapsing .wh-hub,
+.wh.collapsing .wh-disc,
+.wh.collapsing .wh-shadow {
+  opacity: 0;
+  transition: opacity 180ms var(--ease-in);
+}
+.wh.collapsing .wh-w.hit { opacity: 0; transition: opacity 260ms var(--ease-in) 120ms; }
+.wh-progress { opacity: 0; transition: opacity 120ms; }
+.wh-progress.run { opacity: 1; }
+.pr-bg { fill: rgba(18, 15, 21, 0.92); stroke: rgba(255, 236, 220, 0.15); stroke-width: 3; }
+.pr-fg {
+  fill: none; stroke: #f7853e; stroke-width: 3; stroke-linecap: round;
+  stroke-dasharray: 100; stroke-dashoffset: 100;
+}
+.wh-progress.run .pr-fg { stroke-dashoffset: 0; transition: stroke-dashoffset 680ms cubic-bezier(0.4, 0, 0.2, 1); }
+.pr-ok { fill: none; stroke: #6fd69a; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 20; stroke-dashoffset: 20; }
+.wh-progress.ok .pr-ok { stroke-dashoffset: 0; transition: stroke-dashoffset 300ms var(--ease-out); }
+.wh-progress.ok .pr-fg { stroke: #6fd69a; }
+.wh-pos.gone { opacity: 0; transition: opacity 260ms var(--ease-out); }
+
+@media (prefers-reduced-motion: reduce) {
+  .wh-w, .wh-sub .wh-p { transition: opacity 80ms; transform: none !important; }
+}

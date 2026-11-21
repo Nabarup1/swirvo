@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { bladePath, tilePath, GRADIENT } from '../lib/logo';
+---
+<Base title="Not found" noindex>
+  <section class="nf">
+    <div class="nf-mark" aria-hidden="true">
+      <svg viewBox="0 0 256 256">
+        <defs><linearGradient id="nfg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color={GRADIENT.top} /><stop offset="1" stop-color={GRADIENT.bottom} /></linearGradient></defs>
+        <path d={tilePath()} fill="url(#nfg)" />
+        <g class="nf-blades">{[0, 1, 2].map((k) => <path d={bladePath(k)} fill="#fff" class={`b${k}`} />)}</g>
+      </svg>
+    </div>
+    <p class="eyebrow">404</p>
+    <h1>This page spun off.</h1>
+    <p class="lead">It isn’t here. It might have moved, or the link has a typo.</p>
+    <div class="nf-cta">
+      <a class="btn btn-primary btn-lg" href="/" data-magnetic><span class="shine"></span><Icon name="arrowRight" />Home</a>
+      <button class="btn btn-glass btn-lg" type="button" data-search-open><Icon name="search" />Search the site</button>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf { min-height: 72vh; display: grid; place-content: center; justify-items: center; text-align: center; padding: 60px var(--gutter); gap: 14px; }
+  .nf-mark { width: 160px; margin-bottom: 18px; }
+  .nf-blades path { transform-origin: 128px 128px; transform-box: view-box; animation: fly 4s var(--ease-in-out) infinite; }
+  .nf-blades .b1 { animation-delay: 0.15s; }
+  .nf-blades .b2 { animation-delay: 0.3s; }
+  @keyframes fly {
+    0%, 20% { transform: none; opacity: 1; }
+    45% { transform: rotate(160deg) translate(60px, -40px) scale(0.6); opacity: 0; }
+    55% { transform: rotate(-160deg) translate(-60px, 40px) scale(0.6); opacity: 0; }
+    80%, 100% { transform: none; opacity: 1; }
+  }
+  .nf h1 { font-size: var(--step-5); }
+  .nf .lead { margin: 0 auto; }
+  .nf-cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 18px; }
+  @media (prefers-reduced-motion: reduce) { .nf-blades path { animation: none; } }
+</style>

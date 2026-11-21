@@ -1,0 +1,29 @@
+{
+  "name": "swirvo-website",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "The Swirvo website: product pages, downloads and docs.",
+  "license": "SEE LICENSE IN ../LICENSE.md",
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "scripts": {
+    "sync": "node scripts/sync.mjs",
+    "dev": "node scripts/sync.mjs && node scripts/credits.mjs && astro dev",
+    "build": "node scripts/sync.mjs && node scripts/credits.mjs && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "3.7.6",
+    "@fontsource-variable/bricolage-grotesque": "5.3.0",
+    "@fontsource-variable/instrument-sans": "5.3.0",
+    "@fontsource-variable/jetbrains-mono": "5.3.0",
+    "@fontsource/instrument-serif": "5.3.0",
+    "astro": "7.4.13",
+    "three": "0.187.0"
+  },
+  "devDependencies": {
+    "@types/three": "0.187.0"
+  }
+}

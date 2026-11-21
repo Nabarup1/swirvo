@@ -1,0 +1,95 @@
+---
+import Page from '../layouts/Page.astro';
+import Icon from '../components/Icon.astro';
+import AI from '../components/home/AI.astro';
+import { LINKS } from '../data/site';
+const TOOLS = [
+  ['list_formats', 'All formats by category, or (with from) what one format can become, and whether it’s lossless.', 'no'],
+  ['detect_format', 'The real format of each file from its content, flagging extensions that lie.', 'no'],
+  ['convert_files', 'Convert files to a format, with a preset, an output folder and a PDF profile (tagged, PDF/A-2, PDF/A-3, PDF/UA).', 'new files only'],
+  ['list_tools', 'The tools that apply to given files, with every option’s key, type, choices and default.', 'no'],
+  ['run_tool', 'Run one tool (pdf-merge, pdf-watermark, pdf-redact, pdf-searchable, docx-replace…) with options, or a PDF page tool with pages.', 'new files only'],
+  ['extract_text', 'The text of PDFs, Word/ODT/RTF, slides, sheets, Markdown, HTML and images (OCR on Windows).', 'no'],
+];
+const PROMPTS = [
+  'Convert every PDF in my Downloads folder to Word.',
+  'Merge these three PDFs, add page numbers and a DRAFT watermark.',
+  'Read the text of this scanned invoice and tell me the total.',
+  'Redact the email addresses and phone numbers in contract.pdf.',
+  'Turn report.docx into a PDF/A file for archiving.',
+  'Shrink interview.mov so it fits in a 25 MB email.',
+];
+---
+<Page
+  title="Swirvo for AI assistants"
+  eyebrow="MCP server"
+  lead="Give Claude, Cursor, VS Code or any MCP client hands for your files: convert, run the PDF tools and read documents, all on your own PC. No API key, nothing uploaded."
+  wide
+>
+  <div class="ai-cta" slot="head" data-reveal style="--delay:240ms">
+    <a class="btn btn-primary btn-lg" href={LINKS.latest} target="_blank" rel="noopener" data-magnetic><span class="shine"></span><Icon name="download" />Claude Desktop extension</a>
+    <a class="btn btn-glass btn-lg" href="#setup"><Icon name="settings" />Set up another client</a>
+  </div>
+
+  <section class="ai-sec" aria-labelledby="prompts-title">
+    <h2 id="prompts-title" data-split>Ask for things like</h2>
+    <ul class="prompts" role="list" data-stagger="70">
+      {PROMPTS.map((p) => <li class="card"><Icon name="sparkle" size={16} /><span>“{p}”</span></li>)}
+    </ul>
+  </section>
+
+  <div id="setup"><AI /></div>
+
+  <section class="ai-sec" aria-labelledby="tools-title">
+    <h2 id="tools-title" data-split>Six tools</h2>
+    <div class="ttable card" data-reveal>
+      {TOOLS.map(([n, d, w]) => (
+        <div class="trow">
+          <code>{n}</code>
+          <p class="muted">{d}</p>
+          <span class:list={['badge', w === 'no' ? '' : 'badge-mint']}>{w === 'no' ? 'Read only' : 'New files only'}</span>
+        </div>
+      ))}
+    </div>
+    <p class="faint small">Results are always new files next to the originals (or in out_dir), so an assistant can safely retry. Tool calls run one at a time, and a crash in an engine fails only that call.</p>
+  </section>
+
+  <section class="ai-sec notes" aria-labelledby="notes-title">
+    <h2 id="notes-title" data-split>Good to know</h2>
+    <div class="notes-grid" data-stagger="80">
+      <div class="card"><Icon name="file" /><h3>Use absolute paths</h3><p class="muted">The server resolves relative paths against its own working folder, which depends on the client.</p></div>
+      <div class="card"><Icon name="shield" /><h3>What it can touch</h3><p class="muted">Any file your user account can read; it writes new files next to them. It never deletes or overwrites anything and makes no network connections.</p></div>
+      <div class="card"><Icon name="window" /><h3>Windows engines</h3><p class="muted">OCR, Media Foundation video and audio, HEIC/AVIF/RAW and Microsoft Office are Windows-only; <code>list_formats</code> and <code>list_tools</code> show what this PC can do.</p></div>
+      <div class="card"><Icon name="plug" /><h3>Where to find it</h3><p class="muted">The official <a class="ulink" href={LINKS.registry} target="_blank" rel="noopener">MCP Registry</a> lists it as <code>io.github.Nabarup1/swirvo</code>. Protocol versions 2024-11-05 to 2025-11-25.</p></div>
+      <div class="card"><Icon name="book" /><h3>Claude plugin</h3><p class="muted">A skill that teaches Claude to use the <code>swirvo</code> command line, for Claude Code and Cowork. In the repo’s <a class="ulink" href={`${LINKS.github}/tree/main/plugin`} target="_blank" rel="noopener">plugin folder</a>.</p></div>
+      <div class="card"><Icon name="terminal" /><h3>The command</h3><p class="muted">Installing Swirvo (Store or the installer) puts <code>swirvo</code> on your PATH. Restart the AI app after installing so it sees it.</p></div>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .ai-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .ai-sec { margin: var(--s-8) 0; }
+  .ai-sec h2 { font-size: var(--step-4); margin-bottom: 22px; }
+  .prompts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .prompts li { padding: 18px; display: flex; gap: 12px; align-items: flex-start; font-size: 1.02rem; }
+  .prompts :global(svg) { color: var(--lilac); flex: none; margin-top: 4px; }
+  #setup :global(.section) { padding-block: var(--s-8); }
+  #setup :global(.wrap) { width: 100%; }
+  .ttable { padding: 6px; }
+  .trow { display: grid; grid-template-columns: 170px 1fr auto; gap: 16px; align-items: center; padding: 14px 16px; border-radius: 12px; }
+  .trow + .trow { border-top: 1px solid var(--line); }
+  .trow code { font-size: 0.86rem; }
+  .trow p { font-size: 0.94rem; }
+  .trow .badge { text-transform: none; letter-spacing: 0; font-family: var(--font-sans); }
+  .small { font-size: 0.9rem; margin-top: 14px; }
+  .notes-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .notes-grid .card { padding: 20px; display: grid; gap: 8px; align-content: start; }
+  .notes-grid .card > :global(svg) { width: 22px; height: 22px; color: var(--ember-hot); }
+  .notes-grid h3 { font-size: 1.05rem; }
+  .notes-grid p { font-size: 0.92rem; }
+  @media (max-width: 900px) {
+    .prompts, .notes-grid { grid-template-columns: 1fr; }
+    .trow { grid-template-columns: 1fr; gap: 6px; }
+  }
+</style>

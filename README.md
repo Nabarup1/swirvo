@@ -6,7 +6,8 @@
 
 <p align="center">
   <b>Drag. Tap. Convert.</b> A fast, private file converter and PDF toolkit for Windows.<br>
-  Everything runs on your PC: no upload, no account, no telemetry.
+  Everything runs on your PC: no upload, no account, no telemetry.<br>
+  <a href="https://swirvo.vercel.app"><b>swirvo.vercel.app</b></a>: try the gesture in your browser, read the docs.
 </p>
 
 <p align="center">
@@ -14,6 +15,8 @@
 </p>
 
 <p align="center">
+  <a href="https://swirvo.vercel.app">Website</a> ·
+  <a href="https://swirvo.vercel.app/docs/getting-started">Docs</a> ·
   <a href="https://github.com/Nabarup1/swirvo/releases/latest">Other downloads</a> ·
   <a href="media/swirvo-demo.mp4">Watch the 50-second demo</a> ·
   <a href="#what-it-can-do">Features</a> ·
@@ -70,7 +73,7 @@ No dialog, no app to open, no website to upload to.
 
 - **Windows 10 and 11 (recommended): [Swirvo on the Microsoft Store](https://apps.microsoft.com/detail/9NPGWFBVTDJQ).** Free, signed by Microsoft, updates itself, and puts the `swirvo` command on your PATH.
 
-Or get the latest **[release](https://github.com/Nabarup1/swirvo/releases/latest)** from GitHub:
+Or get the latest **[release](https://github.com/Nabarup1/swirvo/releases/latest)** from GitHub (the [download page](https://swirvo.vercel.app/download) lists every file with its size and checksum):
 
 - **Windows 10 (1809 or later) and 11, x64:** `Swirvo-<version>-windows-x64.zip`. Unzip, double-click `Swirvo.exe`, and it offers to install itself for your user (Start menu, Settings → Apps, start with Windows; no admin). The Swirvo icon appears in the notification area.
 - **Linux (x64 and ARM64):** the `swirvo` command-line tool. Install it with one line (no root needed; it checks the download's checksum):
@@ -148,8 +151,9 @@ A Rust workspace with its own engines and its own UI toolkit (no web view):
 | `crates/board` | The Board, the page picker and the live previews |
 | `crates/platform/win` | The Windows app: Raw Input triggers, the OLE drag probe, the layered wheel window, tray, installer |
 | `crates/cli` | The `swirvo` command-line tool and the MCP server (`swirvo mcp`) |
+| `website` | [swirvo.vercel.app](https://swirvo.vercel.app): the product site, live wheel demo, downloads and user docs (Astro; see [website/README.md](website/README.md)) |
 
-Design docs:
+User documentation (install, the wheel, the Board, every tool, the command line, troubleshooting) is on the website: **[swirvo.vercel.app/docs](https://swirvo.vercel.app/docs/getting-started)**. The design docs below are for contributors:
 
 | Doc | What's inside |
 |---|---|

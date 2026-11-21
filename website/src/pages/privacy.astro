@@ -1,0 +1,24 @@
+---
+import Page from '../layouts/Page.astro';
+import LegalDoc from '../components/LegalDoc.astro';
+import { compiledContent } from '../generated/PRIVACY.md';
+const html = await compiledContent();
+---
+<Page title="Privacy policy" eyebrow="Legal" lead="Swirvo makes no network connections and collects nothing. The full policy, in plain words.">
+  <aside class="site-note card">
+    <h2>About this website</h2>
+    <p>
+      This website sets no cookies, runs no analytics and loads nothing from other companies: its fonts, images and the
+      Microsoft Store badge are served from here. Like any website it is delivered by a hosting provider (Vercel), whose servers
+      handle standard request logs (such as IP address and browser type) to serve pages and keep them safe from abuse. The
+      policy below is for the Swirvo app.
+    </p>
+  </aside>
+  <LegalDoc html={html} source="PRIVACY.md" />
+
+  <style>
+    .site-note { padding: 22px 24px; margin-bottom: 32px; border-color: rgba(111, 214, 154, 0.3); }
+    .site-note h2 { font-size: 1.2rem; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .site-note p { color: var(--text-2); }
+  </style>
+</Page>

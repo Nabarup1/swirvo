@@ -1,0 +1,146 @@
+---
+import Page from '../layouts/Page.astro';
+import Icon from '../components/Icon.astro';
+import { TOOLS, GROUPS, ACTIONS, type Group } from '../data/tools';
+const groups = Object.entries(GROUPS) as [Group, { title: string; blurb: string }][];
+const ICON: Record<Group, 'doc' | 'feather' | 'lock' | 'layers' | 'image' | 'type' | 'film' | 'archive'> = {
+  'pdf-pages': 'layers',
+  'pdf-edit': 'feather',
+  'pdf-secure': 'lock',
+  'pdf-content': 'doc',
+  images: 'image',
+  office: 'type',
+  video: 'film',
+  files: 'archive',
+};
+---
+<Page
+  title="All 59 tools"
+  eyebrow="Tools"
+  lead="Every tool in the app, what it does, and the id to use from the command line or an AI assistant. Tap Ctrl while you drag a file and the ones that fit it appear."
+  wide
+>
+  <div class="tl-bar">
+    <label class="tl-search">
+      <Icon name="search" size={18} />
+      <input type="search" placeholder="Find a tool: merge, redact, compress…" data-tq aria-label="Find a tool" autocomplete="off" spellcheck="false" />
+      <span class="tl-count faint num" data-tcount>{TOOLS.length} tools</span>
+    </label>
+    <div class="tl-groups" role="toolbar" aria-label="Groups" data-tgroups>
+      <button type="button" class="tg on" data-g="all">All <span>{TOOLS.length}</span></button>
+      {groups.map(([g, x]) => (
+        <button type="button" class="tg" data-g={g}><Icon name={ICON[g]} size={15} />{x.title} <span>{TOOLS.filter((t) => t.group === g).length}</span></button>
+      ))}
+    </div>
+  </div>
+
+  <ul class="tl-grid" role="list" data-tgrid>
+    {TOOLS.map((t) => (
+      <li class="tool card spot" id={t.id} data-g={t.group} data-hay={`${t.id} ${t.label} ${t.caption} ${t.text} ${GROUPS[t.group].title}`.toLowerCase()} data-tilt="3" data-copy-scope>
+        <div class="tool-top">
+          <span class="tool-ic"><Icon name={ICON[t.group]} size={18} /></span>
+          <div class="tool-t">
+            <h2>{t.label}</h2>
+            <p class="faint">{t.caption}</p>
+          </div>
+        </div>
+        <p class="tool-x">{t.text}</p>
+        <div class="tool-meta">
+          <span class="badge">{GROUPS[t.group].title}</span>
+          {t.preview && <span class="badge badge-ember"><Icon name="eye" size={11} />Live preview</span>}
+          {t.windows && <span class="badge badge-sky" title={`Uses ${t.windows}`}><Icon name="window" size={11} />Windows</span>}
+          {t.action && <span class="badge badge-lilac">Alt wheel</span>}
+        </div>
+        <button class="tool-id" type="button" data-copy={`swirvo tool ${t.id} FILE`} data-copy-label={`Copied: swirvo tool ${t.id}`} title="Copy the command">
+          <code data-copy-text>{t.id}</code><Icon name="copy" size={13} />
+        </button>
+      </li>
+    ))}
+  </ul>
+  <p class="tl-empty" data-tempty hidden>No tool matches that. Try “pdf”, “size” or “text”.</p>
+
+  <section class="acts" aria-labelledby="acts-title">
+    <h2 id="acts-title" data-split>Plus the <span class="serif ember-text">Alt</span> wheel</h2>
+    <p class="lead" data-reveal>Quick actions for any file you’re dragging.</p>
+    <ul class="acts-grid" role="list" data-stagger="60">
+      {ACTIONS.map((a) => (
+        <li class="card"><h3>{a.label}</h3><p class="faint">{a.caption}</p><p class="muted">{a.text}</p></li>
+      ))}
+    </ul>
+  </section>
+</Page>
+
+<script>
+  import { flip } from '../scripts/flip';
+  const grid = document.querySelector<HTMLElement>('[data-tgrid]')!;
+  const items = [...grid.querySelectorAll<HTMLElement>('.tool')];
+  const q = document.querySelector<HTMLInputElement>('[data-tq]')!;
+  const count = document.querySelector<HTMLElement>('[data-tcount]')!;
+  const empty = document.querySelector<HTMLElement>('[data-tempty]')!;
+  const btns = [...document.querySelectorAll<HTMLButtonElement>('[data-tgroups] [data-g]')];
+  let g = 'all';
+  const apply = () => {
+    const words = q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    flip(items, () => {
+      let n = 0;
+      for (const el of items) {
+        const ok = (g === 'all' || el.dataset.g === g) && words.every((w) => el.dataset.hay!.includes(w));
+        el.hidden = !ok;
+        if (ok) n++;
+      }
+      count.textContent = `${n} tool${n === 1 ? '' : 's'}`;
+      empty.hidden = n > 0;
+    });
+  };
+  q.addEventListener('input', apply);
+  btns.forEach((b) =>
+    b.addEventListener('click', () => {
+      g = b.dataset.g!;
+      btns.forEach((x) => x.classList.toggle('on', x === b));
+      apply();
+    })
+  );
+</script>
+
+<style>
+  .tl-bar { position: sticky; top: 76px; z-index: 5; display: grid; gap: 12px; padding: 12px; margin: 0 -12px 18px; border-radius: var(--r-xl); background: color-mix(in oklab, var(--bg) 80%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .tl-search { display: flex; align-items: center; gap: 10px; height: 54px; padding: 0 18px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line-2); color: var(--text-3); transition: border-color 200ms, box-shadow 200ms; }
+  .tl-search:focus-within { border-color: var(--ember); box-shadow: 0 0 0 4px rgba(238, 106, 52, 0.18); }
+  .tl-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font-size: 1.05rem; color: var(--text); }
+  .tl-count { font-size: 0.86rem; white-space: nowrap; }
+  .tl-groups { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .tl-groups::-webkit-scrollbar { display: none; }
+  .tg { flex: none; display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--text-2); font-size: 0.86rem; font-weight: 600; transition: background 200ms, color 200ms, border-color 200ms, transform 400ms var(--spring-bouncy); }
+  .tg span { font: 500 0.72rem var(--font-mono); color: var(--text-3); }
+  .tg:hover { color: var(--text); border-color: var(--line-3); }
+  .tg:active { transform: scale(0.94); }
+  .tg.on { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .tg.on span { color: color-mix(in oklab, var(--bg) 60%, transparent); }
+
+  .tl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; }
+  .tool { scroll-margin-top: 220px; padding: 18px; display: flex; flex-direction: column; gap: 12px; will-change: transform; }
+  .tool-top { display: flex; align-items: center; gap: 12px; }
+  .tool-ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: rgba(238, 106, 52, 0.12); color: var(--ember-hot); flex: none; }
+  .tool-t h2 { font-size: 1.15rem; letter-spacing: -0.02em; line-height: 1.15; }
+  .tool-t p { font-size: 0.82rem; }
+  .tool-x { color: var(--text-2); font-size: 0.92rem; line-height: 1.5; }
+  .tool-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+  .tool-meta .badge { text-transform: none; letter-spacing: 0; font-family: var(--font-sans); font-weight: 600; }
+  .tool-id { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); color: var(--text-2); transition: border-color 200ms, color 200ms, transform 400ms var(--spring-bouncy); }
+  .tool-id code { font-size: 0.8rem; background: none; border: 0; padding: 0; }
+  .tool-id:hover { border-color: var(--line-3); color: var(--text); }
+  .tool-id:active { transform: scale(0.95); }
+  .tool-id:global(.copied) { border-color: var(--mint); color: var(--mint); }
+  .tl-empty { padding: 40px; text-align: center; color: var(--text-3); }
+  .acts { margin-top: var(--s-9); }
+  .acts h2 { font-size: var(--step-4); }
+  .acts .lead { margin: 10px 0 24px; }
+  .acts-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .acts-grid .card { padding: 20px; display: grid; gap: 4px; }
+  .acts-grid h3 { font-size: 1.15rem; }
+  .acts-grid .muted { margin-top: 6px; font-size: 0.92rem; }
+  @media (max-width: 760px) {
+    .tl-bar { top: 68px; }
+    .acts-grid { grid-template-columns: 1fr; }
+  }
+</style>

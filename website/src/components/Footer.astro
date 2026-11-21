@@ -1,0 +1,228 @@
+---
+import Icon from './Icon.astro';
+import StoreBadge from './StoreBadge.astro';
+import { FOOTER, LINKS } from '../data/site';
+import { bladePath, tilePath, GRADIENT } from '../lib/logo';
+import { release } from '../data/github';
+const r = await release();
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <section class="cta wrap" aria-labelledby="cta-title">
+    <div class="cta-card" data-reveal="scale">
+      <div class="cta-orbit" aria-hidden="true">
+        {Array.from({ length: 3 }).map((_, i) => <span class={`orb o${i}`}></span>)}
+      </div>
+      <p class="eyebrow">Free for home and work</p>
+      <h2 id="cta-title" data-split>Your next file is <span class="serif ember-text">one drag</span> away.</h2>
+      <p class="lead">Install from the Microsoft Store, tap Shift on your next drag, and see for yourself.</p>
+      <div class="cta-row">
+        <StoreBadge size={190} />
+        <a class="btn btn-glass btn-lg" href="/download" data-magnetic><Icon name="download" />All downloads</a>
+      </div>
+      <p class="cta-meta faint">Windows 10 (1809+) and 11 · {r.version} · about 29 MB · No account</p>
+    </div>
+  </section>
+
+  <div class="wrap foot-grid">
+    <div class="foot-about">
+      <p class="foot-tag">A fast, private file converter and PDF toolkit. Everything runs on your PC.</p>
+      <div class="foot-social">
+        <a class="soc" href={LINKS.github} target="_blank" rel="noopener" aria-label="GitHub"><Icon name="github" /></a>
+        <a class="soc" href={LINKS.store} target="_blank" rel="noopener" aria-label="Microsoft Store"><Icon name="window" /></a>
+        <a class="soc" href="/llms.txt" aria-label="llms.txt for AI agents"><Icon name="sparkle" /></a>
+      </div>
+    </div>
+    {FOOTER.map((col) => (
+      <nav class="foot-col" aria-label={col.title}>
+        <h3>{col.title}</h3>
+        <ul role="list">
+          {col.links.map((l) => (
+            <li>
+              <a class="ulink" href={l.href} {...('external' in l && l.external ? { target: '_blank', rel: 'noopener' } : {})}>
+                {l.label}
+                {'external' in l && l.external && <Icon name="arrowUpRight" size={13} />}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    ))}
+  </div>
+
+  <div class="giant" data-giant aria-hidden="true">
+    <div class="giant-in">
+      {'swirv'.split('').map((c) => <span class="gl">{c}</span>)}
+      <span class="gl go">
+        <svg viewBox="0 0 256 256">
+          <defs>
+            <linearGradient id="gw" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color={GRADIENT.top} />
+              <stop offset="1" stop-color={GRADIENT.bottom} />
+            </linearGradient>
+          </defs>
+          <g class="go-spin">
+            {[0, 1, 2].map((k) => <path d={bladePath(k)} fill="url(#gw)" />)}
+            <circle cx="128" cy="128" r="15" fill="url(#gw)" />
+          </g>
+        </svg>
+      </span>
+    </div>
+  </div>
+
+  <div class="notice">
+    <div class="wrap notice-in">
+      <p>© {year} Nabarup Ghosh. Swirvo™ and the swirl logo are trademarks of Nabarup Ghosh.</p>
+      <p class="faint">
+        Microsoft, Windows, Word, Excel and PowerPoint are trademarks of the Microsoft group of companies. Swirvo isn’t affiliated with or endorsed by Microsoft or any other company named here.
+      </p>
+      <p class="notice-row">
+        <span class="chip"><span class="dot"></span>This site: no cookies, no analytics, no trackers</span>
+        <span class="chip">Built with Rust · v{r.version}</span>
+        <a class="chip" href={LINKS.issues} target="_blank" rel="noopener">Report a problem <Icon name="arrowUpRight" size={13} /></a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  import { Spring, onTick, reduced, finePointer } from '../scripts/motion';
+  // The giant wordmark: letters near the cursor grow heavier and wider, on springs.
+  const box = document.querySelector<HTMLElement>('[data-giant]');
+  if (box && finePointer && !reduced) {
+    const letters = [...box.querySelectorAll<HTMLElement>('.gl:not(.go)')];
+    const springs = letters.map(() => new Spring(0, 140, 14));
+    const spin = box.querySelector<SVGGElement>('.go-spin');
+    const rot = new Spring(0, 60, 9);
+    let px = -9999;
+    let stop: (() => void) | null = null;
+    const run = () => {
+      if (stop) return;
+      stop = onTick((dt) => {
+        let still = true;
+        letters.forEach((el, i) => {
+          const r = el.getBoundingClientRect();
+          const d = Math.abs(px - (r.left + r.width / 2));
+          springs[i].target = Math.max(0, 1 - d / 420);
+          springs[i].step(dt);
+          const v = springs[i].value;
+          el.style.fontVariationSettings = `'wght' ${Math.round(320 + v * 480)}, 'wdth' ${Math.round(75 + v * 25)}, 'opsz' 96`;
+          el.style.transform = `translateY(${(-v * 4).toFixed(2)}%)`;
+          if (!springs[i].settled) still = false;
+        });
+        rot.step(dt);
+        if (spin) spin.style.transform = `rotate(${rot.value}deg)`;
+        if (!rot.settled) still = false;
+        if (still) {
+          stop = null;
+          return false;
+        }
+      });
+    };
+    box.addEventListener('pointermove', (e) => {
+      const before = px;
+      px = e.clientX;
+      if (before > -9999) rot.target += (px - before) * 0.6;
+      run();
+    });
+    box.addEventListener('pointerleave', () => {
+      px = -9999;
+      rot.target = Math.round(rot.target / 120) * 120;
+      run();
+    });
+  }
+</script>
+
+<style>
+  .site-footer { position: relative; margin-top: var(--s-9); overflow: hidden; }
+  .cta { margin-bottom: var(--s-10); }
+  .cta-card {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    padding: clamp(48px, 8vw, 110px) var(--gutter);
+    border-radius: var(--r-2xl);
+    border: 1px solid var(--line);
+    background:
+      radial-gradient(80% 120% at 50% 0%, rgba(238, 106, 52, 0.22), transparent 60%),
+      linear-gradient(180deg, var(--surface), var(--bg-2));
+    box-shadow: var(--shadow-3);
+    isolation: isolate;
+  }
+  .cta-card h2 { font-size: var(--step-5); max-width: 15ch; margin: 14px auto 18px; }
+  .cta-card .lead { margin-inline: auto; }
+  .cta-row { display: flex; justify-content: center; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 32px; }
+  .cta-meta { margin-top: 18px; font-size: 0.86rem; }
+  .cta-orbit { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+  .orb {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+    border: 1px dashed rgba(255, 160, 106, 0.18);
+    translate: -50% -50%;
+    animation: spin 60s linear infinite;
+  }
+  .o0 { width: 520px; height: 520px; }
+  .o1 { width: 820px; height: 820px; animation-duration: 90s; animation-direction: reverse; border-style: solid; border-color: rgba(255, 160, 106, 0.08); }
+  .o2 { width: 1180px; height: 1180px; animation-duration: 140s; }
+  @keyframes spin { to { rotate: 360deg; } }
+
+  .foot-grid {
+    display: grid;
+    grid-template-columns: 1.6fr repeat(4, minmax(0, 1fr));
+    gap: 32px;
+    padding-block: 24px 56px;
+    border-top: 1px solid var(--line);
+    padding-top: 56px;
+  }
+  .foot-tag { color: var(--text-2); max-width: 30ch; }
+  .foot-social { display: flex; gap: 8px; margin-top: 18px; }
+  .soc {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    color: var(--text-2);
+    transition: transform 500ms var(--spring-bouncy), color 200ms, border-color 200ms, background 200ms;
+  }
+  .soc:hover { transform: translateY(-3px) rotate(-6deg); color: var(--text); border-color: var(--line-3); background: var(--surface); }
+  .foot-col h3 { font-family: var(--font-mono); font-size: 0.74rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); margin-bottom: 14px; }
+  .foot-col ul { display: grid; gap: 9px; }
+  .foot-col a { color: var(--text-2); font-size: 0.95rem; display: inline-flex; align-items: center; gap: 4px; }
+  .foot-col a:hover { color: var(--text); }
+
+  .giant { overflow: hidden; padding-inline: var(--gutter); user-select: none; }
+  .giant-in {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    font-family: var(--font-display);
+    font-size: clamp(5rem, 22vw, 24rem);
+    line-height: 0.8;
+    letter-spacing: -0.06em;
+    color: transparent;
+    background: linear-gradient(180deg, var(--text) 0%, color-mix(in oklab, var(--text) 30%, transparent) 70%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    margin-bottom: -0.12em;
+  }
+  .gl { display: inline-block; font-variation-settings: 'wght' 320, 'wdth' 75, 'opsz' 96; will-change: font-variation-settings, transform; }
+  .go { width: 0.62em; height: 0.62em; margin-left: 0.02em; align-self: flex-end; margin-bottom: 0.1em; }
+  .go svg { width: 100%; height: 100%; overflow: visible; }
+  .go-spin { transform-origin: 128px 128px; transform-box: view-box; }
+  @media (hover: none), (prefers-reduced-motion: reduce) { .go-spin { animation: spin 18s linear infinite; } }
+
+  .notice { border-top: 1px solid var(--line); background: var(--bg-2); position: relative; z-index: 2; }
+  .notice-in { padding-block: 22px 28px; display: grid; gap: 8px; font-size: 0.84rem; color: var(--text-2); }
+  .notice-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .notice-row .chip { height: 28px; font-size: 0.78rem; }
+  a.chip:hover { color: var(--text); border-color: var(--line-3); }
+
+  @media (max-width: 900px) {
+    .foot-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .foot-about { grid-column: 1 / -1; }
+  }
+</style>

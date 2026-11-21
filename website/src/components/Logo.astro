@@ -1,0 +1,87 @@
+---
+// The Swirvo lockup: the app tile (same geometry as the app icon) and the wordmark.
+// Hovering spins the blades one "wheel click" (120°) with a springy overshoot.
+import { bladePath, tilePath, GRADIENT } from '../lib/logo';
+
+interface Props {
+  size?: number;
+  wordmark?: boolean;
+  href?: string | null;
+  class?: string;
+  /** Gives the mark a view-transition name so it survives page changes. */
+  persist?: boolean;
+}
+const { size = 34, wordmark = true, href = '/', class: cls = '', persist = false } = Astro.props;
+const id = 'g' + Math.random().toString(36).slice(2, 8);
+const Tag = href ? 'a' : 'span';
+---
+<Tag
+  href={href ?? undefined}
+  class:list={['logo', cls]}
+  aria-label={href ? 'Swirvo home' : undefined}
+  data-logo
+>
+  <svg
+    class="mark"
+    width={size}
+    height={size}
+    viewBox="0 0 256 256"
+    aria-hidden="true"
+    style={persist ? 'view-transition-name: brand-mark' : undefined}
+  >
+    <defs>
+      <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color={GRADIENT.top} />
+        <stop offset="1" stop-color={GRADIENT.bottom} />
+      </linearGradient>
+      <linearGradient id={id + 's'} x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#fff" stop-opacity="0.35" />
+        <stop offset="0.5" stop-color="#fff" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+    <path d={tilePath()} fill={`url(#${id})`} />
+    <path d={tilePath()} fill={`url(#${id}s)`} />
+    <g class="blades">
+      {[0, 1, 2].map((k) => <path class={`b b${k}`} d={bladePath(k)} fill="#fff" />)}
+      <circle cx="128" cy="128" r="15" fill="#fff" />
+    </g>
+  </svg>
+  {wordmark && <span class="word">swirvo</span>}
+</Tag>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mark {
+    flex: none;
+    filter: drop-shadow(0 4px 10px rgba(217, 72, 43, 0.35));
+    transition: transform var(--d-4) var(--spring-bouncy);
+  }
+  .blades {
+    transform-origin: 128px 128px;
+    transform-box: view-box;
+    transition: transform 900ms var(--spring-snappy);
+  }
+  .logo:hover .blades,
+  .logo:focus-visible .blades {
+    transform: rotate(120deg);
+  }
+  .logo:active .mark {
+    transform: scale(0.9);
+    transition-duration: 90ms;
+  }
+  .word {
+    font-family: var(--font-display);
+    font-weight: 720;
+    font-size: 1.32rem;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    font-variation-settings: 'wdth' 88;
+    transform: translateY(-1px);
+  }
+</style>

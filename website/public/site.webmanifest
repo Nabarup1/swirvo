@@ -1,0 +1,12 @@
+{
+  "name": "Swirvo",
+  "short_name": "Swirvo",
+  "description": "Drag. Tap. Convert. A fast, private file converter and PDF toolkit for Windows.",
+  "icons": [
+    { "src": "/icons/swirvo-256.png", "sizes": "256x256", "type": "image/png" },
+    { "src": "/icons/swirvo-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "theme_color": "#0c0a0e",
+  "background_color": "#0c0a0e",
+  "display": "browser"
+}

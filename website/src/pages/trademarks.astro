@@ -1,0 +1,9 @@
+---
+import Page from '../layouts/Page.astro';
+import LegalDoc from '../components/LegalDoc.astro';
+import { compiledContent } from '../generated/TRADEMARKS.md';
+const html = await compiledContent();
+---
+<Page title="Trademarks" eyebrow="Legal" lead="How the Swirvo name and swirl logo may, and may not, be used.">
+  <LegalDoc html={html} source="TRADEMARKS.md" />
+</Page>

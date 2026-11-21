@@ -1,0 +1,33 @@
+---
+// The official "Get it from Microsoft" badge, unaltered and self-hosted (no third-party
+// request), linking to Swirvo's Store page. Dark and light versions follow the theme.
+import { LINKS } from '../data/site';
+interface Props {
+  size?: number;
+  class?: string;
+}
+const { size = 180, class: cls = '' } = Astro.props;
+const h = Math.round((size * 44) / 161);
+---
+<a class:list={['store-badge', cls]} href={LINKS.store} target="_blank" rel="noopener" data-magnetic="0.2" data-cursor="Store">
+  <img class="sb-dark" src="/badges/ms-store-dark.svg" width={size} height={h} alt="Get it from Microsoft" />
+  <img class="sb-light" src="/badges/ms-store-light.svg" width={size} height={h} alt="Get it from Microsoft" />
+</a>
+
+<style>
+  .store-badge {
+    --bx: 0px;
+    --by: 0px;
+    display: inline-block;
+    border-radius: 8px;
+    transform: translate3d(var(--bx), var(--by), 0);
+    transition: transform 520ms var(--spring-bouncy), filter 300ms, box-shadow 300ms;
+    box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+  }
+  .store-badge:hover { filter: brightness(1.08); box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.7); }
+  .store-badge:active { transform: translate3d(var(--bx), var(--by), 0) scale(0.95); transition-duration: 90ms; }
+  .store-badge img { display: block; height: auto; }
+  .sb-light { display: none !important; }
+  :global(:root[data-theme='light']) .sb-dark { display: none !important; }
+  :global(:root[data-theme='light']) .sb-light { display: block !important; }
+</style>

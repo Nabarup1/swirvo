@@ -1,0 +1,103 @@
+---
+import { LINKS } from '../../data/site';
+const QA = [
+  {
+    q: 'Is Swirvo really free?',
+    a: 'Yes. The app is free to use at home and at work, with no ads, no account and no trial. The licence is in the <a href="/terms">app licence</a>.',
+  },
+  {
+    q: 'Does anything get uploaded?',
+    a: 'No. Every conversion and tool runs on your PC. The app has no network code, and offline mode is on by default. See the <a href="/privacy">privacy policy</a>.',
+  },
+  {
+    q: 'Will it change or overwrite my files?',
+    a: 'Never. Results are always new files next to the original (or in a folder you pick), with a fresh name like <code>photo (2).jpg</code> when one already exists.',
+  },
+  {
+    q: 'I hold Shift or Ctrl while dragging to move or copy files. Will that clash?',
+    a: 'The wheel opens on a quick tap of the key while you drag. You can choose which key opens which wheel, or pause the wheel, in Settings.',
+  },
+  {
+    q: 'Do I need Microsoft Office to convert Word, Excel or PowerPoint to PDF?',
+    a: 'No. Swirvo has its own layout engines for Word, Excel and PowerPoint. If Office or LibreOffice is installed you can let Swirvo use it for an exact Office print.',
+  },
+  {
+    q: 'Why does Windows say “Windows protected your PC”?',
+    a: 'The GitHub downloads aren’t code-signed yet, so SmartScreen warns about them. Install from the <a href="' + LINKS.store + '">Microsoft Store</a> (signed by Microsoft, no warning), or click More info → Run anyway.',
+  },
+  {
+    q: 'Is there a Mac or Linux version?',
+    a: 'On Linux there’s the <code>swirvo</code> command line for x64 and ARM64. The Linux desktop app (wheel and Board) is planned. There’s no Mac version.',
+  },
+  {
+    q: 'Is the source code available?',
+    a: 'Yes, on <a href="' + LINKS.github + '">GitHub</a>, under the PolyForm Noncommercial licence: read it, build it and change it for any noncommercial purpose.',
+  },
+];
+---
+<section class="section faq" aria-labelledby="faq-title">
+  <div class="wrap faq-grid">
+    <div class="faq-head">
+      <p class="eyebrow" data-reveal>Questions</p>
+      <h2 id="faq-title" data-split>Good questions, <span class="serif muted">short answers.</span></h2>
+      <p class="muted" data-reveal style="--delay:120ms">Something else? <a class="ulink" href="/docs/faq">The full FAQ</a> or <a class="ulink" href={LINKS.issues} target="_blank" rel="noopener">ask on GitHub</a>.</p>
+    </div>
+    <div class="qa" data-stagger="60">
+      {QA.map((x) => (
+        <details class="qi">
+          <summary>
+            <span>{x.q}</span>
+            <i aria-hidden="true"></i>
+          </summary>
+          <div class="qa-a"><p set:html={x.a} /></div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  import { reduced } from '../../scripts/motion';
+  // Springy open and close for <details>, keeping native semantics.
+  document.querySelectorAll<HTMLDetailsElement>('.qi').forEach((d) => {
+    const s = d.querySelector('summary')!;
+    const body = d.querySelector<HTMLElement>('.qa-a')!;
+    s.addEventListener('click', (e) => {
+      if (reduced) return;
+      e.preventDefault();
+      if (d.open) {
+        const h = body.offsetHeight;
+        body.animate({ height: [`${h}px`, '0px'], opacity: [1, 0] }, { duration: 260, easing: 'cubic-bezier(0.7,0,1,0.5)' }).finished.then(() => (d.open = false));
+        d.classList.remove('on');
+      } else {
+        d.open = true;
+        d.classList.add('on');
+        const h = body.offsetHeight;
+        body.animate({ height: ['0px', `${h}px`], opacity: [0, 1] }, { duration: 560, easing: 'linear(0, 0.18, 0.54, 0.86, 1.03, 1.06, 1.03, 1.0, 0.995, 1)' });
+      }
+    });
+  });
+</script>
+
+<style>
+  .faq-grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(32px, 5vw, 80px); align-items: start; }
+  .faq-head { position: sticky; top: 110px; }
+  .faq-head h2 { margin: 12px 0 16px; }
+  .qa { display: grid; gap: 10px; }
+  .qi { border-radius: var(--r-lg); border: 1px solid var(--line); background: var(--surface); transition: border-color 200ms, background 300ms; }
+  .qi[open] { border-color: var(--line-2); background: var(--surface-2); }
+  summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; cursor: pointer; list-style: none; font-weight: 600; font-size: 1.04rem; }
+  summary::-webkit-details-marker { display: none; }
+  summary i { position: relative; width: 18px; height: 18px; flex: none; transition: transform 500ms var(--spring-bouncy); }
+  summary i::before, summary i::after { content: ''; position: absolute; left: 0; top: 8px; width: 18px; height: 2px; border-radius: 2px; background: var(--ember-hot); }
+  summary i::after { transform: rotate(90deg); transition: transform 500ms var(--spring-bouncy); }
+  .qi[open] summary i { transform: rotate(180deg); }
+  .qi[open] summary i::after { transform: rotate(0deg); }
+  .qa-a { overflow: hidden; }
+  .qa-a p { padding: 0 20px 18px; color: var(--text-2); }
+  .qa-a :global(a) { color: var(--link); text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 900px) {
+    .faq-grid { grid-template-columns: 1fr; }
+    .faq-head { position: static; }
+  }
+</style>

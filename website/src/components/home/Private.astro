@@ -1,0 +1,106 @@
+---
+import Icon from '../Icon.astro';
+---
+<section class="section priv" aria-labelledby="priv-title">
+  <div class="wrap priv-grid">
+    <div class="priv-copy">
+      <p class="eyebrow" data-reveal>Private by design</p>
+      <h2 id="priv-title" data-split>Nothing leaves <span class="serif ember-text">your PC.</span></h2>
+      <p class="lead" data-reveal style="--delay:120ms">
+        No upload, no account, no ads, no analytics. Swirvo has no network code at all, and works the same with Wi-Fi off.
+      </p>
+      <ul class="promises" role="list" data-stagger="90">
+        <li><Icon name="shield" /><div><h3>Originals are never changed</h3><p class="muted">Results are new files, written to a temporary name and moved into place in one step. Nothing is ever overwritten.</p></div></li>
+        <li><Icon name="layers" /><div><h3>Every conversion in a sandbox</h3><p class="muted">Each job runs in its own restricted process with a memory cap, so a damaged file fails alone instead of taking the app down.</p></div></li>
+        <li><Icon name="cloudOff" /><div><h3>Offline, always</h3><p class="muted">Offline mode is on by default and the app makes no network connections, so there’s nothing to collect and nothing to leak.</p></div></li>
+      </ul>
+      <a class="btn btn-glass" href="/privacy" data-reveal>Read the privacy policy <Icon name="arrowRight" /></a>
+    </div>
+
+    <div class="priv-viz" data-reveal="scale" aria-hidden="true">
+      <div class="pc">
+        <div class="pc-screen">
+          <div class="net">
+            <span class="net-l">Network</span>
+            <span class="net-v"><b>0</b> bytes sent</span>
+          </div>
+          <div class="jobs">
+            {['Holiday.heic → JPG', 'Contract.pdf → DOCX', 'Damaged.pdf → DOCX', 'Budget.csv → XLSX', 'Talk.mov → MP4'].map((j, i) => (
+              <div class:list={['job', { bad: i === 2 }]} style={`--i:${i}`}>
+                <span class="bubble"></span>
+                <span class="jt">{j}</span>
+                <span class="js">{i === 2 ? 'This file looks damaged' : 'Done'}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div class="pc-stand"></div>
+      </div>
+      <div class="cloud">
+        <Icon name="cloudOff" size={28} />
+        <span>The cloud</span>
+        <i class="nope"></i>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .priv-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 96px); align-items: center; }
+  .priv-copy h2 { margin: 12px 0 18px; }
+  .promises { display: grid; gap: 22px; margin: 32px 0; }
+  .promises li { display: grid; grid-template-columns: 28px 1fr; gap: 14px; }
+  .promises li > :global(svg) { width: 24px; height: 24px; color: var(--mint); margin-top: 3px; }
+  .promises h3 { font-size: 1.12rem; margin-bottom: 4px; }
+  .promises p { font-size: 0.96rem; }
+
+  .priv-viz { position: relative; display: grid; place-items: center; padding: 40px 0 0; }
+  .pc { width: min(460px, 100%); }
+  .pc-screen {
+    padding: 18px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, var(--surface-2), var(--surface));
+    border: 1px solid var(--line-2);
+    box-shadow: var(--shadow-3);
+  }
+  .pc-stand { width: 26%; height: 22px; margin: 0 auto; background: linear-gradient(var(--surface-3), var(--surface)); clip-path: polygon(20% 0, 80% 0, 100% 100%, 0 100%); }
+  .net { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); margin-bottom: 12px; font-size: 0.86rem; }
+  .net-l { color: var(--text-3); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.72rem; }
+  .net-v b { color: var(--mint); font: 700 1.3rem var(--font-display); margin-right: 4px; }
+  .jobs { display: grid; gap: 8px; }
+  .job { display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); font-size: 0.86rem; }
+  .bubble { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line-3); position: relative; }
+  .js { color: var(--text-3); font-size: 0.78rem; opacity: 0; }
+  :global(.is-in) .job .bubble { animation: work 1.4s var(--ease-out) both; animation-delay: calc(var(--i) * 180ms + 300ms); }
+  :global(.is-in) .job .js { animation: show 0.4s var(--ease-out) both; animation-delay: calc(var(--i) * 180ms + 1700ms); }
+  :global(.is-in) .job:not(.bad) .bubble::after { content: ''; position: absolute; inset: 2px; border-radius: 50%; background: var(--mint); animation: show 0.3s var(--spring-bouncy) both; animation-delay: calc(var(--i) * 180ms + 1700ms); }
+  :global(.is-in) .job.bad { animation: shake 0.5s var(--ease-out) both; animation-delay: 2.1s; }
+  :global(.is-in) .job.bad .bubble { animation: pop-bad 1.8s var(--ease-out) both; animation-delay: 0.66s; }
+  .job.bad .js { color: var(--rose); }
+  @keyframes work { 0% { border-color: var(--line-3); } 50% { border-color: var(--ember); transform: rotate(180deg); } 100% { border-color: var(--mint); transform: rotate(360deg); } }
+  @keyframes pop-bad { 60% { border-color: var(--ember); transform: scale(1); } 75% { transform: scale(1.5); opacity: 0.2; border-color: var(--rose); } 100% { transform: scale(1); opacity: 1; border-color: var(--rose); } }
+  @keyframes shake { 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
+  @keyframes show { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
+
+  .cloud {
+    position: absolute;
+    top: -6px;
+    right: 4%;
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    color: var(--text-3);
+    font-size: 0.8rem;
+    padding: 12px 16px;
+    border-radius: 16px;
+    border: 1px dashed var(--line-3);
+    background: var(--bg);
+    rotate: 6deg;
+  }
+  .nope { position: absolute; inset: 0; }
+  .nope::before, .nope::after { content: ''; position: absolute; left: 50%; top: 50%; width: 120%; height: 2px; background: var(--rose); translate: -50% -50%; rotate: 35deg; opacity: 0.7; }
+  .nope::after { rotate: -35deg; }
+  @media (max-width: 900px) {
+    .priv-grid { grid-template-columns: 1fr; }
+  }
+</style>

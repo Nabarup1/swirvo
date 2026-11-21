@@ -1,0 +1,124 @@
+---
+import '@fontsource-variable/bricolage-grotesque/standard.css';
+import '@fontsource-variable/instrument-sans/standard.css';
+import '@fontsource/instrument-serif/400-italic.css';
+import '@fontsource-variable/jetbrains-mono';
+import '../styles/base.css';
+import '../styles/ui.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Announcement from '../components/Announcement.astro';
+import NoticeBar from '../components/NoticeBar.astro';
+import SearchPalette from '../components/SearchPalette.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  noindex?: boolean;
+  bodyClass?: string;
+  jsonld?: Record<string, unknown>;
+}
+const {
+  title,
+  description = 'Swirvo converts and edits files the fastest way possible: start dragging any file, tap Shift, and drop it on a format. Free, 100% offline, for Windows. Nearly 100 formats and 59 tools.',
+  image = '/og.png',
+  noindex = false,
+  bodyClass = '',
+  jsonld,
+} = Astro.props;
+const fullTitle = title ? `${title} · Swirvo` : 'Swirvo · Drag. Tap. Convert.';
+const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', Astro.site);
+const ogImage = new URL(image, Astro.site);
+---
+<!doctype html>
+<html lang="en" class="no-js" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#0c0a0e" data-theme-color />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="application-name" content="Swirvo" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/icons/swirvo-256.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Swirvo" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    {jsonld && <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />}
+
+    <script is:inline>
+      // Theme before first paint (no flash), and JS-only reveal states with a safety net.
+      (function () {
+        var d = document.documentElement;
+        var pref = 'dark';
+        try { pref = localStorage.getItem('swirvo-theme') || 'dark'; } catch (e) {}
+        var light = pref === 'light' || (pref === 'system' && matchMedia('(prefers-color-scheme: light)').matches);
+        d.dataset.theme = light ? 'light' : 'dark';
+        d.dataset.themePref = pref;
+        var m = document.querySelector('meta[data-theme-color]');
+        if (m) m.setAttribute('content', light ? '#f7f1e9' : '#0c0a0e');
+        var ua = navigator.userAgent;
+        d.dataset.os = /Windows/.test(ua) ? 'windows' : /Android|iPhone|iPad|iPod/.test(ua) ? 'mobile' : /Mac/.test(ua) ? 'mac' : /Linux|X11|CrOS/.test(ua) ? 'linux' : 'other';
+        d.classList.remove('no-js');
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('reduce');
+        setTimeout(function () { if (!d.classList.contains('motion-ready')) d.classList.add('no-js'); }, 3000);
+        // Cross-document transitions: grow the new page out of the point you clicked.
+        addEventListener('pagereveal', function (e) {
+          var vt = e.viewTransition;
+          if (!vt || d.classList.contains('reduce')) return;
+          var raw = null;
+          try { raw = sessionStorage.getItem('vt'); sessionStorage.removeItem('vt'); } catch (x) {}
+          var p = raw ? JSON.parse(raw) : null;
+          var fresh = p && Date.now() - p.t < 5000;
+          var x = fresh ? p.x : innerWidth / 2, y = fresh ? p.y : innerHeight / 3;
+          var r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+          vt.ready.then(function () {
+            d.animate(
+              { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + r + 'px at ' + x + 'px ' + y + 'px)'] },
+              { duration: 760, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', pseudoElement: '::view-transition-new(root)' }
+            );
+          }).catch(function () {});
+        });
+      })();
+    </script>
+    <slot name="head" />
+  </head>
+  <body class={bodyClass}>
+    <a class="skip" href="#main">Skip to content</a>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="cursor" aria-hidden="true"><div class="cursor-ring"><span class="cursor-label"></span></div><div class="cursor-dot"></div></div>
+    <Announcement />
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <NoticeBar />
+    <SearchPalette />
+    <script>
+      import '../scripts/motion';
+      import '../scripts/cursor';
+      import '../scripts/chrome';
+      document.documentElement.classList.add('motion-ready');
+    </script>
+  </body>
+</html>

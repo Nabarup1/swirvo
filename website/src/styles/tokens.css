@@ -1,0 +1,164 @@
+/* Swirvo design tokens.
+   Palette: "ink and ember". The app icon's gradient (#F79A45 → #D9482B) is the only loud
+   colour; everything else is warm ink (dark) or paper (light) so the ember always reads
+   as the thing to press. Motion uses real spring curves (generated from a damped
+   harmonic oscillator) so every press, open and settle has follow-through. */
+
+:root {
+  /* Brand */
+  --ember-1: #f79a45;
+  --ember-2: #d9482b;
+  --ember: #ee6a34;
+  --ember-hot: #ff8a4c;
+  --ember-grad: linear-gradient(135deg, var(--ember-1) 0%, var(--ember-2) 100%);
+  --ember-grad-wide: linear-gradient(120deg, #ffb36b 0%, #f7853e 30%, #e5532f 65%, #b8361f 100%);
+  --mint: #6fd69a;
+  --lilac: #b4a6ff;
+  --sky: #78c7ff;
+  --gold: #ffd27a;
+  --rose: #ff7a8a;
+
+  /* Type */
+  --font-display: 'Bricolage Grotesque Variable', 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Instrument Sans Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif: 'Instrument Serif', ui-serif, Georgia, serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+
+  --step--1: clamp(0.82rem, 0.8rem + 0.1vw, 0.88rem);
+  --step-0: clamp(1rem, 0.96rem + 0.18vw, 1.0625rem);
+  --step-1: clamp(1.15rem, 1.08rem + 0.35vw, 1.3rem);
+  --step-2: clamp(1.4rem, 1.25rem + 0.7vw, 1.8rem);
+  --step-3: clamp(1.8rem, 1.5rem + 1.4vw, 2.6rem);
+  --step-4: clamp(2.3rem, 1.7rem + 2.9vw, 4.2rem);
+  --step-5: clamp(2.9rem, 1.9rem + 5vw, 6.4rem);
+  --step-6: clamp(3.4rem, 1.6rem + 8.6vw, 10rem);
+
+  /* Space (4 px grid) */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+  --s-10: 128px;
+  --section: clamp(88px, 12vw, 180px);
+  --gutter: clamp(16px, 4vw, 40px);
+  --max: 1240px;
+  --max-prose: 72ch;
+
+  /* Radii: concentric. A card's inner element uses its radius minus the padding. */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-2xl: 36px;
+  --r-pill: 999px;
+  /* The app tile's corner ratio (56 / 228). */
+  --r-tile: 24.56%;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-in: cubic-bezier(0.7, 0, 1, 0.5);
+  --ease-app-open: cubic-bezier(0.1, 0.9, 0.2, 1);
+  --spring-bouncy: linear(0, 0.0512, 0.1805, 0.354, 0.5429, 0.7244, 0.8831, 1.0098, 1.1009, 1.1572, 1.1829, 1.1838, 1.1666, 1.1379, 1.1037, 1.0688, 1.0367, 1.0098, 0.9894, 0.9755, 0.9678, 0.9654, 0.967, 0.9713, 0.9773, 0.9838, 0.9901, 0.9957, 1.0001, 1.0033, 1.0054, 1.0063, 1.0064, 1.0058, 1.0048, 1.0037, 1.0024, 1.0013, 1.0004, 0.9997, 0.9992, 0.9989, 0.9988, 0.9989, 1);
+  --spring-snappy: linear(0, 0.025, 0.0895, 0.1798, 0.2846, 0.3951, 0.5045, 0.608, 0.7021, 0.7849, 0.8556, 0.9141, 0.9609, 0.9969, 1.0234, 1.0416, 1.0529, 1.0587, 1.0601, 1.0583, 1.0542, 1.0486, 1.0423, 1.0356, 1.0291, 1.0229, 1.0173, 1.0124, 1.0082, 1.0048, 1.0021, 1, 0.9984, 0.9974, 0.9968, 0.9965, 0.9964, 0.9965, 0.9968, 0.9971, 0.9975, 0.9979, 0.9983, 0.9987, 1);
+  --spring-soft: linear(0, 0.0226, 0.0808, 0.1622, 0.2567, 0.3567, 0.4563, 0.5513, 0.639, 0.7176, 0.7864, 0.845, 0.8939, 0.9337, 0.9651, 0.9893, 1.0072, 1.0197, 1.0279, 1.0326, 1.0346, 1.0345, 1.033, 1.0305, 1.0274, 1.024, 1.0205, 1.0171, 1.0139, 1.011, 1.0085, 1.0063, 1.0044, 1.0029, 1.0017, 1.0007, 1, 0.9995, 0.9991, 0.9989, 0.9988, 0.9988, 0.9988, 0.9989, 1);
+  --spring-wobble: linear(0, 0.1021, 0.3525, 0.6645, 0.9617, 1.1899, 1.3227, 1.3585, 1.3155, 1.2222, 1.1096, 1.0046, 0.9257, 0.8815, 0.8717, 0.8894, 0.924, 0.9645, 1.0015, 1.0287, 1.0434, 1.0458, 1.0387, 1.0259, 1.0114, 0.9983, 0.989, 0.9842, 0.9837, 0.9865, 0.9912, 0.9964, 1.001, 1.0042, 1.0058, 1.0058, 1.0047, 1.003, 1.0011, 0.9995, 0.9984, 0.9979, 0.9979, 0.9984, 1);
+  --d-1: 120ms;
+  --d-2: 200ms;
+  --d-3: 320ms;
+  --d-4: 520ms;
+  --d-5: 800ms;
+  --d-6: 1200ms;
+
+  --z-grain: 1;
+  --z-header: 50;
+  --z-menu: 70;
+  --z-palette: 90;
+  --z-toast: 95;
+  --z-cursor: 100;
+
+  color-scheme: dark;
+
+  /* Dark (default): warm ink */
+  --bg: #0c0a0e;
+  --bg-2: #120f15;
+  --surface: #17131b;
+  --surface-2: #1e1923;
+  --surface-3: #27212d;
+  --glass: rgba(26, 21, 31, 0.62);
+  --glass-strong: rgba(20, 16, 24, 0.86);
+  --line: rgba(255, 236, 220, 0.08);
+  --line-2: rgba(255, 236, 220, 0.14);
+  --line-3: rgba(255, 236, 220, 0.24);
+  --text: #f6efe7;
+  --text-2: #c2b7ad;
+  --text-3: #8f857e;
+  --text-on-ember: #1a0d07;
+  --link: #ffa06a;
+  --ember-ink: #ff8f5a;
+  --hi: rgba(255, 255, 255, 0.06);
+  --shadow-1: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 8px 24px -8px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.35);
+  --shadow-3: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 30px 80px -20px rgba(0, 0, 0, 0.75), 0 12px 30px -12px rgba(0, 0, 0, 0.6);
+  --glow: 0 0 0 1px rgba(255, 138, 76, 0.35), 0 10px 40px -8px rgba(238, 106, 52, 0.55);
+  --grain-opacity: 0.055;
+  --code-bg: #120f16;
+
+  /* Syntax colours (Shiki css-variables theme) */
+  --astro-code-foreground: #efe6dc;
+  --astro-code-background: transparent;
+  --astro-code-token-constant: #ffd27a;
+  --astro-code-token-string: #9fe0b3;
+  --astro-code-token-comment: #7d7169;
+  --astro-code-token-keyword: #ff9a62;
+  --astro-code-token-parameter: #f6efe7;
+  --astro-code-token-function: #b4a6ff;
+  --astro-code-token-string-expression: #9fe0b3;
+  --astro-code-token-punctuation: #b8aca1;
+  --astro-code-token-link: #78c7ff;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f7f1e9;
+  --bg-2: #f1e9de;
+  --surface: #fffcf8;
+  --surface-2: #f6efe6;
+  --surface-3: #ece2d6;
+  --glass: rgba(255, 251, 246, 0.7);
+  --glass-strong: rgba(255, 251, 246, 0.92);
+  --line: rgba(60, 30, 10, 0.09);
+  --line-2: rgba(60, 30, 10, 0.15);
+  --line-3: rgba(60, 30, 10, 0.26);
+  --text: #1d1410;
+  --text-2: #5a4d45;
+  --text-3: #8a7c72;
+  --text-on-ember: #1a0d07;
+  --link: #b8441c;
+  --ember-ink: #c2471d;
+  --hi: rgba(255, 255, 255, 0.7);
+  --shadow-1: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 1px 2px rgba(60, 30, 10, 0.08);
+  --shadow-2: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 8px 24px -10px rgba(60, 30, 10, 0.18), 0 2px 6px rgba(60, 30, 10, 0.06);
+  --shadow-3: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 30px 80px -24px rgba(60, 30, 10, 0.28), 0 12px 30px -14px rgba(60, 30, 10, 0.16);
+  --glow: 0 0 0 1px rgba(217, 72, 43, 0.25), 0 10px 40px -10px rgba(217, 72, 43, 0.45);
+  --grain-opacity: 0.045;
+  --code-bg: #1a1418;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --d-1: 1ms;
+    --d-2: 1ms;
+    --d-3: 1ms;
+    --d-4: 1ms;
+    --d-5: 1ms;
+    --d-6: 1ms;
+  }
+}

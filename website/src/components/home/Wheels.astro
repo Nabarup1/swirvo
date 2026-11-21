@@ -1,0 +1,206 @@
+---
+import '../../styles/wheel.css';
+import Icon from '../Icon.astro';
+const STEPS = [
+  {
+    kind: 'convert',
+    key: 'Shift',
+    title: 'Formats',
+    text: 'Every format this file can become, best first. The wheel learns what you pick, but slots stay put, so your hand learns too. Rest on a wedge for Best, Balanced or Smallest.',
+    eg: ['HEIC → JPG', 'PDF → Word', 'Word → PDF', 'MOV → MP4', 'CSV → Excel'],
+  },
+  {
+    kind: 'tools',
+    key: 'Ctrl',
+    title: 'Tools',
+    text: 'Only the tools that fit what you’re holding. Resize a photo, compress a PDF, split it into your own ranges, watermark, protect, or squeeze a video under 25 MB for email.',
+    eg: ['Compress', 'Split ranges', 'Watermark', 'Redact', 'Video to 25 MB'],
+  },
+  {
+    kind: 'actions',
+    key: 'Alt',
+    title: 'Actions',
+    text: 'The small things you do all day. Show it in its folder, copy the path (even as a WSL path), open a terminal there, zip it, send it to the Board, or copy the text out of a screenshot.',
+    eg: ['Copy path', 'Terminal here', 'To ZIP', 'Copy text (OCR)'],
+  },
+];
+---
+<section class="section wheels" id="features" aria-labelledby="wheels-title">
+  <div class="wrap">
+    <div class="wheels-head">
+      <p class="eyebrow" data-reveal>One gesture</p>
+      <h2 id="wheels-title" data-split>Three wheels. <span class="serif muted">Zero windows.</span></h2>
+    </div>
+    <div class="wheels-grid">
+      <div class="wheels-steps">
+        {STEPS.map((s, i) => (
+          <article class="ws" data-ws={s.kind} data-i={i}>
+            <div class="ws-key"><kbd>{s.key}</kbd><span class="faint">+ drag</span></div>
+            <h3>{s.title}</h3>
+            <p class="muted">{s.text}</p>
+            <ul class="ws-eg" role="list">
+              {s.eg.map((e) => <li class="chip">{e}</li>)}
+            </ul>
+          </article>
+        ))}
+      </div>
+      <div class="wheels-stage">
+        <div class="ws-sticky">
+          <div class="ws-orbit" aria-hidden="true"></div>
+          <svg class="ws-svg" viewBox="-260 -260 520 520" data-ws-svg role="img" aria-label="The Convert wheel"></svg>
+          <p class="ws-caption faint"><Icon name="info" size={14} /> The wheel opens around your pointer, wherever you are.</p>
+          <div class="ws-dots" role="tablist" aria-label="Wheels">
+            {STEPS.map((s, i) => <button type="button" role="tab" data-ws-dot={i} aria-label={s.title}><span></span></button>)}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { drawWheel, type WheelKind } from '../../scripts/wheel-draw';
+  import { FILES, actions } from '../../data/demo';
+  import { reduced } from '../../scripts/motion';
+
+  const svg = document.querySelector<SVGSVGElement>('[data-ws-svg]');
+  const steps = [...document.querySelectorAll<HTMLElement>('[data-ws]')];
+  if (svg && steps.length) {
+    const file = FILES[0];
+    const items = { convert: file.convert, tools: file.tools, actions };
+    let current: { kind: WheelKind; root: SVGGElement; wedges: SVGGElement[] } | null = null;
+    let cycle = 0;
+    let timer = 0;
+    const show = (kind: WheelKind) => {
+      if (current?.kind === kind) return;
+      const old = current;
+      if (old) {
+        old.root.classList.add('leaving');
+        setTimeout(() => old.root.remove(), 220);
+      }
+      const holder = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      holder.setAttribute('class', 'ws-holder');
+      svg.append(holder);
+      const d = drawWheel(holder, items[kind], { name: file.name, meta: file.size }, kind);
+      holder.animate?.(
+        [{ transform: 'rotate(-8deg) scale(0.96)' }, { transform: 'rotate(0deg) scale(1)' }],
+        { duration: reduced ? 1 : 520, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }
+      );
+      requestAnimationFrame(() => d.root.classList.add('open'));
+      current = { kind, root: d.root, wedges: d.wedges };
+      svg.setAttribute('aria-label', `The ${kind} wheel: ${items[kind].map((x) => x.label).join(', ')}`);
+      steps.forEach((s, i) => {
+        const on = s.dataset.ws === kind;
+        s.classList.toggle('on', on);
+        document.querySelector(`[data-ws-dot="${i}"]`)?.classList.toggle('on', on);
+      });
+      cycle = 0;
+      clearInterval(timer);
+      if (!reduced)
+        timer = window.setInterval(() => {
+          if (!current) return;
+          current.wedges.forEach((w, i) => w.classList.toggle('hov', i === cycle % current!.wedges.length));
+          cycle++;
+        }, 900);
+    };
+    show('convert');
+    // Desktop: the wheel is sticky and follows the text as you scroll.
+    // Phones: the steps become cards you swipe, and the wheel above follows the card.
+    const carousel = document.querySelector<HTMLElement>('.wheels-steps')!;
+    const mq = matchMedia('(max-width: 900px)');
+    let io: IntersectionObserver | null = null;
+    const cb: IntersectionObserverCallback = (entries) => {
+      for (const e of entries) if (e.isIntersecting) show((e.target as HTMLElement).dataset.ws as WheelKind);
+    };
+    const observe = () => {
+      io?.disconnect();
+      io = mq.matches
+        ? new IntersectionObserver(cb, { root: carousel, threshold: 0.6 })
+        : new IntersectionObserver(cb, { rootMargin: '-45% 0px -45% 0px' });
+      steps.forEach((s) => io!.observe(s));
+    };
+    observe();
+    mq.addEventListener('change', observe);
+    document.querySelectorAll<HTMLButtonElement>('[data-ws-dot]').forEach((b) =>
+      b.addEventListener('click', () => {
+        const target = steps[Number(b.dataset.wsDot)];
+        carousel.scrollTo({ left: target.offsetLeft - carousel.offsetLeft - 16, behavior: reduced ? 'auto' : 'smooth' });
+      })
+    );
+  }
+</script>
+
+<style>
+  .wheels-head { text-align: center; margin-bottom: clamp(32px, 6vw, 72px); }
+  .wheels-head h2 { margin-top: 12px; }
+  .wheels-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 80px); align-items: start; }
+  .wheels-steps { display: grid; gap: 0; }
+  .ws {
+    min-height: 62vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 14px;
+    opacity: 0.32;
+    transform: translateX(-10px);
+    transition: opacity 500ms var(--ease-out), transform 700ms var(--spring-soft);
+  }
+  .ws:global(.on) { opacity: 1; transform: none; }
+  .ws h3 { font-size: var(--step-4); letter-spacing: -0.045em; }
+  .ws p { font-size: var(--step-1); max-width: 46ch; }
+  .ws-key { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; }
+  .ws-key kbd { font-size: 1rem; min-width: 4.2em; height: 2.4em; }
+  .ws:global(.on) .ws-key kbd { animation: press 2.4s var(--ease-out) infinite; }
+  @keyframes press { 0%, 80%, 100% { --press: 0px; } 86% { --press: 3px; } }
+  .ws-eg { display: flex; flex-wrap: wrap; gap: 8px; }
+  .wheels-stage { position: relative; height: 100%; }
+  .ws-sticky { position: sticky; top: calc(50vh - 280px); height: 560px; display: grid; place-items: center; }
+  .ws-svg { width: min(520px, 100%); height: auto; overflow: visible; }
+  .ws-svg :global(.ws-holder) { transform-box: view-box; transform-origin: 0 0; }
+  .ws-orbit {
+    position: absolute;
+    inset: 6%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(238, 106, 52, 0.16), transparent 70%);
+    filter: blur(10px);
+  }
+  .ws-caption { position: absolute; bottom: 0; display: inline-flex; align-items: center; gap: 6px; font-size: 0.86rem; }
+  .ws-dots { display: none; }
+  @media (max-width: 900px) {
+    .wheels-grid { grid-template-columns: 1fr; gap: 8px; }
+    .wheels-stage { order: -1; height: auto; }
+    .ws-sticky { position: relative; top: 0; height: auto; padding-bottom: 36px; }
+    .ws-svg { width: min(400px, 92vw); }
+    .ws-caption { display: none; }
+    .wheels-steps {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: 16px;
+      padding: 4px 16px 18px;
+      margin-inline: calc(var(--gutter) * -1);
+      scrollbar-width: none;
+      overscroll-behavior-x: contain;
+    }
+    .wheels-steps::-webkit-scrollbar { display: none; }
+    .ws {
+      flex: 0 0 min(84vw, 420px);
+      min-height: 0;
+      scroll-snap-align: start;
+      padding: 22px;
+      border-radius: var(--r-xl);
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, var(--surface), var(--bg-2));
+      opacity: 0.55;
+      transform: scale(0.96);
+    }
+    .ws:global(.on) { transform: none; border-color: rgba(238, 106, 52, 0.35); }
+    .ws h3 { font-size: var(--step-3); }
+    .ws p { font-size: 1rem; }
+    .ws-dots { display: flex; gap: 10px; position: absolute; bottom: 4px; left: 50%; translate: -50% 0; }
+    .ws-dots button { width: 28px; height: 28px; display: grid; place-items: center; }
+    .ws-dots span { width: 8px; height: 8px; border-radius: 99px; background: var(--line-3); transition: width 500ms var(--spring-bouncy), background 300ms; }
+    .ws-dots :global(button.on) span { width: 24px; background: var(--ember); }
+  }
+</style>

@@ -1,0 +1,80 @@
+---
+import Page from '../layouts/Page.astro';
+import Icon from '../components/Icon.astro';
+import { compiledContent } from '../generated/CHANGELOG.md';
+import { fixLinks } from '../lib/md';
+import { LINKS } from '../data/site';
+
+const html = fixLinks(await compiledContent());
+// One block per "## " section of CHANGELOG.md.
+const parts = html.split(/(?=<h2 id=)/).slice(1);
+const releases = parts
+  .map((p) => {
+    const m = p.match(/^<h2 id="([^"]+)">(.*?)<\/h2>/s);
+    if (!m) return null;
+    const title = m[2].replace(/<[^>]+>/g, '');
+    const body = p.slice(m[0].length).trim();
+    const v = title.match(/^\[?(\d+\.\d+\.\d+)\]?/)?.[1];
+    const date = title.match(/\((\d{4}-\d{2}-\d{2})\)/)?.[1];
+    const tag = title.split(':')[1]?.trim();
+    return { id: m[1], title, body, v, date, tag };
+  })
+  .filter((r): r is NonNullable<typeof r> => !!r && r.body.length > 0);
+const shipped = releases.filter((r) => r.v);
+const history = releases.find((r) => !r.v && /history/i.test(r.title));
+const fmt = (d?: string) => (d ? new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '');
+---
+<Page title="Changelog" eyebrow="What’s new" lead="Every release of Swirvo, newest first. Downloads for each are on GitHub." wide>
+  <ol class="tl" role="list">
+    {shipped.map((r, i) => (
+      <li class="rel" id={`v${r.v}`} data-reveal style={`--delay:${i * 60}ms`}>
+        <div class="rel-side">
+          <span class="node" aria-hidden="true"></span>
+          <a class="ver" href={`#v${r.v}`}>{r.v}</a>
+          <time datetime={r.date}>{fmt(r.date)}</time>
+          {i === 0 && <span class="badge badge-ember">Latest</span>}
+        </div>
+        <div class="rel-card card">
+          {r.tag && <p class="rel-tag">{r.tag}</p>}
+          <div class="prose" set:html={r.body} />
+          <p class="rel-links">
+            <a class="btn btn-glass btn-sm" href={`${LINKS.releases}/tag/v${r.v}`} target="_blank" rel="noopener"><Icon name="download" size={15} />Downloads for {r.v}</a>
+          </p>
+        </div>
+      </li>
+    ))}
+  </ol>
+  {history && (
+    <details class="hist card">
+      <summary><Icon name="book" /> Development history before 0.1.0 <Icon name="chevronDown" size={16} /></summary>
+      <div class="prose" set:html={history.body} />
+    </details>
+  )}
+</Page>
+
+<style>
+  .tl { position: relative; display: grid; gap: 28px; }
+  .tl::before { content: ''; position: absolute; left: 150px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(var(--ember), var(--line-2) 30%, transparent); }
+  .rel { display: grid; grid-template-columns: 150px 1fr; gap: 36px; }
+  .rel-side { position: sticky; top: 100px; align-self: start; display: grid; gap: 4px; justify-items: start; }
+  .node { position: absolute; left: 143px; top: 10px; width: 16px; height: 16px; border-radius: 50%; background: var(--bg); border: 3px solid var(--ember); box-shadow: 0 0 0 6px color-mix(in oklab, var(--ember) 15%, transparent); }
+  .ver { font: 750 2rem/1 var(--font-display); letter-spacing: -0.04em; }
+  .ver:hover { color: var(--ember-ink); }
+  time { color: var(--text-3); font-size: 0.88rem; }
+  .rel-card { padding: 26px 28px; }
+  .rel-tag { font: 650 1.1rem var(--font-display); color: var(--ember-ink); margin-bottom: 8px; }
+  .rel-card .prose { max-width: none; }
+  .rel-links { margin-top: 20px; }
+  .hist { margin-top: 48px; padding: 0; overflow: hidden; }
+  .hist summary { display: flex; align-items: center; gap: 10px; padding: 18px 22px; cursor: pointer; font-weight: 650; list-style: none; }
+  .hist summary::-webkit-details-marker { display: none; }
+  .hist summary :global(svg:last-child) { margin-left: auto; transition: transform 400ms var(--spring-bouncy); }
+  .hist[open] summary :global(svg:last-child) { transform: rotate(180deg); }
+  .hist .prose { padding: 0 24px 24px; max-width: none; }
+  @media (max-width: 760px) {
+    .tl::before { left: 7px; }
+    .rel { grid-template-columns: 1fr; gap: 12px; padding-left: 28px; }
+    .rel-side { position: static; grid-auto-flow: column; align-items: baseline; justify-content: start; gap: 12px; }
+    .node { left: 0; }
+  }
+</style>

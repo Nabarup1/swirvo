@@ -1,0 +1,225 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { NAV, LINKS } from '../data/site';
+import { release } from '../data/github';
+const r = await release();
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (item: { href: string; match?: string }) =>
+  item.match ? path.startsWith(item.match) : item.href !== '/#features' && path === item.href;
+// Social proof only once it means something.
+const stars = r.stars && r.stars >= 25 ? (r.stars >= 1000 ? (r.stars / 1000).toFixed(1) + 'k' : String(r.stars)) : null;
+---
+<header class="site-header" style="view-transition-name: site-header">
+  <div class="wrap-wide header-in">
+    <Logo persist />
+    <nav class="nav" aria-label="Main">
+      <ul role="list" data-nav>
+        {NAV.map((item) => (
+          <li>
+            <a href={item.href} class:list={{ active: isActive(item) }} aria-current={isActive(item) ? 'page' : undefined}>{item.label}</a>
+          </li>
+        ))}
+      </ul>
+      <span class="nav-pill" aria-hidden="true"></span>
+    </nav>
+    <div class="actions">
+      <button class="icon-btn search-btn" type="button" data-search-open aria-label="Search the site (Ctrl K)">
+        <Icon name="search" size={18} />
+        <span class="hint"><kbd>Ctrl</kbd><kbd>K</kbd></span>
+      </button>
+      <button class="icon-btn theme-btn" type="button" data-theme-toggle aria-label="Theme: dark. Switch theme">
+        <span class="ti ti-dark"><Icon name="moon" size={18} /></span>
+        <span class="ti ti-light"><Icon name="sun" size={18} /></span>
+        <span class="ti ti-system"><Icon name="monitor" size={18} /></span>
+      </button>
+      <a class="icon-btn gh" href={LINKS.github} target="_blank" rel="noopener" aria-label={stars ? `Swirvo on GitHub, ${stars} stars` : 'Swirvo on GitHub'}>
+        <Icon name="github" size={18} />
+        {stars && <span class="stars"><Icon name="star" size={12} />{stars}</span>}
+      </a>
+      <a class="btn btn-primary btn-sm cta" href="/download" data-magnetic="0.25" data-cursor="Get it">
+        <span class="shine"></span>
+        <Icon name="download" size={16} /> Download
+      </a>
+      <button class="menu-btn" type="button" data-menu-open aria-expanded="false" aria-controls="mobile-menu" aria-label="Menu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+</header>
+  <div id="mobile-menu" class="mobile-menu" data-menu>
+  <div class="menu-bg" aria-hidden="true"></div>
+  <nav class="menu-in" aria-label="Mobile">
+    <ul role="list">
+      {[{ href: '/', label: 'Home' }, ...NAV, { href: '/download', label: 'Download' }].map((item, i) => (
+        <li style={`--i:${i}`}>
+          <a href={item.href}>
+            <span class="mi-n">{String(i + 1).padStart(2, '0')}</span>
+            <span class="mi-t">{item.label}</span>
+            <Icon name="arrowRight" size={22} />
+          </a>
+        </li>
+      ))}
+    </ul>
+    <div class="menu-foot">
+      <a class="btn btn-primary" href={LINKS.store} target="_blank" rel="noopener"><span class="shine"></span>Get it from Microsoft Store</a>
+      <div class="menu-row">
+        <button class="btn btn-glass btn-sm" type="button" data-theme-toggle>Theme</button>
+        <a class="btn btn-glass btn-sm" href={LINKS.github} target="_blank" rel="noopener"><Icon name="github" size={16} />GitHub</a>
+        <button class="btn btn-glass btn-sm" type="button" data-search-open><Icon name="search" size={16} />Search</button>
+      </div>
+    </div>
+  </nav>
+</div>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    transition: transform 520ms var(--spring-soft), background-color 300ms var(--ease-out), border-color 300ms;
+    border-bottom: 1px solid transparent;
+  }
+  .site-header:global(.scrolled) {
+    background: color-mix(in oklab, var(--bg) 72%, transparent);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    border-bottom-color: var(--line);
+  }
+  .site-header:global(.tucked) { transform: translateY(-100%); }
+  .header-in {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    height: 68px;
+  }
+  .nav { position: relative; margin-left: 18px; }
+  .nav ul { display: flex; gap: 2px; position: relative; z-index: 1; }
+  .nav a {
+    display: block;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 0.94rem;
+    font-weight: 520;
+    color: var(--text-2);
+    transition: color 200ms var(--ease-out);
+  }
+  .nav a:hover, .nav a.active { color: var(--text); }
+  .nav-pill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    border-radius: 999px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-1);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms var(--ease-out);
+  }
+  .nav-pill.on { opacity: 1; }
+  .actions { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+  .icon-btn {
+    position: relative;
+    height: 40px;
+    min-width: 40px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 12px;
+    color: var(--text-2);
+    transition: color 200ms, background 200ms, transform 400ms var(--spring-bouncy);
+  }
+  .icon-btn:hover { color: var(--text); background: var(--surface-2); }
+  .icon-btn:active { transform: scale(0.9); transition-duration: 80ms; }
+  .hint { display: inline-flex; gap: 3px; font-size: 0.72rem; }
+  .hint kbd { height: 1.7em; min-width: 1.7em; font-size: 0.72rem; box-shadow: 0 2px 0 var(--line-3); }
+  .theme-btn { width: 40px; overflow: hidden; }
+  .ti { position: absolute; inset: 0; display: grid; place-items: center; transition: transform 600ms var(--spring-bouncy), opacity 250ms; }
+  .ti-light, .ti-system { transform: translateY(120%) rotate(90deg); opacity: 0; }
+  :global([data-theme-pref='light']) .ti-dark, :global([data-theme-pref='system']) .ti-dark { transform: translateY(-120%) rotate(-90deg); opacity: 0; }
+  :global([data-theme-pref='light']) .ti-light { transform: none; opacity: 1; }
+  :global([data-theme-pref='system']) .ti-system { transform: none; opacity: 1; }
+  .stars { display: inline-flex; align-items: center; gap: 3px; font-size: 0.8rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .stars :global(svg) { color: var(--gold); fill: var(--gold); }
+  .cta { margin-left: 6px; }
+  .menu-btn { display: none; width: 44px; height: 44px; position: relative; border-radius: 12px; }
+  .menu-btn span {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--text);
+    transition: transform 500ms var(--spring-bouncy), top 300ms var(--ease-out);
+  }
+  .menu-btn span:first-child { top: 17px; }
+  .menu-btn span:last-child { top: 25px; }
+  :global(.menu-open) .menu-btn span:first-child { top: 21px; transform: rotate(45deg); }
+  :global(.menu-open) .menu-btn span:last-child { top: 21px; transform: rotate(-45deg); }
+
+  /* Mobile menu: a circle that grows out of the menu button */
+  .mobile-menu { position: fixed; inset: 0; z-index: calc(var(--z-header) - 1); pointer-events: none; visibility: hidden; transition: visibility 0s linear 700ms; }
+  :global(.menu-open) .mobile-menu { pointer-events: auto; visibility: visible; transition-delay: 0s; }
+  .menu-bg {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    clip-path: circle(0px at calc(100% - 40px) 34px);
+    transition: clip-path 700ms var(--ease-out);
+  }
+  :global(.menu-open) .menu-bg { clip-path: circle(150vmax at calc(100% - 40px) 34px); }
+  .menu-in {
+    position: relative;
+    height: 100%;
+    padding: 96px var(--gutter) 32px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .menu-in ul { display: grid; gap: 2px; }
+  .menu-in li {
+    opacity: 0;
+    transform: translateY(30px) rotate(-4deg);
+    transform-origin: 0 100%;
+    transition: opacity 300ms var(--ease-out), transform 700ms var(--spring-soft);
+  }
+  :global(.menu-open) .menu-in li { opacity: 1; transform: none; transition-delay: calc(120ms + var(--i) * 45ms); }
+  .menu-in li a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 9vw, 3rem);
+    font-weight: 680;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+  .menu-in li a :global(svg) { margin-left: auto; color: var(--text-3); transition: transform 400ms var(--spring-bouncy), color 200ms; }
+  .menu-in li a:active :global(svg) { transform: translateX(6px); color: var(--ember-ink); }
+  .mi-n { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-3); letter-spacing: 0; width: 24px; }
+  .menu-foot { margin-top: auto; padding-top: 28px; display: grid; gap: 12px; opacity: 0; transform: translateY(20px); transition: opacity 400ms, transform 600ms var(--spring-soft); }
+  :global(.menu-open) .menu-foot { opacity: 1; transform: none; transition-delay: 520ms; }
+  .menu-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .menu-row .btn { flex: 1; }
+
+  @media (max-width: 1080px) {
+    .hint { display: none; }
+  }
+  @media (max-width: 960px) {
+    .nav { display: none; }
+    .menu-btn { display: inline-block; }
+    .gh .stars { display: none; }
+  }
+  @media (max-width: 560px) {
+    .gh, .search-btn { display: none; }
+    .cta { height: 36px; padding: 0 14px; }
+  }
+</style>
