@@ -16,12 +16,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Nabarup Ghosh"
             VALUE "FileDescription", "Swirvo: drag, tap, convert"
-            VALUE "FileVersion", "0.1.1.0"
+            VALUE "FileVersion", "0.1.2.0"
             VALUE "InternalName", "Swirvo"
             VALUE "LegalCopyright", "\xA9 2026 Nabarup Ghosh"
             VALUE "OriginalFilename", "Swirvo.exe"
             VALUE "ProductName", "Swirvo"
-            VALUE "ProductVersion", "0.1.1.0"
+            VALUE "ProductVersion", "0.1.2.0"
         END
     END
     BLOCK "VarFileInfo"

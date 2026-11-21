@@ -4,7 +4,7 @@
 
 Key facts:
 
-- Platforms: Windows 10 (1809+) and 11 x64 (full app; install from the Microsoft Store: https://apps.microsoft.com/detail/9NPGWFBVTDJQ); Linux x64 (command-line tool `swirvo`).
+- Platforms: Windows 10 (1809+) and 11 x64 (full app; install from the Microsoft Store: https://apps.microsoft.com/detail/9NPGWFBVTDJQ); Linux x64 and ARM64 (command-line tool `swirvo`; install: `curl -fsSL https://raw.githubusercontent.com/Nabarup1/swirvo/main/install.sh | sh`).
 - About 96 formats (138 file extensions): images (PNG, JPG, WebP, TIFF, HEIC, AVIF, PSD, RAW), documents (PDF, DOCX, ODT, RTF, EPUB, Markdown, HTML), spreadsheets and data (XLSX, CSV, JSON, YAML, XML), fonts, audio, video, subtitles, archives.
 - PDF to Word rebuilds the layout; Word, Excel and PowerPoint to PDF work without Microsoft Office installed.
 - PDF tools: merge, split (custom page ranges), compress, watermark, page numbers, Bates, protect/unlock (AES-256), crop, N-up, booklet, OCR (searchable PDF), redaction, forms, compare, digital signatures, PDF/A, PDF/UA.

@@ -62,31 +62,57 @@ jobs:
             Swirvo-*.mcpb
 
   linux:
-    runs-on: ubuntu-24.04
+    # Built against glibc 2.28 with Zig as the linker, so one binary runs on Ubuntu 18.10+,
+    # Debian 10+, RHEL/Rocky/Alma 8+, Fedora, Mint 20+ and most other distributions.
+    strategy:
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.TAG }}
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - name: Build
-        run: cargo build --release --locked -p swirvo-cli
+        with:
+          key: ${{ matrix.arch }}
+      - name: Install Zig and cargo-zigbuild
+        run: python3 -m pip install --user --break-system-packages ziglang==0.17.1 cargo-zigbuild==0.24.1
+      - name: Build (glibc 2.28)
+        run: cargo zigbuild --release --locked -p swirvo-cli --target ${{ matrix.target }}.2.28
       - name: Fetch every dependency (the licence notices read them offline)
         run: cargo fetch --locked
       - name: Package
         run: |
-          out="swirvo-cli-${TAG#v}-linux-x64"
-          mkdir -p "$out"
-          cp target/release/swirvo "$out/swirvo"
-          strip "$out/swirvo"
-          python3 -I scripts/third-party-notices.py "$out/THIRD-PARTY-NOTICES.txt" --target x86_64-unknown-linux-gnu
-          cp EULA.md PRIVACY.md "$out/"
-          tar -czf "$out.tar.gz" "$out"
-          sha256sum "$out.tar.gz" > "$out.tar.gz.sha256"
+          bin="target/${{ matrix.target }}/release/swirvo"
+          strip "$bin"
+          python3 -I scripts/third-party-notices.py notices.txt --target ${{ matrix.target }}
+          scripts/package-linux.sh "$bin" "${TAG#v}" ${{ matrix.arch }} notices.txt out
+      - name: Smoke test on Debian 10 (glibc 2.28)
+        run: |
+          docker run --rm -v "$PWD/out:/out" debian:10 sh -ec '
+            cd /tmp && tar -xzf /out/swirvo-cli-*-linux-${{ matrix.arch }}.tar.gz
+            bin=$(echo swirvo-cli-*/swirvo)
+            $bin --version
+            printf "a,b\n1,2\n" > t.csv
+            $bin convert t.csv --to json
+            test -s t.json
+            echo "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}" | $bin mcp | grep -q convert_files'
+      - name: Smoke test the .deb on Ubuntu 20.04
+        run: |
+          docker run --rm -v "$PWD/out:/out" ubuntu:20.04 sh -ec '
+            apt-get install -y /out/swirvo_*.deb > /dev/null
+            swirvo --version'
       - uses: actions/upload-artifact@v4
         with:
-          name: linux
-          path: swirvo-cli-*-linux-x64.tar.gz*
+          name: linux-${{ matrix.arch }}
+          path: out/*
 
   publish:
     needs: [windows, linux]

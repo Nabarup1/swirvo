@@ -4,6 +4,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 
 ## [Unreleased]
 
+## 0.1.2 (2026-11-21)
+
+- **Linux: runs on far more systems.** The `swirvo` command-line tool is now built against glibc 2.28, so it runs on Ubuntu 18.10+, Debian 10+, RHEL/Rocky/Alma 8+, Fedora and Mint 20+ (0.1.1 needed Ubuntu 24.04 or newer).
+- **Linux on ARM64** (Raspberry Pi 4/5 with a 64-bit OS, ARM servers): new `linux-arm64` downloads.
+- **One-line install on Linux:** `curl -fsSL https://raw.githubusercontent.com/Nabarup1/swirvo/main/install.sh | sh`, no root needed; it verifies the checksum.
+- **`.deb` packages** for Debian, Ubuntu and Mint: `sudo apt install ./swirvo_<version>_amd64.deb`.
+- Swirvo is on the [Microsoft Store](https://apps.microsoft.com/detail/9NPGWFBVTDJQ).
+- The Claude plugin is now a skill that drives the `swirvo` command line (no server to start); add the MCP server separately if you want it.
+
 ## 0.1.1 (2026-11-18)
 
 - **`swirvo` in every terminal.** Installing Swirvo now puts the command line on your user PATH (`%LOCALAPPDATA%\Programs\Swirvo\bin\swirvo.exe`), so `swirvo convert …` and `swirvo mcp` work anywhere. Uninstall takes it off again; nothing else in your PATH is touched.

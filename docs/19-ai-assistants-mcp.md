@@ -32,7 +32,7 @@ The command is `swirvo mcp`. Installing Swirvo (from the Microsoft Store, or by 
 | Installed from the GitHub download | `swirvo` (or `%LOCALAPPDATA%\Programs\Swirvo\bin\swirvo.exe`) |
 | Microsoft Store | `swirvo` |
 | Unzipped, not installed | the full path to `swirvo-cli.exe` in that folder |
-| Linux | the full path to `swirvo` (or just `swirvo` if it's on your `PATH`) |
+| Linux (install script or `.deb`) | `swirvo` (the script installs to `~/.local/bin`) |
 
 The examples below use `swirvo`. If you installed Swirvo while the AI app was open, restart the app so it sees the new PATH; or put the full path instead (double the backslashes inside JSON).
 

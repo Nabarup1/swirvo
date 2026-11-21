@@ -73,7 +73,13 @@ No dialog, no app to open, no website to upload to.
 Or get the latest **[release](https://github.com/Nabarup1/swirvo/releases/latest)** from GitHub:
 
 - **Windows 10 (1809 or later) and 11, x64:** `Swirvo-<version>-windows-x64.zip`. Unzip, double-click `Swirvo.exe`, and it offers to install itself for your user (Start menu, Settings → Apps, start with Windows; no admin). The Swirvo icon appears in the notification area.
-- **Linux x64:** `swirvo-cli-<version>-linux-x64.tar.gz`, the `swirvo` command-line tool. The Linux desktop app (wheel and Board) isn't ready yet.
+- **Linux (x64 and ARM64):** the `swirvo` command-line tool. Install it with one line (no root needed; it checks the download's checksum):
+
+  ```bash
+  curl -fsSL https://raw.githubusercontent.com/Nabarup1/swirvo/main/install.sh | sh
+  ```
+
+  Or download `swirvo_<version>_amd64.deb` (Debian, Ubuntu, Mint: `sudo apt install ./swirvo_*.deb`) or the `.tar.gz` from the release. Runs on any distribution from about 2018 on (glibc 2.28+: Ubuntu 18.10+, Debian 10+, RHEL 8+, Fedora, Mint 20+). The Linux desktop app (wheel and Board) isn't ready yet.
 
 **"Windows protected your PC"?** The GitHub downloads aren't code-signed yet, so SmartScreen warns about them. Click **More info → Run anyway**, or install from the [Microsoft Store](https://apps.microsoft.com/detail/9NPGWFBVTDJQ) instead, which has no warning.
 
