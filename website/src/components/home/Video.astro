@@ -3,7 +3,7 @@ import Icon from '../Icon.astro';
 ---
 <section class="section vid-sec" aria-labelledby="vid-title">
   <div class="wrap">
-    <div class="vid-head">
+    <div class="vid-head sec-head">
       <p class="eyebrow" data-reveal>50 seconds</p>
       <h2 id="vid-title" data-split>See the whole thing <span class="serif ember-text">in motion.</span></h2>
     </div>
@@ -73,4 +73,10 @@ import Icon from '../Icon.astro';
   .play-ring { position: absolute; inset: -14px; border-radius: 50%; border: 2px solid rgba(255, 160, 106, 0.5); animation: ring 2.4s var(--ease-out) infinite; }
   @keyframes ring { from { transform: scale(0.8); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
   .player:global(.playing) .play { opacity: 0; pointer-events: none; }
+  @media (max-width: 560px) {
+    .player { border-radius: 18px; }
+    .play { width: 64px; height: 64px; margin: -32px 0 0 -32px; }
+    .play :global(svg) { width: 22px; height: 22px; }
+    .play-ring { inset: -8px; }
+  }
 </style>

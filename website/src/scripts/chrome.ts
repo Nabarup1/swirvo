@@ -68,7 +68,7 @@ addEventListener('keydown', (e) => {
     menuBtn?.focus();
   }
 });
-matchMedia('(min-width: 961px)').addEventListener('change', (m) => m.matches && setMenu(false));
+matchMedia('(min-width: 1041px)').addEventListener('change', (m) => m.matches && setMenu(false));
 
 /* ── Nav pill ─────────────────────────────────────────── */
 const nav = document.querySelector<HTMLElement>('[data-nav]');

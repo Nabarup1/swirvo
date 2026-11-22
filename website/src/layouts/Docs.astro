@@ -277,10 +277,11 @@ const current = flat[i];
   .doc h1 { font-size: var(--step-5); margin: 14px 0 14px; }
   .doc .lead { margin-bottom: 36px; }
   .doc-body { max-width: 760px; }
+  @media (max-width: 560px) { .doc h1 { font-size: clamp(1.9rem, 10.4vw, 2.9rem); } }
   .doc-foot { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 0.88rem; }
   .doc-foot a { display: inline-flex; align-items: center; gap: 6px; }
   .pager { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; margin-top: 28px; max-width: 760px; }
-  .pg { --bx: 0px; --by: 0px; padding: 16px 18px; display: grid; gap: 4px; transform: translate3d(var(--bx), var(--by), 0); transition: transform 500ms var(--spring-bouncy), border-color 200ms; }
+  .pg { grid-template-columns: minmax(0, 1fr); --bx: 0px; --by: 0px; padding: 16px 18px; display: grid; gap: 4px; transform: translate3d(var(--bx), var(--by), 0); transition: transform 500ms var(--spring-bouncy), border-color 200ms; }
   .pg:hover { border-color: var(--line-3); }
   .pg span { display: inline-flex; align-items: center; gap: 4px; font-size: 0.82rem; }
   .pg b { font-size: 1.02rem; }
@@ -302,7 +303,7 @@ const current = flat[i];
     .toc { display: none; }
   }
   @media (max-width: 860px) {
-    .docs { grid-template-columns: 1fr; padding-top: 16px; }
+    .docs { grid-template-columns: minmax(0, 1fr); padding-top: 16px; }
     .docs-menu { display: inline-flex; justify-self: start; position: sticky; top: 78px; z-index: 6; }
     .side { position: fixed; inset: 0; z-index: var(--z-menu); max-height: none; pointer-events: none; }
     .side.open { pointer-events: auto; }

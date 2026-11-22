@@ -5,22 +5,27 @@ import Icon from '../Icon.astro';
 ---
 <section class="section demo-sec" id="try" aria-labelledby="try-title">
   <div class="wrap">
-    <div class="demo-head">
+    <div class="demo-head sec-head">
       <p class="eyebrow" data-reveal>Try it right here</p>
       <h2 id="try-title" data-split>Drag a file. Tap <span class="serif ember-text">Shift.</span></h2>
       <p class="lead" data-reveal style="--delay:120ms">
-        This is the real gesture. Grab a file below and tap <kbd>Shift</kbd> while you hold it: formats.
-        <kbd>Ctrl</kbd> for tools, <kbd>Alt</kbd> for actions. On a phone, hold a file, then drag.
+        <span class="for-mouse">
+          This is the real gesture. Grab a file below and tap <kbd>Shift</kbd> while you hold it for formats,
+          <kbd>Ctrl</kbd> for tools, <kbd>Alt</kbd> for actions.
+        </span>
+        <span class="for-touch">
+          On a PC you tap Shift. Here, <strong>hold a file, drag, then pause</strong>: the wheel opens under your finger.
+        </span>
       </p>
     </div>
 
     <ol class="steps" role="list" aria-label="Steps" data-reveal style="--delay:160ms">
       <li data-step><span>1</span>Drag a file</li>
-      <li data-step><span>2</span>Tap <kbd>Shift</kbd></li>
+      <li data-step><span>2</span><b class="for-mouse">Tap <kbd>Shift</kbd></b><b class="for-touch">Pause</b></li>
       <li data-step><span>3</span>Drop on a format</li>
     </ol>
 
-    <div class="demo" data-demo data-reveal="scale" data-cursor="">
+    <div class="demo" data-demo data-reveal="scale">
       <div class="win">
         <div class="win-bar">
           <span class="win-folder"><Icon name="folder" size={16} /></span>
@@ -63,9 +68,9 @@ import Icon from '../Icon.astro';
     </div>
 
     <div class="demo-notes" data-stagger="90">
-      <p><Icon name="check" size={16} /> Results go next to the original, with a fresh name. Originals never change.</p>
-      <p><Icon name="eye" size={16} /> Hover a wedge for half a second for <strong>Best · Balanced · Smallest</strong>.</p>
-      <p><Icon name="x" size={16} /> Changed your mind? <kbd>Esc</kbd>, or drop back on the middle.</p>
+      <p><Icon name="check" size={16} /><span>Results go next to the original, with a fresh name. Originals never change.</span></p>
+      <p><Icon name="eye" size={16} /><span>Rest on a wedge for half a second for <strong>Best · Balanced · Smallest</strong>.</span></p>
+      <p><Icon name="x" size={16} /><span>Changed your mind? <span class="for-mouse"><kbd>Esc</kbd>, or drop</span><span class="for-touch">Drop</span> back on the middle.</span></p>
     </div>
   </div>
 </section>
@@ -116,6 +121,9 @@ import Icon from '../Icon.astro';
   .demo {
     position: relative;
     height: clamp(560px, 62vw, 640px);
+    /* The wheel and the dragged file never widen the page */
+    overflow: hidden;
+    overflow: clip;
     border-radius: var(--r-2xl);
     background:
       radial-gradient(70% 60% at 70% 40%, rgba(238, 106, 52, 0.14), transparent 70%),
@@ -124,7 +132,7 @@ import Icon from '../Icon.astro';
     border: 1px solid var(--line);
     box-shadow: var(--shadow-3);
     padding: clamp(14px, 3vw, 34px);
-    touch-action: pan-y;
+    touch-action: pan-y pinch-zoom;
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
@@ -149,17 +157,17 @@ import Icon from '../Icon.astro';
   .win-ctl i { width: 10px; height: 2px; background: var(--text-3); border-radius: 2px; }
   .win-ctl i:nth-child(2) { height: 10px; background: none; border: 1.5px solid var(--text-3); width: 10px; border-radius: 2px; }
   .win-ctl i:nth-child(3) { height: 12px; width: 12px; background: linear-gradient(45deg, transparent 45%, var(--text-3) 45%, var(--text-3) 55%, transparent 55%), linear-gradient(-45deg, transparent 45%, var(--text-3) 45%, var(--text-3) 55%, transparent 55%); }
-  .win-cols { display: grid; grid-template-columns: 1fr auto; padding: 8px 20px 6px 58px; font-size: 0.74rem; color: var(--text-3); letter-spacing: 0.04em; text-transform: uppercase; font-family: var(--font-mono); }
+  .win-cols { display: grid; grid-template-columns: minmax(0, 1fr) auto; padding: 8px 20px 6px 58px; font-size: 0.74rem; color: var(--text-3); letter-spacing: 0.04em; text-transform: uppercase; font-family: var(--font-mono); }
   .files { padding: 4px 8px; overflow: hidden; flex: 1; }
   .files :global(li.f) {
     display: grid;
-    grid-template-columns: 32px 1fr auto;
+    grid-template-columns: 32px minmax(0, 1fr) auto;
     align-items: center;
     gap: 12px;
     padding: 9px 12px;
     border-radius: 10px;
     cursor: grab;
-    touch-action: pan-y;
+    touch-action: pan-y pinch-zoom;
     transition: background 160ms, opacity 200ms, transform 400ms var(--spring-bouncy);
     outline-offset: -2px;
   }
@@ -243,15 +251,20 @@ import Icon from '../Icon.astro';
   }
   .ghost:global(.on) { opacity: 1; }
   .ghost:global(.tucked) { opacity: 0; transition-duration: 120ms; }
-  .ghost:global(.returning) { opacity: 0.6; }
+  .ghost:global(.on.returning) { opacity: 0.6; }
   .ghost .f-ic { width: 28px; height: 28px; }
   .ghost[data-kind='image'] .f-ic { --c: #6fd69a; }
   .hint {
     position: absolute;
-    left: 50%;
+    left: 0;
+    right: 0;
+    margin-inline: auto;
+    width: fit-content;
+    max-width: calc(100% - 20px);
     bottom: 22px;
     z-index: 5;
-    translate: -50% 0;
+    text-align: center;
+    line-height: 1.3;
     padding: 9px 16px;
     border-radius: 999px;
     background: var(--glass-strong);
@@ -259,7 +272,6 @@ import Icon from '../Icon.astro';
     box-shadow: var(--shadow-3);
     font-weight: 600;
     font-size: 0.92rem;
-    white-space: nowrap;
     opacity: 0;
     transform: translateY(14px) scale(0.92);
     transition: opacity 200ms, transform 520ms var(--spring-bouncy);
@@ -294,17 +306,17 @@ import Icon from '../Icon.astro';
   }
   .keys button:hover { color: var(--text); border-color: var(--line-3); }
   .keys button:active { transform: scale(0.94); }
-  .keys kbd { min-width: 3.4em; height: 2.2em; font-size: 0.8rem; }
+  .keys kbd { min-width: 3.4em; height: 2.2em; font-size: 0.8rem; white-space: nowrap; }
   .keys:global(.on) button { border-color: rgba(238, 106, 52, 0.4); color: var(--text); }
   .receipt {
     position: absolute;
     z-index: 6;
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto minmax(0, 1fr);
     column-gap: 10px;
     align-items: center;
     padding: 10px 16px 10px 12px;
-    max-width: 300px;
+    max-width: min(300px, 100% - 16px);
     border-radius: 16px;
     background: var(--glass-strong);
     border: 1px solid rgba(111, 214, 154, 0.35);
@@ -354,17 +366,85 @@ import Icon from '../Icon.astro';
   .demo:global(.user) .hand { display: none; }
 
   .demo-notes { display: flex; gap: 12px 28px; flex-wrap: wrap; justify-content: center; margin-top: 24px; color: var(--text-2); font-size: 0.9rem; }
-  .demo-notes p { display: inline-flex; align-items: center; gap: 8px; }
-  .demo-notes :global(svg) { color: var(--ember-hot); }
+  .demo-notes p { display: inline-flex; align-items: flex-start; gap: 8px; max-width: 100%; }
+  .demo-notes :global(svg) { color: var(--ember-hot); flex: none; margin-top: 4px; }
+  .steps b { font-weight: inherit; }
 
+  .for-touch { display: none; }
+  @media (pointer: coarse) {
+    .for-mouse { display: none; }
+    .for-touch { display: inline; }
+    /* Solid, since there's no blur to separate them from what's underneath */
+    .keys button, .ghost, .receipt, .hint { backdrop-filter: none; -webkit-backdrop-filter: none; }
+    .keys button { background: var(--surface); }
+    .ghost, .receipt { background: var(--surface-2); }
+    .hint { background: var(--surface-3); }
+    /* On a touch screen autoplay is a fingertip, not an arrow */
+    .hand svg { display: none; }
+    .hand::after {
+      content: '';
+      position: absolute;
+      left: -14px;
+      top: -14px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.28);
+      border: 2px solid rgba(255, 255, 255, 0.85);
+      transition: transform 160ms var(--ease-out);
+    }
+    .hand:global(.down)::after { transform: scale(0.78); }
+    :global(:root[data-theme='light']) .hand::after { background: rgba(60, 30, 10, 0.16); border-color: rgba(60, 30, 10, 0.6); }
+  }
+
+  /* Below this the keys would sit on the file window: give them their own row under it */
+  @media (max-width: 1000px) {
+    .demo { padding: 12px 12px 66px; }
+    .win { max-width: none; }
+    .keys {
+      top: auto;
+      left: 12px;
+      right: 12px;
+      bottom: 10px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .keys button { justify-content: center; height: 46px; padding: 4px; gap: 7px; }
+    .keys kbd { min-width: 0; padding-inline: 7px; }
+    .hint { bottom: auto; top: 16px; }
+  }
   @media (max-width: 720px) {
-    .demo { height: 600px; padding: 10px; }
+    .demo-head { margin-bottom: 20px; }
+    .demo {
+      height: clamp(480px, 100vh - var(--header-h) - 28px, 590px);
+      height: clamp(480px, 100svh - var(--header-h) - 28px, 590px);
+      padding: 8px 8px 62px;
+      border-radius: var(--r-xl);
+    }
+    .keys { left: 8px; right: 8px; bottom: 8px; }
+    .keys button { font-size: 0.76rem; }
+    .keys kbd { font-size: 0.7rem; }
+    .win { border-radius: 20px; }
+    .win-bar { padding: 10px 12px; }
     .win-crumb, .win-cols { display: none; }
-    .files :global(li.f) { grid-template-columns: 30px 1fr; }
-    .files :global(.f-meta) { grid-column: 2; font-size: 0.76rem; }
-    .keys { top: auto; bottom: 64px; right: 50%; translate: 50% 0; flex-direction: row; }
-    .keys button { padding: 6px 10px 6px 6px; }
-    .keys button span { display: none; }
-    .hint { bottom: 120px; }
+    .files { padding: 4px; }
+    .files :global(li.f) { grid-template-columns: 30px minmax(0, 1fr) auto; column-gap: 10px; row-gap: 0; padding: 5px 8px; line-height: 1.25; }
+    .files :global(.f-ic) { grid-row: 1 / 3; width: 30px; height: 30px; }
+    .files :global(.f-name) { grid-column: 2; grid-row: 1; font-size: 0.92rem; }
+    .files :global(.f-meta) { grid-column: 2; grid-row: 2; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 0.74rem; }
+    .files :global(.f-new) { grid-column: 3; grid-row: 1 / 3; align-self: center; margin: 0; }
+    .win-status { padding: 8px 12px; font-size: 0.74rem; }
+    .win-status > span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .win-status > .faint { display: none; }
+    /* Three steps on one line at every phone width */
+    .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 16px; }
+    .steps li { flex-direction: column; justify-content: flex-start; gap: 5px; padding: 8px 4px; border-radius: 16px; font-size: 0.76rem; line-height: 1.2; text-align: center; }
+    .demo-notes { flex-direction: column; align-items: flex-start; }
+  }
+  @media (max-width: 480px) {
+    .keys button { flex-direction: column; gap: 3px; height: 48px; padding: 2px; }
+    .keys kbd { height: 1.8em; }
+    .keys button span { font-size: 0.68rem; line-height: 1; }
   }
 </style>

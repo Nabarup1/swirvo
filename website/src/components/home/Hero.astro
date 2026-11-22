@@ -30,7 +30,7 @@ const ticks = Array.from({ length: 72 }, (_, i) => i);
   <div class="wrap hero-in">
     <a class="pill" href="/changelog" data-reveal>
       <span class="pill-new">New</span>
-      <span>{r.version} · Linux builds, ARM64 and a one-line installer</span>
+      <span class="pill-t">{r.version} · Linux builds<span class="pill-more">, ARM64 and a one-line installer</span></span>
       <Icon name="arrowRight" size={14} />
     </a>
 
@@ -57,16 +57,18 @@ const ticks = Array.from({ length: 72 }, (_, i) => i);
       <span class="hw hw-3 ember-text">Convert.</span>
     </h1>
     <p class="hero-sub" data-reveal style="--delay:500ms">
-      Start dragging any file, tap <kbd class="kbd-live">Shift</kbd>, and drop it on a format. The converted copy lands next
-      to the original before you’ve let go. Free, 100% offline, for Windows.
+      Start dragging any file, tap <span class="nowrap"><kbd class="kbd-live">Shift</kbd>,</span> and drop it on a format.
+      <span class="sub-more">The converted copy lands next to the original before you’ve let go.</span>
+      Free, 100% offline, for Windows.
     </p>
 
     <div class="hero-cta" data-reveal style="--delay:650ms">
       <div class="for-win">
         <StoreBadge size={196} />
-        <a class="btn btn-glass btn-lg" href={zip?.url ?? '/download'} data-magnetic data-cursor="ZIP">
+        <a class="btn btn-glass btn-lg zip-btn" href={zip?.url ?? '/download'} data-magnetic data-cursor="ZIP">
           <Icon name="download" />Download {zip?.size ? <span class="faint num">· {mb(zip.size)}</span> : null}
         </a>
+        <a class="btn btn-primary try-btn" href="#try"><Icon name="arrowDown" />Try it here</a>
       </div>
       <div class="for-linux" data-copy-scope>
         <button class="cmd" type="button" data-copy data-copy-label="Install command copied" data-cursor="Copy">
@@ -75,7 +77,7 @@ const ticks = Array.from({ length: 72 }, (_, i) => i);
         <a class="btn btn-glass" href="/download"><Icon name="window" />Windows app</a>
       </div>
       <p class="for-other faint">
-        Swirvo is a Windows app. <a class="ulink" href="/download">Linux command line, checksums and other downloads →</a>
+        For Windows PCs. <a class="ulink" href="/download">Linux and other downloads →</a>
       </p>
     </div>
 
@@ -133,14 +135,25 @@ const ticks = Array.from({ length: 72 }, (_, i) => i);
     --gx: 50%;
     --gy: 30%;
     position: relative;
-    min-height: min(100svh, 980px);
-    padding: 18px 0 64px;
+    /* Runs up under the header, and is exactly one screen at any zoom level */
+    margin-top: calc(-1 * var(--header-h));
+    min-height: calc(100vh - var(--announce-h));
+    min-height: calc(100svh - var(--announce-h));
+    padding: calc(var(--header-h) + 14px) 0 clamp(20px, 5svh, 56px);
     display: flex;
     align-items: center;
     overflow: clip;
     isolation: isolate;
   }
-  .hero-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(#000 72%, transparent);
+    mask-image: linear-gradient(#000 72%, transparent);
+  }
   .glow {
     position: absolute;
     inset: -20%;
@@ -155,6 +168,7 @@ const ticks = Array.from({ length: 72 }, (_, i) => i);
     left: 50%;
     top: 34%;
     width: min(1300px, 170vw);
+    max-width: none; /* the global svg max-width would squash it to the screen */
     translate: -50% -50%;
     animation: dial 120s linear infinite;
     opacity: 0.9;
@@ -168,6 +182,9 @@ const ticks = Array.from({ length: 72 }, (_, i) => i);
 
   .hero-in { display: flex; flex-direction: column; align-items: center; text-align: center; }
   .pill {
+    position: relative;
+    z-index: 2; /* the 3D canvas reaches up behind it */
+    max-width: 100%;
     display: inline-flex;
     align-items: center;
     gap: 10px;
@@ -182,7 +199,9 @@ const ticks = Array.from({ length: 72 }, (_, i) => i);
     transition: border-color 200ms, gap 400ms var(--spring-bouncy), color 200ms;
   }
   .pill:hover { border-color: var(--line-3); gap: 14px; color: var(--text); }
+  .pill-t { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pill-new {
+    flex: none;
     padding: 3px 9px;
     border-radius: 999px;
     background: var(--ember-grad);
@@ -193,18 +212,20 @@ const ticks = Array.from({ length: 72 }, (_, i) => i);
 
   .stage {
     position: relative;
-    width: min(500px, 88vw);
-    aspect-ratio: 1.6;
-    margin: 4px 0 -4px;
+    width: min(500px, 100%);
+    height: clamp(104px, 28svh, 300px);
+    flex: none;
+    margin: 4px 0;
     cursor: grab;
-    touch-action: pan-y;
+    touch-action: pan-y pinch-zoom;
   }
   .stage:global(.grabbing) { cursor: grabbing; }
   .token-svg {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 36%;
+    width: auto;
+    height: 70%;
     translate: -50% -50%;
     filter: drop-shadow(0 30px 40px rgba(217, 72, 43, 0.35));
     animation: float 4.8s var(--ease-in-out) infinite alternate, token-in 1100ms var(--spring-bouncy) both;
@@ -214,12 +235,22 @@ const ticks = Array.from({ length: 72 }, (_, i) => i);
   @keyframes float { to { translate: -50% -54%; } }
   @keyframes token-in { from { scale: 0.4; rotate: -40deg; opacity: 0; } }
   @keyframes blades { to { rotate: 360deg; } }
-  .token-gl { position: absolute; inset: -8% -16%; width: 132%; height: 116%; opacity: 0; transition: opacity 700ms var(--ease-out); }
+  .token-gl {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    width: 132%;
+    max-width: none; /* the global canvas max-width used to cap this and push the logo left */
+    height: 130%;
+    opacity: 0;
+    transition: opacity 700ms var(--ease-out);
+  }
   .stage:global(.gl-ready) .token-gl { opacity: 1; }
   .stage:global(.gl-ready) .token-svg { opacity: 0; }
 
   .hero-title {
-    font-size: clamp(3.2rem, 1.4rem + 6.6vw, 8.4rem);
+    font-size: clamp(2.6rem, min(1.4rem + 6.6vw, 14svh), 8.4rem);
     letter-spacing: -0.032em;
     line-height: 0.92;
     font-weight: 720;
@@ -251,16 +282,18 @@ const ticks = Array.from({ length: 72 }, (_, i) => i);
     90% { transform: translateY(0.06em) scale(1.04, 0.9); }
     95% { transform: translateY(-0.02em) scale(0.98, 1.03); }
   }
-  .hero-sub { max-width: 640px; margin-top: 18px; font-size: var(--step-1); color: var(--text-2); line-height: 1.55; }
+  .hero-sub { max-width: 640px; margin-top: clamp(10px, 2svh, 18px); font-size: var(--step-1); color: var(--text-2); line-height: 1.55; }
   .hero-sub kbd { font-size: 0.78em; }
+  .nowrap { white-space: nowrap; }
 
-  .hero-cta { margin-top: 26px; display: grid; justify-items: center; gap: 14px; }
+  .hero-cta { margin-top: clamp(14px, 2.8svh, 26px); width: 100%; grid-template-columns: minmax(0, 1fr); display: grid; justify-items: center; gap: 14px; }
   .for-win, .for-linux { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
-  .for-linux, .for-other { display: none; }
-  :global(html[data-os='linux']) .for-linux { display: flex; }
+  .for-linux, .for-other, .for-win .try-btn { display: none; }
+  :global(html[data-os='linux']) .for-linux { display: flex; max-width: 100%; }
   :global(html[data-os='linux']) .for-win { display: none; }
   :global(html[data-os='mac']) .for-other, :global(html[data-os='linux']) .for-other, :global(html[data-os='mobile']) .for-other { display: block; }
-  :global(html[data-os='mobile']) .for-win .btn { display: none; }
+  :global(html[data-os='mobile']) .for-win .zip-btn { display: none; }
+  :global(html[data-os='mobile']) .for-win .try-btn { display: inline-flex; }
   .for-other { font-size: 0.9rem; }
   .cmd {
     display: inline-flex;
@@ -272,17 +305,18 @@ const ticks = Array.from({ length: 72 }, (_, i) => i);
     background: var(--code-bg);
     border: 1px solid rgba(255, 236, 220, 0.14);
     color: #efe6dc;
-    max-width: min(640px, 92vw);
+    min-width: 0;
+    max-width: min(640px, 100%);
     box-shadow: var(--shadow-2);
     transition: transform 400ms var(--spring-bouncy), border-color 200ms;
   }
   .cmd:hover { border-color: rgba(255, 160, 106, 0.5); }
   .cmd:active { transform: scale(0.98); }
-  .cmd code { font-size: 0.84rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: none; border: 0; padding: 0; }
+  .cmd code { min-width: 0; font-size: 0.84rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: none; border: 0; padding: 0; }
   .cmd-p { color: var(--ember-hot); font-family: var(--font-mono); }
   .cmd:global(.copied) { border-color: var(--mint); }
 
-  .trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; margin-top: 34px; color: var(--text-3); font-size: 0.88rem; }
+  .trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; margin-top: clamp(14px, 3.5svh, 34px); color: var(--text-3); font-size: 0.88rem; }
   .trust li { display: inline-flex; align-items: center; gap: 8px; }
   .trust :global(svg) { color: var(--ember-hot); }
 
@@ -302,10 +336,59 @@ const ticks = Array.from({ length: 72 }, (_, i) => i);
   .scroll-cue span { width: 4px; height: 8px; border-radius: 2px; background: var(--ember-hot); animation: cue 1.8s var(--ease-in-out) infinite; }
   @keyframes cue { 0% { transform: translateY(0); opacity: 1; } 70% { transform: translateY(12px); opacity: 0; } 100% { opacity: 0; } }
 
-  @media (max-width: 640px) {
-    .stage { width: 96vw; margin-bottom: -6px; }
-    .hero-title { font-size: clamp(3rem, 15vw, 5rem); }
+  @media (max-height: 940px) {
+    /* No room left for it below the trust row */
     .scroll-cue { display: none; }
+  }
+  @media (max-width: 640px) {
+    .pill { font-size: 0.8rem; gap: 8px; }
+    .pill-more { display: none; }
+    .stage { height: clamp(108px, 23svh, 210px); margin-bottom: 10px; }
+    .token-gl { width: 100%; }
+    /* Always "Drag. Tap." over "Convert.", at every phone width */
+    .hero-title {
+      display: grid;
+      grid-template-columns: auto auto;
+      font-size: clamp(2.5rem, min(15.2vw, 9.6svh), 5.2rem);
+    }
+    .hw-3 { grid-column: 1 / -1; justify-self: center; }
+    .hero-sub { font-size: 1rem; line-height: 1.5; }
+    .hero-cta { gap: 9px; }
+    .for-win { gap: 10px; }
+    .for-win :global(.store-badge img) { width: 164px; }
+    .for-win .try-btn { height: 45px; padding: 0 17px; }
+    .for-other { font-size: 0.82rem; }
+    .trust { display: grid; grid-template-columns: repeat(2, max-content); gap: 7px 16px; font-size: 0.78rem; text-align: left; }
+    .trust li { gap: 6px; }
+    .scroll-cue { display: none; }
+  }
+  @media (max-width: 640px) and (max-height: 720px) {
+    .sub-more { display: none; }
+  }
+  @media (max-width: 640px) and (max-height: 580px) {
+    /* The announcement bar says the same thing */
+    .pill { display: none; }
+  }
+  @media (max-width: 359px) {
+    .for-win :global(.store-badge img) { width: 146px; }
+    .for-win { gap: 8px; }
+    .for-win .try-btn { padding: 0 12px; }
+  }
+  @media (max-width: 339px) {
+    .trust { grid-template-columns: repeat(2, minmax(0, max-content)); font-size: 0.74rem; gap: 6px 10px; }
+  }
+  @media (max-height: 500px) and (orientation: landscape) {
+    .hero { padding-top: calc(var(--header-h) + 4px); padding-bottom: 14px; }
+    .pill { display: none; }
+    .stage { height: 84px; }
+    .sub-more, .for-other { display: none !important; }
+    .hero-title { display: flex; font-size: clamp(2.2rem, 14svh, 3.6rem); }
+    .hero-sub { font-size: 0.98rem; }
+    .trust { display: flex; }
+  }
+  @media (pointer: coarse) {
+    .dial { animation: none; }
+    .pill { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--surface); }
   }
   @media (prefers-reduced-motion: reduce) {
     .hw-1, .hw-2, .hw-3, .tapkey, .token-svg, .token-blades, .dial { animation: none !important; }

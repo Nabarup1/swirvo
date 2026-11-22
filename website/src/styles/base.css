@@ -19,10 +19,10 @@ body {
   font-size: var(--step-0);
   font-variation-settings: 'wdth' 100;
   line-height: 1.6;
+  word-spacing: 0.04em; /* Instrument Sans has a very narrow space */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  overflow-x: clip;
   transition: background-color var(--d-3) var(--ease-out), color var(--d-3) var(--ease-out);
 }
 img, svg, video, canvas, picture { display: block; max-width: 100%; }
@@ -37,6 +37,11 @@ ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
 ::selection { background: rgba(238, 106, 52, 0.38); color: var(--text); }
 [hidden] { display: none !important; }
 
+/* Clip sideways decoration here, not on <body>: overflow on <body> is handed to the
+   viewport, and phones then lay the page out at the width of its widest child and let
+   you zoom out to see it. `clip` (unlike `hidden`) leaves sticky elements working. */
+main { display: block; overflow-x: clip; }
+
 :focus-visible {
   outline: 2px solid var(--ember-hot);
   outline-offset: 3px;
@@ -49,7 +54,7 @@ ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
 /* ── Grain: a still film grain over everything, for warmth ─ */
 .grain {
   position: fixed;
-  inset: -50%;
+  inset: 0;
   z-index: var(--z-grain);
   pointer-events: none;
   opacity: var(--grain-opacity);
@@ -108,9 +113,18 @@ h4 { font-size: var(--step-1); font-weight: 650; letter-spacing: -0.01em; line-h
 code, kbd, pre, samp { font-family: var(--font-mono); font-size: 0.9em; }
 :not(pre) > code {
   padding: 0.12em 0.4em; border-radius: 6px; background: var(--surface-2);
-  border: 1px solid var(--line); font-size: 0.86em; white-space: nowrap;
+  border: 1px solid var(--line); font-size: 0.86em; overflow-wrap: break-word;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
 }
 .num { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 640px) {
+  .lead { font-size: 1.04rem; }
+  /* One alignment all the way down a phone: the hero and the closing card are centred,
+     every section between starts on the left edge. */
+  main .section .sec-head { text-align: left; margin-inline: 0; }
+  main .section .sec-head .lead { margin-inline: 0; }
+}
 
 /* ── Buttons ───────────────────────────────────────────── */
 .btn {
@@ -166,6 +180,17 @@ code, kbd, pre, samp { font-family: var(--font-mono); font-size: 0.9em; }
   transform: translateX(-120%);
 }
 .btn-primary:hover .shine { transform: translateX(120%); transition: transform 900ms var(--ease-out); }
+
+@media (max-width: 480px) {
+  /* A long label wraps inside its button rather than running off a narrow screen, with a
+     fallback font or larger text. flex-shrink: 0 keeps short labels from being squeezed. */
+  .btn {
+    flex-shrink: 0; max-width: 100%; height: auto; min-height: 48px; padding-block: 7px;
+    white-space: normal; overflow-wrap: anywhere; line-height: 1.2; text-align: center;
+  }
+  .btn-sm { min-height: 38px; }
+  .btn-lg { min-height: 56px; }
+}
 
 /* Link with a drawn underline */
 .ulink {
@@ -245,13 +270,25 @@ kbd.is-down, .kbd.is-down { --press: 3px; }
 [data-reveal='mask'].is-in { clip-path: inset(0 0 0 0 round 24px); transition: clip-path 1100ms var(--ease-out); }
 
 /* Split headings: each word rises and rotates in, like keyframed letters */
-.split .w { display: inline-block; overflow: clip; overflow-clip-margin: 0.25em; vertical-align: top; padding-bottom: 0.08em; margin-bottom: -0.08em; }
-.split .w > span { display: inline-block; transform: translate3d(0, 105%, 0) rotate(6deg); transform-origin: 0 100%; }
+.split .w { display: inline-block; max-width: 100%; overflow: clip; overflow-clip-margin: 0.25em; vertical-align: top; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.split .w > span { display: inline-block; max-width: 100%; transform: translate3d(0, 105%, 0) rotate(6deg); transform-origin: 0 100%; }
 .split.is-in .w > span {
   transform: none;
   transition: transform 1000ms var(--spring-soft);
   transition-delay: calc(var(--i) * 55ms + var(--delay, 0ms));
 }
+
+.split.settled .w { overflow: visible; }
+@media (max-width: 900px) {
+  /* Sideways entrances would start beyond the edge of a narrow screen */
+  [data-reveal='left']:not(.is-in), [data-reveal='right']:not(.is-in) { transform: translate3d(0, 28px, 0); }
+}
+
+/* Loops off screen are paused (scripts/motion.ts), which phones feel most */
+.asleep *, .asleep *::before, .asleep *::after { animation-play-state: paused !important; }
+
+/* Touch screens: no film grain (a full-screen blend on every frame) */
+@media (pointer: coarse) { .grain { display: none; } }
 
 html.no-js [data-reveal], html.reduce [data-reveal] { opacity: 1 !important; transform: none !important; filter: none !important; clip-path: none !important; }
 html.no-js .split .w > span, html.reduce .split .w > span { transform: none !important; }

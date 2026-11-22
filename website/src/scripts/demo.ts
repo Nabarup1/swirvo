@@ -4,7 +4,7 @@
 //   Keyboard: focus a file, tap Shift / Ctrl / Alt; arrows move, Tab switches, Enter applies.
 // While nobody touches it, a ghost hand plays the gesture on a loop.
 import { FILES, actions, type DemoFile } from '../data/demo';
-import { drawWheel, drawSub, G, angleOf, slotAt, centre, span, pt, type WItem, type WheelKind, type DrawnWheel } from './wheel-draw';
+import { drawWheel, drawSub, G, COMPACT_SUB_OUT, angleOf, slotAt, centre, pt, type WItem, type WheelKind, type DrawnWheel } from './wheel-draw';
 import { Spring, onTick, reduced, toast } from './motion';
 
 const demo = document.querySelector<HTMLElement>('[data-demo]');
@@ -41,6 +41,12 @@ function init(demo: HTMLElement) {
   let pendingTap: WheelKind | null = null;
   let byRobot = false;
   let pid = -1; // the pointer that started the drag; a second finger only presses keys
+  const touchScreen = matchMedia('(pointer: coarse)').matches;
+  let engaged = false; // the visitor has really dragged, so autoplay stays off
+  let resumeTimer = 0;
+  let stillX = 0;
+  let stillY = 0;
+  let ghostW = 0;
 
   interface Wheel {
     kind: WheelKind;
@@ -56,6 +62,12 @@ function init(demo: HTMLElement) {
     sub: { a0: number; step: number; count: number } | null;
     dwell: number;
     keyboard: boolean;
+    /** Outer radius of the preset ring (slimmer on narrow screens). */
+    subOut: number;
+    /** Nothing is selected until the pointer moves from where the wheel opened. */
+    armed: boolean;
+    openX: number;
+    openY: number;
   }
   let wheel: Wheel | null = null;
 
@@ -71,8 +83,11 @@ function init(demo: HTMLElement) {
     if (anim) return;
     anim = onTick((dt) => {
       const lx = gx.value;
-      gx.target = st === 'drag' || st === 'open' ? px : gx.target;
-      gy.target = st === 'drag' || st === 'open' ? py : gy.target;
+      if (st === 'drag' || st === 'open') {
+        // The dragged file stays inside the demo, whatever the finger does.
+        gx.target = clamp(px, 22, Math.max(22, demo.clientWidth - ghostW + 12));
+        gy.target = clamp(py, 28, demo.clientHeight - 28);
+      }
       gx.step(dt);
       gy.step(dt);
       gr.target = clamp((gx.value - lx) * 2.2, -16, 16);
@@ -153,6 +168,10 @@ function init(demo: HTMLElement) {
     gs.target = 1;
     ghost.querySelector('.g-name')!.textContent = src.file.name;
     ghost.dataset.kind = src.file.kind;
+    ghost.querySelector<HTMLElement>('.f-ic')!.dataset.kind = src.file.kind;
+    ghostW = ghost.offsetWidth;
+    if (!byRobot) engaged = true;
+    ghost.classList.remove('returning', 'tucked');
     ghost.classList.add('on');
     src.li.classList.add('dragging');
     demo.classList.add('dragging');
@@ -161,7 +180,8 @@ function init(demo: HTMLElement) {
       keys.classList.add('on');
       showHint('Pause to open the wheel, or tap a key');
       armStill();
-    } else showHint('Now tap <kbd>Shift</kbd> <span>· or <kbd>Ctrl</kbd> <kbd>Alt</kbd></span>');
+    } else if (touchScreen) showHint('Pause, and the wheel opens');
+    else showHint('Now tap <kbd>Shift</kbd> <span>· or <kbd>Ctrl</kbd> <kbd>Alt</kbd></span>');
     setSteps(1);
     say(`Dragging ${src.file.name}. Tap Shift for formats, Control for tools, Alt for actions.`);
     if (navigator.vibrate && ptype === 'touch') navigator.vibrate(8);
@@ -171,6 +191,8 @@ function init(demo: HTMLElement) {
   function armStill() {
     clearTimeout(stillTimer);
     if (ptype !== 'touch' || st !== 'drag') return;
+    stillX = px;
+    stillY = py;
     stillTimer = window.setTimeout(() => st === 'drag' && openWheel('convert'), 420);
   }
 
@@ -185,17 +207,21 @@ function init(demo: HTMLElement) {
     st = 'open';
     clearTimeout(stillTimer);
     const { W, H } = size();
-    const s = Math.min(1, (W - 20) / (2 * G.subOut), (H - 20) / (2 * G.R + 120));
+    const compact = W < 2 * G.subOut + 16;
+    const subOut = compact ? COMPACT_SUB_OUT : G.subOut;
+    const s = Math.min(1, (W - 8) / (2 * subOut), (H - 20) / (2 * G.R + 120));
     const ax = at?.x ?? px;
     const ay = at?.y ?? py;
-    const cx = clamp(ax, G.R * s + 10, W - G.R * s - 10);
-    const cy = clamp(ay, (G.R + 50) * s + 6, H - G.R * s - 10);
+    // Leave room for the preset ring all the way round, and for the tabs above.
+    const side = Math.min(subOut * s + 3, W / 2);
+    const cx = clamp(ax, side, W - side);
+    const cy = clamp(ay, Math.max(subOut, G.R + 50) * s + 4, H - subOut * s - 4);
     const pos = document.createElementNS(NS, 'g') as SVGGElement;
-    pos.setAttribute('class', 'wh-pos');
+    pos.setAttribute('class', compact ? 'wh-pos compact' : 'wh-pos');
     svg.append(pos);
     const items = itemsFor(kind, src.file);
     const drawn = drawWheel(pos, items, { name: src.file.name, meta: src.file.size }, kind);
-    wheel = { kind, items, drawn, pos, cx, cy, s, hover: -1, preset: -1, subFor: -1, sub: null, dwell: 0, keyboard };
+    wheel = { kind, items, drawn, pos, cx, cy, s, hover: -1, preset: -1, subFor: -1, sub: null, dwell: 0, keyboard, subOut, armed: byRobot, openX: px, openY: py };
     wk.value = 0.82;
     wk.velocity = 0;
     wk.target = 1;
@@ -252,7 +278,7 @@ function init(demo: HTMLElement) {
     if (!wheel || !src || wheel.subFor === i) return;
     const labels = presetsFor(wheel.kind, wheel.items[i], src.file);
     if (!labels) return;
-    wheel.sub = drawSub(wheel.drawn, i, wheel.items.length, labels);
+    wheel.sub = drawSub(wheel.drawn, i, wheel.items.length, labels, wheel.subOut);
     wheel.subFor = i;
     wheel.preset = -1;
     wheel.drawn.root.classList.add('sub-open');
@@ -275,6 +301,11 @@ function init(demo: HTMLElement) {
 
   function hoverAt() {
     if (!wheel || wheel.keyboard) return;
+    if (!wheel.armed) {
+      // Near an edge the wheel can't centre on the finger; that mustn't pick a wedge by itself.
+      if (Math.hypot(px - wheel.openX, py - wheel.openY) < 10) return;
+      wheel.armed = true;
+    }
     const dx = (px - wheel.cx) / wheel.s;
     const dy = (py - wheel.cy) / wheel.s;
     const d = Math.hypot(dx, dy);
@@ -291,7 +322,7 @@ function init(demo: HTMLElement) {
     }
     // Past the rim: open the preset ring for the wedge we left through.
     const slot = slotAt(a, n);
-    if (wheel.sub && d >= G.subIn - 8 && d <= G.subOut + 40) {
+    if (wheel.sub && d >= G.subIn - 8 && d <= wheel.subOut + 40) {
       const rel = (((a - wheel.sub.a0) % 360) + 360) % 360;
       const k = Math.floor(rel / wheel.sub.step);
       setPreset(k >= 0 && k < wheel.sub.count ? k : -1);
@@ -301,7 +332,7 @@ function init(demo: HTMLElement) {
       showSub(wheel.hover);
       return;
     }
-    if (d > G.subOut + 60) {
+    if (d > wheel.subOut + 60) {
       setHover(-1);
       hideSub();
     }
@@ -357,6 +388,10 @@ function init(demo: HTMLElement) {
   }
 
   function addRow(name: string, folder: boolean, after: HTMLLIElement, meta: string, kind: string) {
+    // The window is a fixed size: keep only the newest results, or new ones land out of sight.
+    const keep = demo.clientWidth < 700 ? 2 : 3;
+    const old = [...list.querySelectorAll('li.result:not(.dying)')].filter((x) => x !== after);
+    old.slice(0, Math.max(0, old.length - keep + 1)).forEach((x) => x.remove());
     const li = document.createElement('li');
     li.className = 'f result born';
     li.innerHTML = `<span class="f-ic" data-kind="${folder ? 'folder' : kind}"></span><span class="f-name"></span><span class="f-meta"></span><span class="f-new">New</span>`;
@@ -384,14 +419,19 @@ function init(demo: HTMLElement) {
     receipt.querySelector('.r-t')!.textContent = text;
     receipt.querySelector('.r-s')!.textContent = sub;
     const d = demo.getBoundingClientRect();
+    receipt.style.left = '8px'; // measure it with the whole width to grow into
+    const rw = receipt.offsetWidth;
+    const rh = receipt.offsetHeight;
+    let left = (wheel?.cx ?? d.width / 2) - rw / 2;
+    let top = (wheel?.cy ?? d.height / 2) + 30;
     if (li) {
       const r = li.getBoundingClientRect();
-      receipt.style.left = `${Math.min(r.left - d.left + 40, d.width - 300)}px`;
-      receipt.style.top = `${r.bottom - d.top + 6}px`;
-    } else {
-      receipt.style.left = `${clamp((wheel?.cx ?? d.width / 2) - 140, 12, d.width - 300)}px`;
-      receipt.style.top = `${clamp((wheel?.cy ?? d.height / 2) + 30, 12, d.height - 70)}px`;
+      left = r.left - d.left + 40;
+      top = r.bottom - d.top + 6;
+      if (top + rh > d.height - 8) top = r.top - d.top - rh - 6;
     }
+    receipt.style.left = `${Math.max(8, Math.min(left, d.width - rw - 8))}px`;
+    receipt.style.top = `${Math.max(8, Math.min(top, d.height - rh - 8))}px`;
     receipt.classList.remove('on');
     void receipt.offsetWidth;
     receipt.classList.add('on');
@@ -493,10 +533,11 @@ function init(demo: HTMLElement) {
       ghost.classList.add('returning');
       const li = src.li;
       setTimeout(() => {
+        if (src?.li !== li) li.classList.remove('dragging');
+        if (st === 'drag' || st === 'open') return; // a new drag has started meanwhile
         ghost.classList.remove('on', 'returning');
         gs.value = 1;
         gs.target = 1;
-        li.classList.remove('dragging');
       }, 380);
     }
     demo.classList.remove('dragging');
@@ -536,14 +577,13 @@ function init(demo: HTMLElement) {
       const moved = Math.hypot(px - pressX, py - pressY);
       if (ptype !== 'touch' && moved > 5) beginDrag();
       else if (ptype === 'touch' && moved > 10) {
-        clearTimeout(pressTimer);
-        st = 'idle';
-        src = null;
+        dropPress();
         detach();
       }
       return;
     }
-    if (st === 'drag') armStill();
+    // A finger is never perfectly still: only a real move restarts the pause timer.
+    if (st === 'drag' && Math.hypot(px - stillX, py - stillY) > 7) armStill();
     if (st === 'open') hoverAt();
     animate();
   }
@@ -559,7 +599,10 @@ function init(demo: HTMLElement) {
       st = 'idle';
       const name = src?.file.name;
       src = null;
-      if (ptype === 'touch') toast(`Hold ${name} for a moment, then drag`, 'info');
+      if (ptype === 'touch') {
+        toast(`Hold ${name} for a moment, then drag`, 'info');
+        letGo();
+      }
       else showHint('Drag it a little, then tap <kbd>Shift</kbd>');
       setTimeout(hideHint, 2200);
     }
@@ -567,7 +610,14 @@ function init(demo: HTMLElement) {
   function onCancel(e: PointerEvent) {
     if (e.pointerId !== pid) return;
     detach();
-    if (st !== 'idle' && st !== 'commit') cancel(true);
+    if (st === 'press') dropPress(); // the finger is scrolling the page: nothing was picked up
+    else if (st !== 'idle' && st !== 'commit') cancel(true);
+  }
+  function dropPress() {
+    clearTimeout(pressTimer);
+    st = 'idle';
+    src = null;
+    letGo();
   }
   function detach() {
     removeEventListener('pointermove', onMove);
@@ -576,7 +626,8 @@ function init(demo: HTMLElement) {
   }
   // While dragging on a touch screen, the page must not scroll.
   demo.addEventListener('touchmove', (e) => {
-    if (st === 'drag' || st === 'open') e.preventDefault();
+    // Only for the visitor's own drag: autoplay must never stop the page from scrolling.
+    if ((st === 'drag' || st === 'open') && !byRobot && e.cancelable) e.preventDefault();
   }, { passive: false });
   list.addEventListener('contextmenu', (e) => e.preventDefault());
   list.addEventListener('dragstart', (e) => e.preventDefault());
@@ -672,6 +723,7 @@ function init(demo: HTMLElement) {
   let abort = 0;
   const wait = (ms: number) => new Promise<void>((res) => setTimeout(res, ms));
   function takeOver() {
+    clearTimeout(resumeTimer);
     if (stopped) return;
     stopped = true;
     abort++;
@@ -679,8 +731,16 @@ function init(demo: HTMLElement) {
     demo.classList.add('user');
     if (byRobot) {
       byRobot = false;
-      if (st !== 'idle') cancel(true);
+      if (st !== 'idle' && st !== 'commit') cancel(true);
     }
+  }
+  /** It was a scroll or a tap rather than a drag, so autoplay picks up again. */
+  function letGo() {
+    if (reduced || engaged) return;
+    stopped = false;
+    demo.classList.remove('user');
+    clearTimeout(resumeTimer);
+    resumeTimer = window.setTimeout(() => inView && kickRobot(), 3000);
   }
   function kickRobot() {
     if (stopped || robot) return;
@@ -743,7 +803,8 @@ function init(demo: HTMLElement) {
           await pause(120);
           beginDrag();
           const { W, H } = size();
-          await moveTo(clamp(W * 0.62, 280, W - 200), clamp(H * 0.52, 240, H - 180), 800);
+          const phone = W < 2 * G.subOut + 40;
+          await moveTo(phone ? W / 2 : clamp(W * 0.62, 240, W - 230), phone ? H / 2 : clamp(H * 0.52, 240, H - 228), 800);
           await pause(260);
           openWheel(sc.kind);
           await pause(500);
@@ -756,7 +817,7 @@ function init(demo: HTMLElement) {
             await pause(520);
             if (wheel?.sub) {
               const a = wheel.sub.a0 + wheel.sub.step * (sc.preset + 0.5);
-              const [qx, qy] = pt(a, ((G.subIn + G.subOut) / 2) * wheel.s);
+              const [qx, qy] = pt(a, ((G.subIn + wheel.subOut) / 2) * wheel.s);
               await moveTo(wheel.cx + qx, wheel.cy + qy, 420);
             }
           }

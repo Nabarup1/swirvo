@@ -48,19 +48,19 @@ import Icon from '../Icon.astro';
 <style>
   .eng-head { max-width: 860px; margin-bottom: 48px; }
   .eng-head h2 { margin: 12px 0 18px; }
-  .eng-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr; grid-template-rows: auto auto; gap: 14px; }
+  .eng-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto auto; gap: 14px; }
   .big { grid-row: span 2; padding: 32px; display: flex; flex-direction: column; gap: 14px; }
   .mb { display: flex; align-items: baseline; gap: 10px; }
   .mb b { font: 760 clamp(5rem, 12vw, 9rem) / 0.9 var(--font-display); letter-spacing: -0.06em; font-variant-numeric: tabular-nums; background: var(--ember-grad-wide); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .mb span { font: 700 var(--step-3) var(--font-display); color: var(--text-2); }
-  .bar-cmp { display: grid; gap: 10px; margin-top: auto; }
-  .bar-cmp span { position: relative; height: 34px; border-radius: 10px; display: flex; align-items: center; }
+  .bar-cmp { grid-template-columns: minmax(0, 1fr); display: grid; gap: 10px; margin-top: auto; }
+  .bar-cmp span { position: relative; min-height: 34px; padding-block: 5px; border-radius: 10px; display: flex; align-items: center; }
   .bar-cmp span::before { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--w); border-radius: 10px; background: var(--ember-grad); transform-origin: left; transform: scaleX(0); transition: transform 1.4s var(--ease-out) 0.3s; }
   .bar-cmp .ghost-bar::before { background: repeating-linear-gradient(-45deg, var(--surface-3) 0 8px, var(--surface-2) 8px 16px); }
   :global(.is-in) .bar-cmp span::before { transform: scaleX(1); }
-  .bar-cmp b { position: relative; padding-left: calc(var(--w) + 12px); font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
-  .bar-cmp .ghost-bar b { padding-left: 12px; color: var(--text-2); font-weight: 500; }
-  .cell { padding: 24px; display: grid; gap: 10px; align-content: start; }
+  .bar-cmp b { position: relative; min-width: 0; padding-left: calc(var(--w) + 12px); font-size: 0.82rem; font-weight: 600; line-height: 1.25; }
+  .bar-cmp .ghost-bar b { padding-inline: 12px; color: var(--text-2); font-weight: 500; }
+  .cell { grid-template-columns: minmax(0, 1fr); padding: 24px; display: grid; gap: 10px; align-content: start; }
   .cell > :global(svg) { width: 26px; height: 26px; color: var(--ember-hot); }
   .cell h3 { font-size: 1.15rem; }
   .cell p { font-size: 0.94rem; }
@@ -68,7 +68,10 @@ import Icon from '../Icon.astro';
     .eng-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
     .big { grid-column: 1 / -1; grid-row: auto; }
   }
+  @media (max-width: 560px) {
+    .big { padding: 22px; }
+  }
   @media (max-width: 600px) {
-    .eng-grid { grid-template-columns: 1fr; }
+    .eng-grid { grid-template-columns: minmax(0, 1fr); }
   }
 </style>

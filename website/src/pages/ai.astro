@@ -77,19 +77,19 @@ const PROMPTS = [
   #setup :global(.section) { padding-block: var(--s-8); }
   #setup :global(.wrap) { width: 100%; }
   .ttable { padding: 6px; }
-  .trow { display: grid; grid-template-columns: 170px 1fr auto; gap: 16px; align-items: center; padding: 14px 16px; border-radius: 12px; }
+  .trow { display: grid; grid-template-columns: 170px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 16px; border-radius: 12px; }
   .trow + .trow { border-top: 1px solid var(--line); }
   .trow code { font-size: 0.86rem; }
   .trow p { font-size: 0.94rem; }
   .trow .badge { text-transform: none; letter-spacing: 0; font-family: var(--font-sans); }
   .small { font-size: 0.9rem; margin-top: 14px; }
   .notes-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-  .notes-grid .card { padding: 20px; display: grid; gap: 8px; align-content: start; }
+  .notes-grid .card { grid-template-columns: minmax(0, 1fr); padding: 20px; display: grid; gap: 8px; align-content: start; }
   .notes-grid .card > :global(svg) { width: 22px; height: 22px; color: var(--ember-hot); }
   .notes-grid h3 { font-size: 1.05rem; }
   .notes-grid p { font-size: 0.92rem; }
   @media (max-width: 900px) {
-    .prompts, .notes-grid { grid-template-columns: 1fr; }
-    .trow { grid-template-columns: 1fr; gap: 6px; }
+    .prompts, .notes-grid { grid-template-columns: minmax(0, 1fr); }
+    .trow { grid-template-columns: minmax(0, 1fr); gap: 6px; }
   }
 </style>

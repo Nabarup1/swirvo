@@ -103,7 +103,7 @@ const ICON: Record<Group, 'doc' | 'feather' | 'lock' | 'layers' | 'image' | 'typ
 </script>
 
 <style>
-  .tl-bar { position: sticky; top: 76px; z-index: 5; display: grid; gap: 12px; padding: 12px; margin: 0 -12px 18px; border-radius: var(--r-xl); background: color-mix(in oklab, var(--bg) 80%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .tl-bar { grid-template-columns: minmax(0, 1fr); position: sticky; top: 76px; z-index: 5; display: grid; gap: 12px; padding: 12px; margin: 0 -12px 18px; border-radius: var(--r-xl); background: color-mix(in oklab, var(--bg) 80%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
   .tl-search { display: flex; align-items: center; gap: 10px; height: 54px; padding: 0 18px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line-2); color: var(--text-3); transition: border-color 200ms, box-shadow 200ms; }
   .tl-search:focus-within { border-color: var(--ember); box-shadow: 0 0 0 4px rgba(238, 106, 52, 0.18); }
   .tl-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font-size: 1.05rem; color: var(--text); }
@@ -117,7 +117,7 @@ const ICON: Record<Group, 'doc' | 'feather' | 'lock' | 'layers' | 'image' | 'typ
   .tg.on { background: var(--text); color: var(--bg); border-color: var(--text); }
   .tg.on span { color: color-mix(in oklab, var(--bg) 60%, transparent); }
 
-  .tl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; }
+  .tl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(270px, 100%), 1fr)); gap: 12px; }
   .tool { scroll-margin-top: 220px; padding: 18px; display: flex; flex-direction: column; gap: 12px; will-change: transform; }
   .tool-top { display: flex; align-items: center; gap: 12px; }
   .tool-ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: rgba(238, 106, 52, 0.12); color: var(--ember-hot); flex: none; }
@@ -136,11 +136,11 @@ const ICON: Record<Group, 'doc' | 'feather' | 'lock' | 'layers' | 'image' | 'typ
   .acts h2 { font-size: var(--step-4); }
   .acts .lead { margin: 10px 0 24px; }
   .acts-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-  .acts-grid .card { padding: 20px; display: grid; gap: 4px; }
+  .acts-grid .card { grid-template-columns: minmax(0, 1fr); padding: 20px; display: grid; gap: 4px; }
   .acts-grid h3 { font-size: 1.15rem; }
   .acts-grid .muted { margin-top: 6px; font-size: 0.92rem; }
   @media (max-width: 760px) {
     .tl-bar { top: 68px; }
-    .acts-grid { grid-template-columns: 1fr; }
+    .acts-grid { grid-template-columns: minmax(0, 1fr); }
   }
 </style>

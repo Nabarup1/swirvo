@@ -93,7 +93,7 @@ const COLORS = [
     .sw-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
   @media (max-width: 560px) {
-    .hero-mark, .dl-grid, .type-grid { grid-template-columns: 1fr; }
+    .hero-mark, .dl-grid, .type-grid { grid-template-columns: minmax(0, 1fr); }
     .sw-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   }
 </style>

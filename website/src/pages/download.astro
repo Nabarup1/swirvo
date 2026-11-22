@@ -135,7 +135,7 @@ const date = r.date ? new Date(r.date).toLocaleDateString('en-GB', { day: 'numer
 
 <style>
   .plats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
-  .plat { padding: 24px; display: grid; gap: 14px; transition: border-color 300ms, transform 600ms var(--spring-soft); }
+  .plat { grid-template-columns: minmax(0, 1fr); padding: 24px; display: grid; gap: 14px; transition: border-color 300ms, transform 600ms var(--spring-soft); }
   :global(html[data-os='windows']) .plat-win, :global(html[data-os='linux']) .plat-linux { border-color: rgba(238, 106, 52, 0.45); box-shadow: var(--shadow-3), var(--glow); }
   .plat-top { display: flex; align-items: center; gap: 14px; }
   .plat-top h2 { font-size: 1.6rem; letter-spacing: -0.03em; }
@@ -143,26 +143,26 @@ const date = r.date ? new Date(r.date).toLocaleDateString('en-GB', { day: 'numer
   .plat-ic { width: 52px; height: 52px; flex: none; display: grid; place-items: center; border-radius: 16px; background: var(--ember-grad); color: var(--text-on-ember); box-shadow: 0 10px 24px -8px rgba(238, 106, 52, 0.6); }
   .you { margin-left: auto; display: none; }
   :global(html[data-os='windows']) .plat-win .you, :global(html[data-os='linux']) .plat-linux .you { display: inline-flex; }
-  .route { padding: 16px; border-radius: var(--r-lg); background: var(--bg); border: 1px solid var(--line); display: grid; gap: 10px; justify-items: start; }
+  .route { grid-template-columns: minmax(0, 1fr); padding: 16px; border-radius: var(--r-lg); background: var(--bg); border: 1px solid var(--line); display: grid; gap: 10px; justify-items: start; }
   .route.best { border-color: var(--line-2); background: color-mix(in oklab, var(--surface-2) 70%, transparent); }
   .route-h { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; width: 100%; }
   .route-h h3 { font-size: 1.08rem; }
   .route-h .num { margin-left: auto; font-size: 0.86rem; }
   .route p { font-size: 0.92rem; }
-  .steps-mini { padding-left: 1.2em; display: grid; gap: 6px; font-size: 0.92rem; color: var(--text-2); }
-  .note { display: flex; gap: 8px; align-items: flex-start; font-size: 0.84rem !important; color: var(--text-3); }
-  .note :global(svg) { flex: none; margin-top: 3px; }
+  .steps-mini { grid-template-columns: minmax(0, 1fr); padding-left: 1.2em; display: grid; gap: 6px; font-size: 0.92rem; color: var(--text-2); }
+  .note { position: relative; max-width: 100%; padding-left: 22px; overflow-wrap: anywhere; font-size: 0.84rem !important; color: var(--text-3); }
+  .note :global(svg) { position: absolute; left: 0; top: 4px; }
   .cmd-line { display: flex; gap: 8px; align-items: center; width: 100%; padding: 6px 6px 6px 12px; border-radius: 12px; background: var(--code-bg); border: 1px solid rgba(255, 236, 220, 0.12); }
   .cmd-line code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font-size: 0.76rem; color: #efe6dc; background: none; border: 0; padding: 0; scrollbar-width: none; }
-  .files-list { display: grid; gap: 4px; width: 100%; }
-  .files-list a { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: center; padding: 8px 10px; border-radius: 10px; font-size: 0.86rem; transition: background 200ms; }
+  .files-list { grid-template-columns: minmax(0, 1fr); display: grid; gap: 4px; width: 100%; }
+  .files-list a { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 8px 10px; border-radius: 10px; font-size: 0.86rem; transition: background 200ms; }
   .files-list a:hover { background: var(--surface-2); }
   .files-list span:nth-child(2) { font-family: var(--font-mono); font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   .dl-sec { margin-top: var(--s-9); }
   .dl-sec h2 { font-size: var(--step-3); margin-bottom: 20px; }
   .table { padding: 6px; overflow-x: auto; }
-  .tr { display: grid; grid-template-columns: 1fr 110px 220px; gap: 12px; align-items: center; padding: 10px 14px; border-radius: 10px; min-width: 620px; }
+  .tr { display: grid; grid-template-columns: minmax(0, 1fr) 110px 220px; gap: 12px; align-items: center; padding: 10px 14px; border-radius: 10px; min-width: 620px; }
   .tr:not(.th):hover { background: var(--surface-2); }
   .th { font: 500 0.72rem var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); }
   .tf { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.84rem; }
@@ -175,7 +175,7 @@ const date = r.date ? new Date(r.date).toLocaleDateString('en-GB', { day: 'numer
   .verify h3 { font-size: 1rem; margin-bottom: 10px; }
   .verify pre { margin: 0; font-size: 0.8rem; }
   .req-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-  .req-grid .card { padding: 20px; display: grid; gap: 8px; align-content: start; }
+  .req-grid .card { grid-template-columns: minmax(0, 1fr); padding: 20px; display: grid; gap: 8px; align-content: start; }
   .req-grid .card > :global(svg) { width: 24px; height: 24px; color: var(--ember-hot); }
   .req-grid h3 { font-size: 1.05rem; }
   .req-grid p { font-size: 0.92rem; }
@@ -185,6 +185,11 @@ const date = r.date ? new Date(r.date).toLocaleDateString('en-GB', { day: 'numer
     .req-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   }
   @media (max-width: 720px) {
-    .plats, .verify, .req-grid { grid-template-columns: 1fr; }
+    .plats, .verify, .req-grid { grid-template-columns: minmax(0, 1fr); }
+    .plat { padding: 16px; }
+    .plat-top { flex-wrap: wrap; }
+    .cmd-line { align-items: flex-start; padding: 10px; }
+    .cmd-line code { white-space: normal; overflow-wrap: anywhere; }
+    .verify pre { white-space: pre-wrap; overflow-wrap: anywhere; }
   }
 </style>

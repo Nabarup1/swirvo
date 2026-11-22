@@ -80,7 +80,9 @@ function split(el: HTMLElement) {
   if (el.dataset.splitDone) return;
   el.dataset.splitDone = '1';
   let i = 0;
-  const wrap = (node: Node): Node[] => {
+  // `inside` is the emphasis around a word: each word gets its own copy, so a phrase like
+  // <span class="serif">same engines.</span> can still wrap on a narrow screen.
+  const wrap = (node: Node, inside: HTMLElement[] = []): Node[] => {
     if (node.nodeType === Node.TEXT_NODE) {
       const parts = (node.textContent ?? '').split(/(\s+)/);
       return parts.filter(Boolean).map((p) => {
@@ -89,7 +91,13 @@ function split(el: HTMLElement) {
         w.className = 'w';
         const inner = document.createElement('span');
         inner.style.setProperty('--i', String(i++));
-        inner.textContent = p;
+        let content: Node = document.createTextNode(p);
+        for (let k = inside.length - 1; k >= 0; k--) {
+          const copy = inside[k].cloneNode(false);
+          copy.appendChild(content);
+          content = copy;
+        }
+        inner.append(content);
         w.append(inner);
         return w;
       });
@@ -97,6 +105,9 @@ function split(el: HTMLElement) {
     if (node.nodeType === Node.ELEMENT_NODE) {
       const e = node as HTMLElement;
       if (e.tagName === 'BR') return [e];
+      if (!e.querySelector('svg, img') && !(e instanceof SVGElement)) {
+        return [...e.childNodes].flatMap((c) => wrap(c, [...inside, e]));
+      }
       const w = document.createElement('span');
       w.className = 'w';
       const inner = document.createElement('span');
@@ -108,7 +119,7 @@ function split(el: HTMLElement) {
     return [];
   };
   const kids = [...el.childNodes];
-  el.replaceChildren(...kids.flatMap(wrap));
+  el.replaceChildren(...kids.flatMap((k) => wrap(k)));
   el.classList.add('split');
 }
 
@@ -117,7 +128,13 @@ function split(el: HTMLElement) {
 // watched instead and passes the reveal down.
 const proxies = new WeakMap<Element, HTMLElement[]>();
 const reveal = (el: HTMLElement) => {
+  if (el.classList.contains('is-in')) return;
   el.classList.add('is-in');
+  if (el.dataset.splitDone) {
+    // Unclip once the words have landed, so italics and descenders aren't shaved (Safari).
+    const last = el.querySelectorAll('.w').length * 55 + (parseInt(el.style.getPropertyValue('--delay')) || 0);
+    setTimeout(() => el.classList.add('settled'), last + 1000);
+  }
   if (el.dataset.count) countUp(el);
 };
 const io = new IntersectionObserver(
@@ -404,6 +421,15 @@ function transitions() {
   });
 }
 
+/* ── Pause what nobody can see ────────────────────────── */
+function sleepOffscreen() {
+  const seen = new IntersectionObserver(
+    (entries) => entries.forEach((e) => e.target.classList.toggle('asleep', !e.isIntersecting)),
+    { rootMargin: '160px 0px' }
+  );
+  document.querySelectorAll('main > section, .site-footer > .cta, .site-footer > .giant').forEach((el) => seen.observe(el));
+}
+
 /* ── Boot ─────────────────────────────────────────────── */
 setupReveals();
 document.addEventListener('pointerdown', ripple);
@@ -414,5 +440,6 @@ marquees();
 header();
 copyButtons();
 transitions();
+sleepOffscreen();
 
 export { setupReveals };

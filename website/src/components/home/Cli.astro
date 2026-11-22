@@ -52,16 +52,22 @@ const LINES = [
   .term-bar span { width: 11px; height: 11px; border-radius: 50%; background: #3a3240; }
   .term-bar b { margin-left: 10px; font: 500 0.78rem var(--font-mono); color: #8f857e; }
   .term-body { padding: 18px 20px 22px; font: 0.82rem/1.75 var(--font-mono); min-height: 340px; }
-  .term-body p { margin: 0; white-space: pre-wrap; word-break: break-all; }
+  .term-body p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
   .pr { color: #ff9a62; }
   .to { color: #a89d93; opacity: 0; }
   .to.okl { color: #9fe0b3; }
-  .typed { display: inline-block; overflow: hidden; white-space: nowrap; vertical-align: bottom; max-width: 0; }
+  /* Typed by sweeping the ink along the text, so a long command can wrap as it types */
+  .typed {
+    color: transparent;
+    background: linear-gradient(#efe6dc, #efe6dc) 0 0 / 0% 100% no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
   .tl { opacity: 0; }
   :global(.is-in) .tl { animation: show 0.01s both; animation-delay: calc(var(--i) * 2.2s); }
   :global(.is-in) .typed { animation: type calc(var(--n) * 28ms) steps(var(--n)) both; animation-delay: calc(var(--i) * 2.2s + 0.2s); }
   :global(.is-in) .to { animation: show 0.3s var(--ease-out) both; animation-delay: calc(var(--i) * 2.2s + var(--n) * 28ms + 0.45s); }
-  @keyframes type { to { max-width: 100%; } }
+  @keyframes type { to { background-size: 100% 100%; } }
   @keyframes show { to { opacity: 1; } }
   .caret { display: inline-block; width: 8px; height: 1.1em; background: #ff9a62; vertical-align: text-bottom; animation: blink 1s steps(1) infinite; }
   @keyframes blink { 50% { opacity: 0; } }
@@ -69,11 +75,19 @@ const LINES = [
   .cmd-box code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font-size: 0.82rem; color: #efe6dc; background: none; border: 0; padding: 0; scrollbar-width: none; }
   .small { font-size: 0.88rem; }
   @media (max-width: 980px) {
-    .cli-grid { grid-template-columns: 1fr; }
+    .cli-grid { grid-template-columns: minmax(0, 1fr); }
     .term { order: 2; }
   }
   @media (prefers-reduced-motion: reduce) {
     .tl, .to { opacity: 1; animation: none !important; }
-    .typed { max-width: none; animation: none !important; }
+    .typed { color: inherit; background: none; animation: none !important; }
+  }
+  @media (max-width: 560px) {
+    .term-body { padding: 14px; font-size: 0.74rem; }
+    /* A command you're about to run should be readable in full */
+    .cmd-box { flex-direction: column; align-items: stretch; gap: 10px; padding: 12px; }
+    .cmd-box code { flex: none; }
+    .cmd-box .btn { align-self: flex-end; }
+    .cmd-box code { white-space: normal; overflow-wrap: anywhere; font-size: 0.76rem; }
   }
 </style>

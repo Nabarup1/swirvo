@@ -35,7 +35,7 @@ const ogImage = new URL(image, Astro.site);
 <html lang="en" class="no-js" data-theme="dark">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -78,6 +78,8 @@ const ogImage = new URL(image, Astro.site);
         if (m) m.setAttribute('content', light ? '#f7f1e9' : '#0c0a0e');
         var ua = navigator.userAgent;
         d.dataset.os = /Windows/.test(ua) ? 'windows' : /Android|iPhone|iPad|iPod/.test(ua) ? 'mobile' : /Mac/.test(ua) ? 'mac' : /Linux|X11|CrOS/.test(ua) ? 'linux' : 'other';
+        // iPads say they are Macs; only they have a touch screen.
+        if (d.dataset.os === 'mac' && navigator.maxTouchPoints > 1) d.dataset.os = 'mobile';
         d.classList.remove('no-js');
         if (matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('reduce');
         setTimeout(function () { if (!d.classList.contains('motion-ready')) d.classList.add('no-js'); }, 3000);

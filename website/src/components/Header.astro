@@ -88,11 +88,14 @@ const stars = r.stars && r.stars >= 25 ? (r.stars >= 1000 ? (r.stars / 1000).toF
     border-bottom-color: var(--line);
   }
   .site-header:global(.tucked) { transform: translateY(-100%); }
+  @media (pointer: coarse) {
+    .site-header:global(.scrolled) { background: color-mix(in oklab, var(--bg) 90%, transparent); }
+  }
   .header-in {
     display: flex;
     align-items: center;
     gap: 20px;
-    height: 68px;
+    height: var(--header-h);
   }
   .nav { position: relative; margin-left: 18px; }
   .nav ul { display: flex; gap: 2px; position: relative; z-index: 1; }
@@ -164,7 +167,7 @@ const stars = r.stars && r.stars >= 25 ? (r.stars >= 1000 ? (r.stars / 1000).toF
   :global(.menu-open) .menu-btn span:last-child { top: 21px; transform: rotate(-45deg); }
 
   /* Mobile menu: a circle that grows out of the menu button */
-  .mobile-menu { position: fixed; inset: 0; z-index: calc(var(--z-header) - 1); pointer-events: none; visibility: hidden; transition: visibility 0s linear 700ms; }
+  .mobile-menu { position: fixed; inset: 0; overflow: hidden; z-index: calc(var(--z-header) - 1); pointer-events: none; visibility: hidden; transition: visibility 0s linear 700ms; }
   :global(.menu-open) .mobile-menu { pointer-events: auto; visibility: visible; transition-delay: 0s; }
   .menu-bg {
     position: absolute;
@@ -177,12 +180,12 @@ const stars = r.stars && r.stars >= 25 ? (r.stars >= 1000 ? (r.stars / 1000).toF
   .menu-in {
     position: relative;
     height: 100%;
-    padding: 96px var(--gutter) 32px;
+    padding: calc(var(--header-h) + var(--announce-h) + 12px) var(--gutter) 24px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
   }
-  .menu-in ul { display: grid; gap: 2px; }
+  .menu-in ul { grid-template-columns: minmax(0, 1fr); display: grid; gap: 2px; }
   .menu-in li {
     opacity: 0;
     transform: translateY(30px) rotate(-4deg);
@@ -205,21 +208,36 @@ const stars = r.stars && r.stars >= 25 ? (r.stars >= 1000 ? (r.stars / 1000).toF
   .menu-in li a :global(svg) { margin-left: auto; color: var(--text-3); transition: transform 400ms var(--spring-bouncy), color 200ms; }
   .menu-in li a:active :global(svg) { transform: translateX(6px); color: var(--ember-ink); }
   .mi-n { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-3); letter-spacing: 0; width: 24px; }
-  .menu-foot { margin-top: auto; padding-top: 28px; display: grid; gap: 12px; opacity: 0; transform: translateY(20px); transition: opacity 400ms, transform 600ms var(--spring-soft); }
+  .menu-foot { grid-template-columns: minmax(0, 1fr); margin-top: auto; padding-top: 28px; display: grid; gap: 12px; opacity: 0; transform: translateY(20px); transition: opacity 400ms, transform 600ms var(--spring-soft); }
   :global(.menu-open) .menu-foot { opacity: 1; transform: none; transition-delay: 520ms; }
   .menu-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .menu-row .btn { flex: 1; }
+  .menu-row .btn { flex: 1 0 auto; }
+  .menu-foot .btn { max-width: 100%; padding-inline: 14px; }
 
   @media (max-width: 1080px) {
     .hint { display: none; }
   }
-  @media (max-width: 960px) {
+  @media (max-width: 1040px) {
     .nav { display: none; }
     .menu-btn { display: inline-block; }
     .gh .stars { display: none; }
   }
   @media (max-width: 560px) {
+    /* All three live in the menu on phones */
     .gh, .search-btn { display: none; }
-    .cta { height: 36px; padding: 0 14px; }
+    .header-in { gap: 8px; }
+    .actions { gap: 4px; }
+    .cta { height: 38px; padding: 0 14px; margin-left: 2px; white-space: nowrap; }
+    .menu-in li a { font-size: clamp(1.7rem, min(8.5vw, 5.2svh), 2.5rem); padding: 9px 0; }
+  }
+  @media (max-width: 420px) {
+    .actions > .theme-btn { display: none; }
+  }
+  @media (max-width: 359px) {
+    .cta { padding: 0 12px; }
+    .cta :global(svg) { display: none; }
+  }
+  @media (max-width: 299px) {
+    .cta { display: none; }
   }
 </style>

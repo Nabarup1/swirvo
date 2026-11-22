@@ -27,7 +27,7 @@ const STEPS = [
 ---
 <section class="section wheels" id="features" aria-labelledby="wheels-title">
   <div class="wrap">
-    <div class="wheels-head">
+    <div class="wheels-head sec-head">
       <p class="eyebrow" data-reveal>One gesture</p>
       <h2 id="wheels-title" data-split>Three wheels. <span class="serif muted">Zero windows.</span></h2>
     </div>
@@ -47,7 +47,7 @@ const STEPS = [
       <div class="wheels-stage">
         <div class="ws-sticky">
           <div class="ws-orbit" aria-hidden="true"></div>
-          <svg class="ws-svg" viewBox="-260 -260 520 520" data-ws-svg role="img" aria-label="The Convert wheel"></svg>
+          <svg class="ws-svg" viewBox="-180 -208 360 416" data-ws-svg role="img" aria-label="The Convert wheel"></svg>
           <p class="ws-caption faint"><Icon name="info" size={14} /> The wheel opens around your pointer, wherever you are.</p>
           <div class="ws-dots" role="tablist" aria-label="Wheels">
             {STEPS.map((s, i) => <button type="button" role="tab" data-ws-dot={i} aria-label={s.title}><span></span></button>)}
@@ -134,7 +134,7 @@ const STEPS = [
   .wheels-head { text-align: center; margin-bottom: clamp(32px, 6vw, 72px); }
   .wheels-head h2 { margin-top: 12px; }
   .wheels-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 80px); align-items: start; }
-  .wheels-steps { display: grid; gap: 0; }
+  .wheels-steps { grid-template-columns: minmax(0, 1fr); display: grid; gap: 0; }
   .ws {
     min-height: 62vh;
     display: flex;
@@ -155,7 +155,7 @@ const STEPS = [
   .ws-eg { display: flex; flex-wrap: wrap; gap: 8px; }
   .wheels-stage { position: relative; height: 100%; }
   .ws-sticky { position: sticky; top: calc(50vh - 280px); height: 560px; display: grid; place-items: center; }
-  .ws-svg { width: min(520px, 100%); height: auto; overflow: visible; }
+  .ws-svg { width: min(420px, 100%); height: auto; overflow: visible; }
   .ws-svg :global(.ws-holder) { transform-box: view-box; transform-origin: 0 0; }
   .ws-orbit {
     position: absolute;
@@ -166,11 +166,15 @@ const STEPS = [
   }
   .ws-caption { position: absolute; bottom: 0; display: inline-flex; align-items: center; gap: 6px; font-size: 0.86rem; }
   .ws-dots { display: none; }
+  @media (max-width: 900px) and (max-height: 900px) {
+    .ws-eg { display: none; }
+  }
   @media (max-width: 900px) {
-    .wheels-grid { grid-template-columns: 1fr; gap: 8px; }
+    .wheels-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
     .wheels-stage { order: -1; height: auto; }
     .ws-sticky { position: relative; top: 0; height: auto; padding-bottom: 36px; }
-    .ws-svg { width: min(400px, 92vw); }
+    /* Short enough that the wheel and the card you're swiping share the screen */
+    .ws-svg { width: min(320px, 80vw, 35svh); }
     .ws-caption { display: none; }
     .wheels-steps {
       display: flex;
@@ -196,10 +200,12 @@ const STEPS = [
       transform: scale(0.96);
     }
     .ws:global(.on) { transform: none; border-color: rgba(238, 106, 52, 0.35); }
-    .ws h3 { font-size: var(--step-3); }
-    .ws p { font-size: 1rem; }
+    .ws { gap: 10px; padding: 18px; }
+    .ws h3 { font-size: 1.6rem; }
+    .ws p { font-size: 0.95rem; line-height: 1.5; }
+    .wheels-head { margin-bottom: 16px; }
     .ws-dots { display: flex; gap: 10px; position: absolute; bottom: 4px; left: 50%; translate: -50% 0; }
-    .ws-dots button { width: 28px; height: 28px; display: grid; place-items: center; }
+    .ws-dots button { width: 36px; height: 36px; display: grid; place-items: center; }
     .ws-dots span { width: 8px; height: 8px; border-radius: 99px; background: var(--line-3); transition: width 500ms var(--spring-bouncy), background 300ms; }
     .ws-dots :global(button.on) span { width: 24px; background: var(--ember); }
   }

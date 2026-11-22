@@ -27,9 +27,10 @@ const { title, eyebrow, lead, description, wide = false, noindex } = Astro.props
 </Base>
 
 <style>
-  .phead { position: relative; padding: clamp(56px, 9vw, 120px) 0 clamp(32px, 5vw, 56px); overflow: clip; isolation: isolate; }
+  .phead { position: relative; margin-top: calc(-1 * var(--header-h)); padding: calc(var(--header-h) + clamp(44px, 9vw, 120px)) 0 clamp(32px, 5vw, 56px); overflow: clip; isolation: isolate; }
   .phead-in h1 { margin: 14px 0 18px; font-size: var(--step-5); max-width: 16ch; }
-  .phead-orb { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+  @media (max-width: 560px) { .phead-in h1 { font-size: clamp(2rem, 11vw, 2.9rem); } }
+  .phead-orb { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; -webkit-mask-image: linear-gradient(#000 65%, transparent); mask-image: linear-gradient(#000 65%, transparent); }
   .phead-orb span {
     position: absolute;
     right: -10%;

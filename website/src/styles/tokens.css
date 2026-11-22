@@ -46,6 +46,8 @@
   --s-10: 128px;
   --section: clamp(88px, 12vw, 180px);
   --gutter: clamp(16px, 4vw, 40px);
+  --header-h: 68px;
+  --announce-h: 40px;
   --max: 1240px;
   --max-prose: 72ch;
 
@@ -150,6 +152,13 @@
   --glow: 0 0 0 1px rgba(217, 72, 43, 0.25), 0 10px 40px -10px rgba(217, 72, 43, 0.45);
   --grain-opacity: 0.045;
   --code-bg: #1a1418;
+}
+
+@media (max-width: 720px) {
+  :root { --announce-h: 36px; }
+}
+@media (max-width: 560px) {
+  :root { --header-h: 60px; --section: 72px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

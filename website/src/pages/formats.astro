@@ -235,7 +235,7 @@ const data = FORMATS.map((f) => ({ k: f.key, n: f.name, c: f.cat, r: f.read, t: 
 </script>
 
 <style>
-  .fx-bar { position: sticky; top: 76px; z-index: 5; display: grid; gap: 12px; padding: 12px; margin: 0 -12px 16px; border-radius: var(--r-xl); background: color-mix(in oklab, var(--bg) 80%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .fx-bar { grid-template-columns: minmax(0, 1fr); position: sticky; top: 76px; z-index: 5; display: grid; gap: 12px; padding: 12px; margin: 0 -12px 16px; border-radius: var(--r-xl); background: color-mix(in oklab, var(--bg) 80%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
   .fx-search { display: flex; align-items: center; gap: 10px; height: 54px; padding: 0 18px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line-2); color: var(--text-3); transition: border-color 200ms, box-shadow 200ms; }
   .fx-search:focus-within { border-color: var(--ember); box-shadow: 0 0 0 4px rgba(238, 106, 52, 0.18); }
   .fx-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font-size: 1.05rem; color: var(--text); }
@@ -257,7 +257,7 @@ const data = FORMATS.map((f) => ({ k: f.key, n: f.name, c: f.cat, r: f.read, t: 
   @media (max-width: 760px) { .lg .faint { display: none; } }
 
   .fx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-  .ft button {
+  .ft button { grid-template-columns: minmax(0, 1fr);
     width: 100%;
     height: 100%;
     display: grid;
@@ -279,7 +279,7 @@ const data = FORMATS.map((f) => ({ k: f.key, n: f.name, c: f.cat, r: f.read, t: 
   .fx-empty { padding: 40px; text-align: center; color: var(--text-3); }
 
   /* Sheet: a side panel on desktop, a bottom sheet on phones */
-  .sheet { position: fixed; inset: 0; z-index: var(--z-palette); pointer-events: none; }
+  .sheet { position: fixed; inset: 0; overflow: hidden; z-index: var(--z-palette); pointer-events: none; }
   .sheet.open { pointer-events: auto; }
   .sheet-scrim { position: absolute; inset: 0; background: color-mix(in oklab, var(--bg) 55%, transparent); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); opacity: 0; transition: opacity 300ms; }
   .sheet.open .sheet-scrim { opacity: 1; }

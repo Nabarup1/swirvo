@@ -90,6 +90,15 @@
 .wh-progress.ok .pr-fg { stroke: #6fd69a; }
 .wh-pos.gone { opacity: 0; transition: opacity 260ms var(--ease-out); }
 
+/* Scaled down on phones, so the words start a little larger */
+.wh-pos.compact .wh-label { font-size: 16.5px; }
+.wh-pos.compact .wh-cap { font-size: 11.5px; }
+.wh-pos.compact .wh-p text { font-size: 12.5px; }
+.wh-pos.compact .wh-tab text { font-size: 11.5px; }
+@media (pointer: coarse) {
+  .wh-shadow { filter: none; fill: rgba(0, 0, 0, 0.22); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .wh-w, .wh-sub .wh-p { transition: opacity 80ms; transform: none !important; }
 }

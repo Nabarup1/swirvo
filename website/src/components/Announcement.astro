@@ -7,12 +7,10 @@ const r = await release();
   <div class="wrap announce-in">
     <span class="pulse" aria-hidden="true"></span>
     <p>
-      <strong>Swirvo {r.version}</strong>
-      <span class="sep" aria-hidden="true">·</span>
-      <span class="hide-sm">Now on the Microsoft Store, plus Linux builds for x64 and ARM64.</span>
-      <span class="show-sm">Now on the Microsoft Store.</span>
+      <span class="hide-sm"><strong>Swirvo {r.version}</strong><span class="sep" aria-hidden="true">·</span>Now on the Microsoft Store, plus Linux builds for x64 and ARM64.</span>
+      <span class="show-sm"><strong>Now on the Microsoft Store</strong></span>
     </p>
-    <a href="/changelog" class="announce-link">What’s new <Icon name="arrowRight" size={14} /></a>
+    <a href="/changelog" class="announce-link" aria-label="What’s new"><span class="al-text">What’s new</span><Icon name="arrowRight" size={14} /></a>
     <button class="announce-x" aria-label="Dismiss this notice" data-announce-close><Icon name="x" size={14} /></button>
   </div>
 </div>
@@ -54,7 +52,7 @@ const r = await release();
     align-items: center;
     justify-content: center;
     gap: 12px;
-    min-height: 40px;
+    min-height: var(--announce-h);
     padding-right: 34px;
     position: relative;
   }
@@ -101,7 +99,16 @@ const r = await release();
   @media (max-width: 720px) {
     .hide-sm { display: none; }
     .show-sm { display: inline; }
-    .announce-in { justify-content: flex-start; }
+    .announce-in { justify-content: flex-start; gap: 9px; }
+    .announce p { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.8rem; }
+    .al-text { display: none; }
+    .announce-link { padding: 5px 9px; flex: none; }
+  }
+  @media (max-width: 359px) {
+    .pulse { display: none; }
+  }
+  @media (pointer: coarse) {
+    .announce { animation: none; }
   }
   @media (prefers-reduced-motion: reduce) { .announce { animation: none; } }
 </style>

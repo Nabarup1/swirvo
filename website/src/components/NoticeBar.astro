@@ -24,14 +24,26 @@
       nb.hidden = false;
       requestAnimationFrame(() => nb.classList.add('in'));
     };
+    // On a phone the note covers a fifth of the screen, so it waits until the demo is
+    // behind you, never pops up by itself, and leaves after a few seconds.
+    const phone = matchMedia('(max-width: 720px)').matches;
     const onScroll = () => {
-      if (scrollY > innerHeight * 1.2) {
+      const demo = phone ? document.querySelector('[data-demo]') : null;
+      if (scrollY > innerHeight * 1.2 && (!demo || demo.getBoundingClientRect().bottom < 0)) {
         removeEventListener('scroll', onScroll);
-        setTimeout(show, 600);
+        setTimeout(() => {
+          show();
+          if (phone) setTimeout(leave, 7000);
+        }, 600);
       }
     };
+    const leave = () => {
+      nb.classList.remove('in');
+      nb.classList.add('out');
+      setTimeout(() => (nb.hidden = true), 500);
+    };
     addEventListener('scroll', onScroll, { passive: true });
-    setTimeout(show, 12000);
+    if (!phone) setTimeout(show, 12000);
     nb.querySelector('[data-nb-close]')?.addEventListener('click', () => {
       nb.classList.remove('in');
       nb.classList.add('out');
@@ -76,6 +88,7 @@
   .nb.in .nb-ic path { stroke-dashoffset: 0; transition: stroke-dashoffset 700ms var(--ease-out) 500ms; }
   .nb .btn { flex: none; }
   @media (max-width: 560px) {
-    .nb { left: 12px; right: 12px; bottom: 12px; max-width: none; }
+    .nb { left: 10px; right: 10px; bottom: 10px; max-width: none; gap: 10px; font-size: 0.8rem; }
+    .nb-ic { display: none; }
   }
 </style>

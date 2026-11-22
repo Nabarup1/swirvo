@@ -8,7 +8,7 @@ const chip = (f: (typeof FORMATS)[number]) => ({ key: f.key, hue: CATEGORIES[f.c
 const checker = FORMATS.filter((f) => f.read !== 'planned').map((f) => ({ k: f.key, n: f.name, t: f.to.map(([k, v]) => [k, v]) }));
 ---
 <section class="section fmts" aria-labelledby="fmts-title">
-  <div class="wrap fmts-head">
+  <div class="wrap fmts-head sec-head">
     <p class="eyebrow" data-reveal>Formats</p>
     <h2 id="fmts-title" data-split>From <span class="serif ember-text">HEIC</span> to PDF/A, and nearly everything between.</h2>
     <div class="stats" data-stagger="90">
@@ -77,7 +77,7 @@ const checker = FORMATS.filter((f) => f.read !== 'planned').map((f) => ({ k: f.k
   .stats div { display: grid; gap: 4px; }
   .stats b { font: 700 var(--step-4) / 1 var(--font-display); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
   .stats span { color: var(--text-3); font-size: 0.9rem; }
-  .ribbons { display: grid; gap: 14px; transform: rotate(-3deg); margin-block: 12px 56px; }
+  .ribbons { grid-template-columns: minmax(0, 1fr); display: grid; gap: 14px; transform: rotate(-3deg); margin-block: 12px 56px; }
   .ribbon { overflow: hidden; mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
   .track { display: flex; gap: 12px; width: max-content; will-change: transform; padding-block: 6px; }
   .fchip {
@@ -132,4 +132,17 @@ const checker = FORMATS.filter((f) => f.read !== 'planned').map((f) => ({ k: f.k
   :global(:root[data-theme='light']) .ask-out:global(.yes) { color: #1d7a45; }
   :global(:root[data-theme='light']) .ask-out:global(.maybe) { color: #93630a; }
   .ask-more { font-size: 0.9rem; color: var(--text-2); display: inline-flex; align-items: center; gap: 4px; }
+  @media (max-width: 560px) {
+    .fmts-head { margin-inline: auto !important; }
+    .fmts-head h2 { margin-inline: 0; }
+    .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 30px 0 36px; }
+    .stats b { font-size: 2rem; }
+    .stats span { font-size: 0.74rem; line-height: 1.25; }
+    .ribbons { margin-bottom: 36px; }
+    .fchip { height: 46px; font-size: 1.05rem; }
+    /* The question, then "[heic] into [jpg] ?" on one line */
+    .ask { padding: 18px 10px; gap: 10px 8px; font-size: 1.05rem; }
+    .ask label { flex-basis: 100%; text-align: center; }
+    .ask input { width: min(8ch, 27vw); padding: 0 8px; font-size: 1rem; }
+  }
 </style>

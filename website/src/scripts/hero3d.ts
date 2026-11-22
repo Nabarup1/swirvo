@@ -14,16 +14,36 @@ const DETENT = TAU / 3;
 export function startHero(host: HTMLElement, canvas: HTMLCanvasElement) {
   let renderer: THREE.WebGLRenderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+    // Without a real GPU the browser says so, and the SVG tile stays: software WebGL runs
+    // this scene at a frame every few seconds and freezes the page with it.
+    renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+      powerPreference: 'high-performance',
+      failIfMajorPerformanceCaveat: true,
+    });
   } catch {
     return null;
   }
+  {
+    // Not every browser reports that caveat, so also ask who is doing the drawing.
+    const gl = renderer.getContext();
+    const info = gl.getExtension('WEBGL_debug_renderer_info');
+    const who = String(gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER));
+    if (/swiftshader|llvmpipe|softpipe|software|basic render/i.test(who)) {
+      renderer.dispose();
+      canvas.style.pointerEvents = 'none';
+      return null;
+    }
+  }
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let dpr = Math.min(devicePixelRatio || 1, 1.75);
+  let dpr = Math.min(devicePixelRatio || 1, matchMedia('(pointer: coarse)').matches ? 1.5 : 1.75);
   renderer.setPixelRatio(dpr);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  // Neutral keeps the brand's orange; ACES bleached it to peach.
+  renderer.toneMapping = THREE.NeutralToneMapping;
+  renderer.toneMappingExposure = 1;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(26, 1, 0.1, 100);
@@ -31,13 +51,13 @@ export function startHero(host: HTMLElement, canvas: HTMLCanvasElement) {
 
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.035).texture;
-  scene.environmentIntensity = 0.85;
+  scene.environmentIntensity = 0.5;
 
-  const key = new THREE.DirectionalLight(0xfff0e0, 2.2);
+  const key = new THREE.DirectionalLight(0xfff0e0, 1.5);
   key.position.set(-4, 5, 7);
   const rim = new THREE.DirectionalLight(0xb4a6ff, 1.6);
   rim.position.set(5, -3, -5);
-  const warm = new THREE.PointLight(0xffa060, 26, 18, 1.6);
+  const warm = new THREE.PointLight(0xffa060, 7, 18, 1.6);
   warm.position.set(2, 1, 5);
   scene.add(key, rim, warm, new THREE.AmbientLight(0xffffff, 0.12));
 
@@ -86,7 +106,7 @@ export function startHero(host: HTMLElement, canvas: HTMLCanvasElement) {
     metalness: 0,
     clearcoat: 1,
     clearcoatRoughness: 0.14,
-    sheen: 0.4,
+    sheen: 0.08,
     sheenColor: new THREE.Color(0xffc08a),
     sheenRoughness: 0.45,
   });
@@ -207,14 +227,15 @@ export function startHero(host: HTMLElement, canvas: HTMLCanvasElement) {
   document.fonts?.ready.then(redrawChips);
   document.addEventListener('themechange', () => {
     redrawChips();
-    renderer.toneMappingExposure = isLight() ? 0.98 : 1.05;
+    renderer.toneMappingExposure = isLight() ? 0.97 : 1;
     (shadow.material as THREE.MeshBasicMaterial).opacity = isLight() ? 0.6 : 1;
   });
 
   /* ── Motion state ─────────────────────────────────────── */
   const tiltX = new Spring(0, 60, 11);
   const tiltY = new Spring(0, 60, 11);
-  const intro = new Spring(reduced ? 1 : 0, 70, 11);
+  // Starts near full size: it takes over from the SVG tile, so must never be a blank.
+  const intro = new Spring(reduced ? 1 : 0.72, 90, 12);
   intro.target = 1;
   const introBlades = [0, 1, 2].map(() => new Spring(reduced ? 1 : 0, 90, 10));
   const orbitR = new Spring(1, 120, 9);
@@ -242,6 +263,7 @@ export function startHero(host: HTMLElement, canvas: HTMLCanvasElement) {
   };
 
   addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse') return; // a finger scrolling the page shouldn't tip the logo
     const rect = host.getBoundingClientRect();
     const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     const ny = ((e.clientY - rect.top) / rect.height) * 2 - 1;
@@ -297,13 +319,18 @@ export function startHero(host: HTMLElement, canvas: HTMLCanvasElement) {
   }, { passive: true });
 
   /* ── Size and loop ────────────────────────────────────── */
+  let small = false;
   const resize = () => {
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    camera.fov = w < 600 ? 32 : 26;
+    // 26° tall, opened up when the canvas is too narrow to hold the whole orbit.
+    small = w < 600; // fewer, larger chips on a closer orbit, so they can still be read
+    const reach = small ? 4.5 : 4.9;
+    const tan = Math.max(Math.tan(THREE.MathUtils.degToRad(13)), reach / (camera.position.z * camera.aspect));
+    camera.fov = THREE.MathUtils.radToDeg(Math.atan(tan)) * 2;
     camera.updateProjectionMatrix();
   };
   new ResizeObserver(resize).observe(canvas);
@@ -313,15 +340,29 @@ export function startHero(host: HTMLElement, canvas: HTMLCanvasElement) {
   let raf = 0;
   let last = performance.now();
   let slow = 0;
+  let stalled = 0;
+  let stopped = false;
+  let drawn = false;
+  // Back to the SVG tile, when the GPU can't keep up or the phone takes the context away.
+  const stop = () => {
+    if (stopped) return;
+    stopped = true;
+    cancelAnimationFrame(raf);
+    raf = 0;
+    host.classList.remove('gl-ready');
+    canvas.style.opacity = '';
+    canvas.style.pointerEvents = 'none';
+  };
+  canvas.addEventListener('webglcontextlost', stop);
   new IntersectionObserver(([e]) => {
     visible = e.isIntersecting;
-    if (visible && !raf) {
+    if (visible && !raf && !stopped) {
       last = performance.now();
       raf = requestAnimationFrame(loop);
     }
   }).observe(host);
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && visible && !raf) {
+    if (!document.hidden && visible && !raf && !stopped) {
       last = performance.now();
       raf = requestAnimationFrame(loop);
     }
@@ -329,7 +370,7 @@ export function startHero(host: HTMLElement, canvas: HTMLCanvasElement) {
 
   function loop(now: number) {
     raf = 0;
-    if (!visible || document.hidden) return;
+    if (!visible || document.hidden || stopped) return;
     const dt = Math.min(0.05, (now - last) / 1000);
     const frameMs = now - last;
     last = now;
@@ -343,6 +384,9 @@ export function startHero(host: HTMLElement, canvas: HTMLCanvasElement) {
       resize();
       slow = 0;
     }
+    if (frameMs > 55) stalled += frameMs > 500 ? 15 : 1;
+    else stalled = Math.max(0, stalled - 2);
+    if (stalled > 45) return stop();
 
     intro.step(dt);
     introBlades.forEach((s) => s.step(dt));
@@ -396,19 +440,24 @@ export function startHero(host: HTMLElement, canvas: HTMLCanvasElement) {
     const R = 3.55 * orbitR.value;
     chips.forEach((c, i) => {
       const a = c.phase + orbit;
-      const y = Math.sin(a * 2 + i) * 0.35 + (i % 2 ? 0.55 : -0.55);
-      c.sprite.position.set(Math.cos(a) * R * 1.12, y + token.position.y * 0.6, Math.sin(a) * R * 0.55);
+      c.sprite.visible = !small || i % 2 === 0;
+      // The ring leans toward you, passing under the swirl in front and over it behind.
+      const y = -Math.sin(a) * 1.85 + Math.sin(a * 2 + i) * 0.14;
+      c.sprite.position.set(Math.cos(a) * R * (small ? 0.9 : 1.12), y + token.position.y * 0.6, Math.sin(a) * R * 0.55);
       const front = (Math.sin(a) + 1) / 2;
       (c.sprite.material as THREE.SpriteMaterial).opacity = (0.35 + 0.65 * front) * k * (1 - scrollP * 0.8);
-      const sc = (0.85 + front * 0.3) * k;
+      const sc = (0.85 + front * 0.3) * k * (small ? 1.6 : 1.1);
       c.sprite.scale.set(1.28 * sc, 0.48 * sc, 1);
     });
 
-    canvas.style.opacity = String(1 - scrollP * 0.9);
+    if (drawn) canvas.style.opacity = String(1 - scrollP * 0.9);
     renderer.render(scene, camera);
+    if (!drawn) {
+      drawn = true;
+      host.classList.add('gl-ready');
+    }
     raf = requestAnimationFrame(loop);
   }
   raf = requestAnimationFrame(loop);
-  host.classList.add('gl-ready');
   return renderer;
 }

@@ -5,7 +5,7 @@ const pdfCount = TOOLS.filter((t) => t.group.startsWith('pdf')).length;
 ---
 <section class="section kit" aria-labelledby="kit-title">
   <div class="wrap">
-    <div class="kit-head">
+    <div class="kit-head sec-head">
       <p class="eyebrow" data-reveal>The toolkit</p>
       <h2 id="kit-title" data-split>{TOOLS.length} tools, <span class="serif muted">{pdfCount} for PDF alone.</span></h2>
       <p class="lead" data-reveal style="--delay:120ms">
@@ -219,14 +219,35 @@ const pdfCount = TOOLS.filter((t) => t.group.startsWith('pdf')).length;
   .vlab { font: 600 0.8rem var(--font-mono); color: var(--text-2); }
 
   .kit-more { text-align: center; margin-top: 40px; }
+  @media (max-width: 640px) { .kit-more { margin-top: 16px; text-align: left; } }
 
   @media (max-width: 1024px) {
     .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .t-ocr { grid-row: span 1; }
   }
   @media (max-width: 640px) {
-    .bento { grid-template-columns: 1fr; }
+    .bento { grid-template-columns: minmax(0, 1fr); }
     .t-merge, .t-redact { grid-column: auto; }
+    /* Nine tall cards were six screens of scrolling: swipe through them instead */
+    .bento {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: var(--gutter);
+      margin-inline: calc(var(--gutter) * -1);
+      padding: 4px var(--gutter) 16px;
+      scrollbar-width: none;
+      overscroll-behavior-x: contain;
+    }
+    .bento::-webkit-scrollbar { display: none; }
+    .tile { flex: 0 0 min(78%, 330px); scroll-snap-align: start; padding: 18px; }
+    .viz { flex: none; height: 148px; min-height: 0; }
+    .t-ocr .viz { height: 190px; }
+    .scan { width: 130px; }
+    .p1 { --x: -76px; }
+    .p3 { --x: 76px; }
+    .doc-lines { padding: 14px; font-size: 13px; }
   }
   @media (prefers-reduced-motion: reduce) {
     .viz * { animation: none !important; }

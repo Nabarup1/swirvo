@@ -7,7 +7,7 @@
 :root.theme-vt::view-transition-group(site-header) { animation: none; }
 
 /* ── Cursor companion ─────────────────────────────────── */
-.cursor { position: fixed; inset: 0; pointer-events: none; z-index: var(--z-cursor); opacity: 0; transition: opacity 300ms; }
+.cursor { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: var(--z-cursor); opacity: 0; transition: opacity 300ms; }
 .cursor.on { opacity: 1; }
 .cursor-ring {
   position: absolute; left: -18px; top: -18px; width: 36px; height: 36px; border-radius: 50%;
@@ -30,9 +30,11 @@
 .cursor.hot .cursor-dot, .cursor.texty .cursor-dot { opacity: 0; }
 :root[data-theme='light'] .cursor-ring { border-color: rgba(194, 71, 29, 0.5); }
 
+@media not (pointer: fine) { .cursor { display: none; } }
+
 /* ── Toasts ───────────────────────────────────────────── */
 .toasts {
-  position: fixed; left: 50%; bottom: 24px; translate: -50% 0; z-index: var(--z-toast);
+  position: fixed; left: 12px; right: 12px; bottom: 24px; z-index: var(--z-toast);
   display: grid; gap: 8px; justify-items: center; pointer-events: none;
 }
 .toast {
@@ -71,7 +73,7 @@ pre.astro-code, .code {
 pre.astro-code code { font-size: inherit; background: none; border: 0; padding: 0; white-space: pre; }
 
 /* ── Prose: docs, changelog and legal pages ───────────── */
-.prose { max-width: var(--max-prose); color: var(--text-2); font-size: 1.04rem; }
+.prose { max-width: var(--max-prose); min-width: 0; color: var(--text-2); font-size: 1.04rem; }
 .prose > * + * { margin-top: 1.05em; }
 .prose h2 {
   margin-top: 2.2em; font-size: clamp(1.7rem, 1.4rem + 1.2vw, 2.3rem); color: var(--text);

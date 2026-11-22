@@ -48,13 +48,13 @@ import Icon from '../Icon.astro';
 <style>
   .priv-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 96px); align-items: center; }
   .priv-copy h2 { margin: 12px 0 18px; }
-  .promises { display: grid; gap: 22px; margin: 32px 0; }
-  .promises li { display: grid; grid-template-columns: 28px 1fr; gap: 14px; }
+  .promises { grid-template-columns: minmax(0, 1fr); display: grid; gap: 22px; margin: 32px 0; }
+  .promises li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 14px; }
   .promises li > :global(svg) { width: 24px; height: 24px; color: var(--mint); margin-top: 3px; }
   .promises h3 { font-size: 1.12rem; margin-bottom: 4px; }
   .promises p { font-size: 0.96rem; }
 
-  .priv-viz { position: relative; display: grid; place-items: center; padding: 40px 0 0; }
+  .priv-viz { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: 74px 0 0; }
   .pc { width: min(460px, 100%); }
   .pc-screen {
     padding: 18px;
@@ -67,8 +67,8 @@ import Icon from '../Icon.astro';
   .net { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); margin-bottom: 12px; font-size: 0.86rem; }
   .net-l { color: var(--text-3); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.72rem; }
   .net-v b { color: var(--mint); font: 700 1.3rem var(--font-display); margin-right: 4px; }
-  .jobs { display: grid; gap: 8px; }
-  .job { display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); font-size: 0.86rem; }
+  .jobs { grid-template-columns: minmax(0, 1fr); display: grid; gap: 8px; }
+  .job { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); font-size: 0.86rem; }
   .bubble { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line-3); position: relative; }
   .js { color: var(--text-3); font-size: 0.78rem; opacity: 0; }
   :global(.is-in) .job .bubble { animation: work 1.4s var(--ease-out) both; animation-delay: calc(var(--i) * 180ms + 300ms); }
@@ -101,6 +101,11 @@ import Icon from '../Icon.astro';
   .nope::before, .nope::after { content: ''; position: absolute; left: 50%; top: 50%; width: 120%; height: 2px; background: var(--rose); translate: -50% -50%; rotate: 35deg; opacity: 0.7; }
   .nope::after { rotate: -35deg; }
   @media (max-width: 900px) {
-    .priv-grid { grid-template-columns: 1fr; }
+    .priv-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 420px) {
+    .pc-screen { padding: 10px; }
+    .job { grid-template-columns: 22px minmax(0, 1fr); row-gap: 0; padding: 8px 10px; }
+    .js { grid-column: 2; }
   }
 </style>

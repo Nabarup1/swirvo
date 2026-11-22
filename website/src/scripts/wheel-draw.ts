@@ -113,8 +113,11 @@ export function drawWheel(
   return { root, wedges, sub, tabs };
 }
 
+/** The slimmer preset ring for narrow screens; its words run along the arc to fit. */
+export const COMPACT_SUB_OUT = 198;
+
 /** Draws the Best · Balanced · Smallest ring outside wedge `i`. */
-export function drawSub(w: DrawnWheel, i: number, n: number, labels: string[]) {
+export function drawSub(w: DrawnWheel, i: number, n: number, labels: string[], subOut = G.subOut) {
   w.sub.replaceChildren();
   const c = centre(i, n);
   const total = Math.max(span(n), 96);
@@ -123,9 +126,16 @@ export function drawSub(w: DrawnWheel, i: number, n: number, labels: string[]) {
     const a0 = c - total / 2 + k * step;
     const g = el('g', { class: 'wh-p', 'data-k': k }, w.sub);
     g.style.setProperty('--k', String(k));
-    el('path', { d: sector(a0, a0 + step, G.subIn, G.subOut) }, g);
-    const [x, y] = pt(a0 + step / 2, (G.subIn + G.subOut) / 2);
-    const t = el('text', { x: f(x), y: f(y + 4) }, g);
+    el('path', { d: sector(a0, a0 + step, G.subIn, subOut) }, g);
+    const mid = a0 + step / 2;
+    const [x, y] = pt(mid, (G.subIn + subOut) / 2);
+    let at: Record<string, string> = { x: f(x), y: f(y + 4) };
+    if (subOut < G.subOut) {
+      const a = ((mid % 360) + 360) % 360;
+      const upright = a > 90 && a < 270 ? a + 180 : a;
+      at = { y: '4', transform: `translate(${f(x)} ${f(y)}) rotate(${f(upright)})` };
+    }
+    const t = el('text', at, g);
     t.textContent = lab;
   });
   return { a0: c - total / 2, step, count: labels.length };
